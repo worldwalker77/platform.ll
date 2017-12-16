@@ -38,7 +38,7 @@ public class CommonMsgDisPatcher extends BaseMsgDisPatcher{
 				commonGameService.userFeedback(ctx, request, userInfo);
 				break;
 			case heartBeat:
-				channelContainer.sendTextMsgByPlayerIds(new Result(GameTypeEnum.nn.gameType, MsgTypeEnum.heartBeat.msgType), userInfo.getPlayerId());
+				channelContainer.sendTextMsgByPlayerIds(new Result(GameTypeEnum.common.gameType, MsgTypeEnum.heartBeat.msgType), userInfo.getPlayerId());
 				break;
 			case refreshRoom:
 				channelContainer.addChannel(ctx, userInfo.getPlayerId());
