@@ -8,30 +8,31 @@ import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
 
 public class MjRoomInfo extends BaseRoomInfo{
 	/**剩余的牌列表*/
-	private List<Integer> remainderCardList;
-	/**当前出的牌*/
-	private Integer curCardIndex;
-	/**玩家id-吃、碰、明杠、暗杠、听胡、胡-吃的牌索引字符串，碰的牌索引字符串，明杠的牌索引字符串，暗杠的牌索引字符串，听胡、胡默认值0(真正要胡的时候才去判断胡的牌型)*/
-	private LinkedHashMap<Integer, Map<Integer, String>> curPlayerCanDoMap;
+	private List<Integer> tableRemainderCardList;
+	/**上一个操作者出的牌*/
+	private Integer lastCardIndex;
+	/**每个玩家可操作map集合,玩家做了一个操作后，会从这里删除此玩家的可操作权限
+	 * 玩家id-吃、碰、明杠、暗杠、听胡、胡、过、出牌-吃的牌索引字符串，碰的牌索引字符串，明杠的牌索引字符串，暗杠的牌索引字符串，听胡、胡默认值0、出牌默认值0*/
+	private LinkedHashMap<Integer, Map<Integer, String>> playerOperationMap = new LinkedHashMap<Integer, Map<Integer,String>>();
 	
-	public List<Integer> getRemainderCardList() {
-		return remainderCardList;
+	public Integer getLastCardIndex() {
+		return lastCardIndex;
 	}
-	public void setRemainderCardList(List<Integer> remainderCardList) {
-		this.remainderCardList = remainderCardList;
+	public void setLastCardIndex(Integer lastCardIndex) {
+		this.lastCardIndex = lastCardIndex;
 	}
-	public Integer getCurCardIndex() {
-		return curCardIndex;
+	public LinkedHashMap<Integer, Map<Integer, String>> getPlayerOperationMap() {
+		return playerOperationMap;
 	}
-	public void setCurCardIndex(Integer curCardIndex) {
-		this.curCardIndex = curCardIndex;
+	public void setPlayerOperationMap(
+			LinkedHashMap<Integer, Map<Integer, String>> playerOperationMap) {
+		this.playerOperationMap = playerOperationMap;
 	}
-	public LinkedHashMap<Integer, Map<Integer, String>> getCurPlayerCanDoMap() {
-		return curPlayerCanDoMap;
+	public List<Integer> getTableRemainderCardList() {
+		return tableRemainderCardList;
 	}
-	public void setCurPlayerCanDoMap(
-			LinkedHashMap<Integer, Map<Integer, String>> curPlayerCanDoMap) {
-		this.curPlayerCanDoMap = curPlayerCanDoMap;
+	public void setTableRemainderCardList(List<Integer> tableRemainderCardList) {
+		this.tableRemainderCardList = tableRemainderCardList;
 	}
 	
 }

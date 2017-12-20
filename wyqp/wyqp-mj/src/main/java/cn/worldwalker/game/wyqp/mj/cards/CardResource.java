@@ -28,25 +28,20 @@ public class CardResource {
 		return cardList;
 	}
 	
-	public static int[] genHandCards(List<Integer> remainderCardList, int cardNum){
-		int[] handCards = new int[]{
-				0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0-8表示1-9万 */ 
-				0, 0, 0, 0, 0, 0, 0, 0, 0, /* 9-17表示1-9筒 */
-				0, 0, 0, 0, 0, 0, 0, 0, 0, /* 18-26表示1-9条 */
-				0, 0, 0, 0, 0, 0, 0 ,//27-33表示东南西北中发白
-				0, 0, 0, 0, 0, 0, 0 ,0//34-41表示春夏秋冬梅兰竹菊
-		};
+	public static List<Integer> genHandCardList(List<Integer> tableRemainderCardList, int cardNum){
+		List<Integer> handCardList = new ArrayList<Integer>();
 		/**循环摸cardNum张牌*/
 		for(int i = 0; i < cardNum; i++){
-			int tempCardIndex = remainderCardList.remove(0);
-			handCards[tempCardIndex]++;
+			int tempCardIndex = tableRemainderCardList.remove(0);
+			handCardList.add(tempCardIndex);
 		}
-		return handCards;
+		Collections.sort(handCardList);
+		return handCardList;
 	}
 	
 	
 	public static void main(String[] args) {
 		List<Integer> cardList = genOutOrderCardList();
-		System.out.println(JsonUtil.toJson(genHandCards(cardList, 13)));
+		System.out.println(JsonUtil.toJson(genHandCardList(cardList, 13)));
 	}
 }

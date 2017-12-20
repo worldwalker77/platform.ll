@@ -14,6 +14,8 @@ public class BaseRoomInfo {
 	private Integer totalWinnerId;
 	/**当前可操作人id*/
 	private Integer curPlayerId;
+	/**上一个操作人id*/
+	private Integer lastPlayerId;
 	/**庄家id*/
 	private Integer roomBankerId;
 	/**总局数*/
@@ -159,6 +161,14 @@ public class BaseRoomInfo {
 
 	public void setGameType(Integer gameType) {
 		this.gameType = gameType;
+	}
+
+	public Integer getLastPlayerId() {
+		return lastPlayerId;
+	}
+
+	public void setLastPlayerId(Integer lastPlayerId) {
+		this.lastPlayerId = lastPlayerId;
 	}
 
 }

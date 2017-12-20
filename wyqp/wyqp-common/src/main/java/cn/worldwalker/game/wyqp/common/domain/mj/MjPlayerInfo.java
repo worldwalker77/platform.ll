@@ -11,10 +11,17 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private List<Integer> chiCardList;
 	/**已经碰的牌列表*/
 	private List<Integer> pengCardList;
-	/**已经杠的牌列表*/
-	private List<Integer> gangCardList;
+	/**已经明杠的牌列表*/
+	private List<Integer> mingGangCardList;
+	/**已经暗杠的牌列表*/
+	private List<Integer> anGangCardList;
+	/**已经补花牌列表*/
+	private List<Integer> flowerCardList;
 	/**已经打出的牌列表*/
 	private List<Integer> discardCardList;
+	/**当前摸的牌的牌索引*/
+	private Integer curMoPaiCardIndex;
+	
 	public List<Integer> getHandCardList() {
 		return handCardList;
 	}
@@ -33,17 +40,35 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	public void setPengCardList(List<Integer> pengCardList) {
 		this.pengCardList = pengCardList;
 	}
-	public List<Integer> getGangCardList() {
-		return gangCardList;
-	}
-	public void setGangCardList(List<Integer> gangCardList) {
-		this.gangCardList = gangCardList;
-	}
 	public List<Integer> getDiscardCardList() {
 		return discardCardList;
 	}
 	public void setDiscardCardList(List<Integer> discardCardList) {
 		this.discardCardList = discardCardList;
+	}
+	public List<Integer> getMingGangCardList() {
+		return mingGangCardList;
+	}
+	public void setMingGangCardList(List<Integer> mingGangCardList) {
+		this.mingGangCardList = mingGangCardList;
+	}
+	public List<Integer> getAnGangCardList() {
+		return anGangCardList;
+	}
+	public void setAnGangCardList(List<Integer> anGangCardList) {
+		this.anGangCardList = anGangCardList;
+	}
+	public List<Integer> getFlowerCardList() {
+		return flowerCardList;
+	}
+	public void setFlowerCardList(List<Integer> flowerCardList) {
+		this.flowerCardList = flowerCardList;
+	}
+	public Integer getCurMoPaiCardIndex() {
+		return curMoPaiCardIndex;
+	}
+	public void setCurMoPaiCardIndex(Integer curMoPaiCardIndex) {
+		this.curMoPaiCardIndex = curMoPaiCardIndex;
 	}
 	
 }
