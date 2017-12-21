@@ -7,16 +7,11 @@ import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 public class Hulib
 {
 	static Hulib m_hulib = new Hulib();
-	static int indexLine = 31;//31-41表示中发白春夏秋冬梅兰竹菊（花牌），如果要胡牌，必须得牌索引都小于31
+	public static int indexLine = 31;//31-41表示中发白春夏秋冬梅兰竹菊（花牌），如果要胡牌，必须得牌索引都小于31
+	public static int invalidCardInex = 100;
 	public boolean get_hu_info(List<Integer> handCardsList, int curCard, int gui_index)
 	{	
-		/**校验手牌，如果手牌中有31-41的花牌，则不能胡牌*/
 		int size = handCardsList.size();
-		for(int i = 0; i < size; i++){
-			if (handCardsList.get(i) >= indexLine) {
-				return false;
-			}
-		}
 		int[] hand_cards_tmp = new int[indexLine];
 		for(int i = 0; i < size; i++){
 			hand_cards_tmp[handCardsList.get(i)]++;
@@ -176,18 +171,12 @@ public class Hulib
 		return false;
 	}
 
-	boolean check_7dui(List<Integer> handCardsList, int curCard)
+	public static boolean check_7dui(List<Integer> handCardsList, int curCard)
 	{
 		int size = handCardsList.size();
 		/**如果手牌数量小于13则说明吃过牌，不能胡七对*/
 		if (size < 13) {
 			return false;
-		}
-		/**如果手牌中有花牌，也不能胡牌*/
-		for(int i = 0; i < size; i++){
-			if (handCardsList.get(i) >= indexLine) {
-				return false;
-			}
 		}
 		/**将手牌进行格式化*/
 		int[] cards = new int[indexLine];

@@ -21,6 +21,8 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private List<Integer> discardCardList;
 	/**当前摸的牌的牌索引*/
 	private Integer curMoPaiCardIndex;
+	/**是否听胡*/
+	private Integer isTingHu = 0;
 	
 	public List<Integer> getHandCardList() {
 		return handCardList;
@@ -69,6 +71,12 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	}
 	public void setCurMoPaiCardIndex(Integer curMoPaiCardIndex) {
 		this.curMoPaiCardIndex = curMoPaiCardIndex;
+	}
+	public Integer getIsTingHu() {
+		return isTingHu;
+	}
+	public void setIsTingHu(Integer isTingHu) {
+		this.isTingHu = isTingHu;
 	}
 	
 }
