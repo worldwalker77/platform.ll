@@ -12,7 +12,7 @@ public class MjRoomInfo extends BaseRoomInfo{
 	/**上一个操作者出的牌*/
 	private Integer lastCardIndex;
 	/**每个玩家可操作map集合,玩家做了一个操作后，会从这里删除此玩家的可操作权限
-	 * 玩家id-吃、碰、明杠、暗杠、听胡、胡、过、出牌-吃的牌索引字符串，碰的牌索引字符串，明杠的牌索引字符串，暗杠的牌索引字符串，听胡、胡默认值0、出牌默认值0*/
+	 * 玩家id-1吃、2碰、3明杠、4暗杠、5听胡、6胡-吃的牌索引字符串，碰的牌索引字符串，明杠的牌索引字符串，暗杠的牌索引字符串，听胡、胡默认值0*/
 	private LinkedHashMap<Integer, Map<Integer, String>> playerOperationMap = new LinkedHashMap<Integer, Map<Integer,String>>();
 	
 	public Integer getLastCardIndex() {
