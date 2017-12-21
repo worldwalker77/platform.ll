@@ -99,6 +99,8 @@ public class Constant {
 	public static final String UPDATE_RUL = "http://" + domain + clientFileUnrarFolder  + "VERSION";//"D:/test/";
 	
 	public static final String CODE_URL = "http://" + domain + clientFileUnrarFolder + "VERSION/game_code_VERSION.zip";//"D:/test/";
+	
+	public static final String mjTablePath = "C:/Users/jinfeng.liu/Desktop/game/tables/";
 
 
 }

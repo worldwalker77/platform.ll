@@ -20,14 +20,22 @@ public class CardResource {
 			}
 		}
 	}
-	
-	public static List<Integer> genOutOrderCardList(){
+	/**
+	 * 生成桌牌列表，乱序
+	 * @return
+	 */
+	public static List<Integer> genTableOutOrderCardList(){
 		List<Integer> cardList = new ArrayList<Integer>();
 		cardList.addAll(orderCardList);
 		Collections.shuffle(cardList);
 		return cardList;
 	}
-	
+	/**
+	 * 生成玩家手牌列表
+	 * @param tableRemainderCardList
+	 * @param cardNum 需要生成牌的数量
+	 * @return
+	 */
 	public static List<Integer> genHandCardList(List<Integer> tableRemainderCardList, int cardNum){
 		List<Integer> handCardList = new ArrayList<Integer>();
 		/**循环摸cardNum张牌*/
@@ -35,13 +43,14 @@ public class CardResource {
 			int tempCardIndex = tableRemainderCardList.remove(0);
 			handCardList.add(tempCardIndex);
 		}
+		/**排序*/
 		Collections.sort(handCardList);
 		return handCardList;
 	}
 	
 	
 	public static void main(String[] args) {
-		List<Integer> cardList = genOutOrderCardList();
+		List<Integer> cardList = genTableOutOrderCardList();
 		System.out.println(JsonUtil.toJson(genHandCardList(cardList, 13)));
 	}
 }
