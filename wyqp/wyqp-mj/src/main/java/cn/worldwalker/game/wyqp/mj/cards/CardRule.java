@@ -66,6 +66,13 @@ public class CardRule {
 						map1.put(MjOperationEnum.chi.type, chiStr);
 					}
 				}
+				int len = handCardList.size();
+				int[] cards = new int[Hulib.indexLine];
+				for(int j = 0; j < len; j++){
+					if (handCardList.get(j) < Hulib.indexLine) {
+						cards[handCardList.get(j)]++;
+					}
+				}
 				/**判断玩家是否可以碰牌*/
 				
 				
@@ -80,6 +87,14 @@ public class CardRule {
 				}
 			}
 		}
+		return null;
+	}
+	/**
+	 * 摸牌后的补花操作
+	 * @return
+	 */
+	public static String checkAddFlower(){
+		
 		return null;
 	}
 	/**
@@ -156,6 +171,66 @@ public class CardRule {
 		}
 		return chiStr;
 	}
+	
+	public static String checkPeng(int[] cards, Integer cardIndex, int isTingHu){
+		String pengStr = "";
+		/**没听胡才可以碰牌*/
+		if (isTingHu == 0) {
+			for(int i = 0; i < Hulib.indexLine; i++){
+				/**手牌中有数量为3个或者两个的牌才可以碰*/
+				if (cards[i]%4 == 3 || cards[i]%4 == 2) {
+					if (cardIndex == i) {
+						pengStr += i + "," + i + "_";
+					}
+				}
+			}
+		}
+		return pengStr;
+	}
+	/**
+	 * 检查手牌是否可以杠，明杠还是暗杠根据是摸牌还是出牌来定
+	 * @param cards 手牌
+	 * @param cardIndex 当前出的牌或者摸的牌
+	 * @return
+	 */
+	public static String checkGang(int[] cards, Integer cardIndex){
+		String gangStr = "";
+		for(int i = 0; i < Hulib.indexLine; i++){
+			/**手牌中有数量为3个才可以杠*/
+			if (cards[i]%4 == 3) {
+				if (cardIndex == i) {
+					gangStr += i + "," + i + "_";
+				}
+			}
+		}
+		return gangStr;
+	}
+	/**
+	 * 摸牌后检查是否有明杠
+	 * @param pengCardList 碰的牌列表
+	 * @param cardIndex 当前摸的牌
+	 * @return
+	 */
+	public static String checkMingGangByMoPai(List<Integer> pengCardList, Integer cardIndex){
+		String pengStr = "";
+		int size = pengCardList.size();
+		if (size == 0) {
+			return pengStr;
+		}
+		/**计算有几碰*/
+		int count = size/3;
+		for(int i = 0; i < count; i++){
+			int temp = pengCardList.get(i*3);
+			if (i == count - 1) {
+				pengStr += temp + "," + temp + "," + temp;
+			}else{
+				pengStr += temp + "," + temp + "," + temp + "_";
+			}
+		}
+		return pengStr;
+	}
+	
+	
 	/**
 	 * 判断当前已经出牌的玩家是否可以听胡
 	 * @param handCardList
