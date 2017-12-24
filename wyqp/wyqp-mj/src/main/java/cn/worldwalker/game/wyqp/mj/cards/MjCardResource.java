@@ -6,7 +6,7 @@ import java.util.List;
 
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 
-public class CardResource {
+public class MjCardResource {
 	
 	private static List<Integer> orderCardList = new ArrayList<Integer>();
 	static{
@@ -47,7 +47,9 @@ public class CardResource {
 		Collections.sort(handCardList);
 		return handCardList;
 	}
-	
+	public static Integer mopai(List<Integer> tableRemainderCardList){
+		return tableRemainderCardList.remove(0);
+	}
 	
 	public static void main(String[] args) {
 		List<Integer> cardList = genTableOutOrderCardList();

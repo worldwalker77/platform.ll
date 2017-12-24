@@ -30,6 +30,15 @@ public class GameUtil {
         int s = random.nextInt(max)%(max-min+1) + min;
 		return s;
 	}
+	
+	public static Integer genDice(){
+		int max=6;
+		int min=1;
+        Random random = new Random();
+        int s = random.nextInt(max)%(max-min+1) + min;
+		return s;
+	}
+	
 	public static String genToken(Integer playerId){
 		String temp = playerId + System.currentTimeMillis() + Thread.currentThread().getName();
 		return MD5Util1.encryptByMD5(temp);

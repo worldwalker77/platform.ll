@@ -1,5 +1,6 @@
 package cn.worldwalker.game.wyqp.common.domain.mj;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.worldwalker.game.wyqp.common.domain.base.BasePlayerInfo;
@@ -8,22 +9,30 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	/**玩家手上的牌*/
 	private List<Integer> handCardList;
 	/**已经吃的牌列表*/
-	private List<Integer> chiCardList;
+	private List<Integer> chiCardList = new ArrayList<Integer>();
 	/**已经碰的牌列表*/
-	private List<Integer> pengCardList;
+	private List<Integer> pengCardList = new ArrayList<Integer>();
 	/**已经明杠的牌列表*/
-	private List<Integer> mingGangCardList;
+	private List<Integer> mingGangCardList = new ArrayList<Integer>();
 	/**已经暗杠的牌列表*/
-	private List<Integer> anGangCardList;
+	private List<Integer> anGangCardList = new ArrayList<Integer>();
 	/**已经补花牌列表*/
-	private List<Integer> flowerCardList;
+	private List<Integer> flowerCardList = new ArrayList<Integer>();
 	/**已经打出的牌列表*/
-	private List<Integer> discardCardList;
+	private List<Integer> discardCardList = new ArrayList<Integer>();
 	/**当前摸的牌的牌索引*/
 	private Integer curMoPaiCardIndex;
 	/**是否听胡*/
 	private Integer isTingHu = 0;
+	/**当前操作补花数*/
+	private Integer curAddFlowerNum = 0;
 	
+	public Integer getCurAddFlowerNum() {
+		return curAddFlowerNum;
+	}
+	public void setCurAddFlowerNum(Integer curAddFlowerNum) {
+		this.curAddFlowerNum = curAddFlowerNum;
+	}
 	public List<Integer> getHandCardList() {
 		return handCardList;
 	}
