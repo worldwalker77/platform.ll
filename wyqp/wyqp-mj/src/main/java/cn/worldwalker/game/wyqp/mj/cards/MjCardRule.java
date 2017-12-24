@@ -47,6 +47,10 @@ public class MjCardRule {
 		}
 		return maxPriorityPlayerId;
 	}
+	public static TreeMap<Integer, String> getPlayerHighestPriority(MjRoomInfo roomInfo, Integer playerId){
+		LinkedHashMap<Integer, TreeMap<Integer, String>> allPlayerOperations = roomInfo.getPlayerOperationMap();
+		return allPlayerOperations.get(playerId);
+	}
 	/**
 	 * 摇色子
 	 * @return
@@ -56,6 +60,12 @@ public class MjCardRule {
 		list.add(GameUtil.genDice());
 		list.add(GameUtil.genDice());
 		return list;
+	}
+	
+	public static Integer getRealMoPai(String moPaiAddFlower){
+		String[] ar = moPaiAddFlower.split(",");
+		int len = ar.length;
+		return Integer.valueOf(ar[len - 1]);
 	}
 	
 	/**
@@ -82,7 +92,7 @@ public class MjCardRule {
 			}
 		}
 		List<Integer> handCardList = curPlayer.getHandCardList();
-		if (type == 0) {
+		if (type == 0) {/**初始化手牌列表时的校验*/
 			/**格式化手牌*/
 			int len = handCardList.size();
 			int[] cards = new int[Hulib.indexLine];
@@ -97,6 +107,7 @@ public class MjCardRule {
 			if (checkHu(curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, "1");
 			}
+			operations.put(curPlayer.getPlayerId(), map);
 		}else if (type == 1) {/**如果是摸牌，则要判断摸牌的人是否可以明杠、暗杠、胡牌**/
 			TreeMap<Integer, String> map = new TreeMap<Integer, String>();
 			/**格式化手牌*/
@@ -117,11 +128,25 @@ public class MjCardRule {
 			if (StringUtils.isNotBlank(anGangStr)) {
 				map.put(MjOperationEnum.anGang.type, anGangStr);
 			}
+			/**之前放弃杠的牌再次校验**/
+			TreeMap<Integer, String> handCardMap = checkHandCardGang(cards, curPlayer.getPengCardList());
+			/**将杠合并，如果有*/
+			if (StringUtils.isNotBlank(map.get(MjOperationEnum.mingGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.mingGang.type))) {
+				map.put(MjOperationEnum.mingGang.type, map.get(MjOperationEnum.mingGang.type) + "_" + handCardMap.get(MjOperationEnum.mingGang.type));
+			}else if(StringUtils.isBlank(map.get(MjOperationEnum.mingGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.mingGang.type))){
+				map.put(MjOperationEnum.mingGang.type, handCardMap.get(MjOperationEnum.mingGang.type));
+			}
+			if (StringUtils.isNotBlank(map.get(MjOperationEnum.anGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.anGang.type))) {
+				map.put(MjOperationEnum.anGang.type, map.get(MjOperationEnum.anGang.type) + "_" + handCardMap.get(MjOperationEnum.anGang.type));
+			}else if(StringUtils.isBlank(map.get(MjOperationEnum.anGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.anGang.type))){
+				map.put(MjOperationEnum.anGang.type, handCardMap.get(MjOperationEnum.anGang.type));
+			}
+			
 			/**胡牌校验*/
 			if (checkHu(curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, "1");
 			}
-			
+			operations.put(curPlayer.getPlayerId(), map);
 		}else{/**如果是出牌，则需要判断出牌人是否可以听胡，并依次判断其他的玩家是否可以吃、碰、明杠、胡**/
 			/**听牌校验(只针对当前出牌的玩家，因为需要通知玩家听牌)*/
 			if (curPlayer.getIsTingHu() == 0) {

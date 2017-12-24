@@ -146,8 +146,6 @@ public class MjGameService extends BaseGameService{
 	
 	public void chuPai(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
 		Result result = new Result();
-		Map<String, Object> data = new HashMap<String, Object>();
-		result.setData(data);
 		MjMsg msg = (MjMsg)request.getMsg();
 		Integer roomId = userInfo.getRoomId();
 		Integer playerId = userInfo.getPlayerId();
@@ -160,6 +158,9 @@ public class MjGameService extends BaseGameService{
 		if (!RoomStatusEnum.inGame.status.equals(roomInfo.getStatus())) {
 			throw new BusinessException(ExceptionEnum.PLAYER_NOT_IN_ROOM);
 		}
+		if (!roomInfo.getCurPlayerId().equals(playerId)) {
+			throw new BusinessException(ExceptionEnum.IS_NOT_YOUR_TURN);
+		}
 		/**计算房间可操作权限*/
 		MjCardRule.calculateAllPlayerOperations(roomInfo, msg.getCardIndex(), playerId, 2);
 		/**获取当前操作权限的玩家*/
@@ -168,28 +169,169 @@ public class MjGameService extends BaseGameService{
 		if (curPlayerId == null) {
 			curPlayerId = GameUtil.getNextPlayerId(playerList, playerId);
 			/**摸牌并校验补花*/
-			MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
-			String moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), player);
-			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+			MjPlayerInfo curPlayer = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), curPlayerId);
+			/**将玩家当前轮补花数设置为0*/
+			curPlayer.setCurAddFlowerNum(0);
+			String moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
 			if (StringUtils.isNotBlank(handCardAddFlower)) {
-				handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
+				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
-			/**给摸牌的玩家返回信息*/
 			
+			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			for(MjPlayerInfo tempPlayer : playerList){
+				if (tempPlayer.getPlayerId().equals(curPlayerId)) {
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					data.put("moPaiAddFlower", moPaiAddFlower);
+					if (StringUtils.isNotBlank(handCardAddFlower)) {
+						data.put("handCardAddFlower", handCardAddFlower);
+					}
+					data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+					result.setMsgType(MsgTypeEnum.moPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+				}else{
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					result.setMsgType(MsgTypeEnum.chuPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+					
+					
+					/**给其他的玩家返回补花数*/
+					data.clear();
+					data.put("curPlayerId", curPlayerId);
+					data.put("addFlowerCount", curPlayer.getCurAddFlowerNum());
+					result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+				}
+			}
 		}else{
-			
+			for(MjPlayerInfo tempPlayer : playerList){
+				if (tempPlayer.getPlayerId().equals(curPlayerId)) {
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+					result.setMsgType(MsgTypeEnum.chuPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+				}else{
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					result.setMsgType(MsgTypeEnum.chuPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+				}
+			}
 		}
-		
 		roomInfo.setUpdateTime(new Date());
 		redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
-		result.setMsgType(MsgTypeEnum.chuPai.msgType);
-		
-		data.put("playerId", msg.getPlayerId());
-		channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
-		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
+	}
+	
+	public void chi(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
+		Result result = new Result();
+		MjMsg msg = (MjMsg)request.getMsg();
+		Integer roomId = userInfo.getRoomId();
+		Integer playerId = userInfo.getPlayerId();
+		MjRoomInfo roomInfo = redisOperationService.getRoomInfoByRoomId(roomId, MjRoomInfo.class);
+		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
+		if (!GameUtil.isExistPlayerInRoom(msg.getPlayerId(), playerList)) {
+			throw new BusinessException(ExceptionEnum.PLAYER_NOT_IN_ROOM);
+		}
+		/**如果当前房间的状态不是在游戏中，则不处理此请求*/
+		if (!RoomStatusEnum.inGame.status.equals(roomInfo.getStatus())) {
+			throw new BusinessException(ExceptionEnum.PLAYER_NOT_IN_ROOM);
+		}
+		if (!roomInfo.getCurPlayerId().equals(playerId)) {
+			throw new BusinessException(ExceptionEnum.IS_NOT_YOUR_TURN);
+		}
+		/**计算房间可操作权限*/
+		MjCardRule.calculateAllPlayerOperations(roomInfo, msg.getCardIndex(), playerId, 2);
+		/**获取当前操作权限的玩家*/
+		Integer curPlayerId = MjCardRule.getPlayerHighestPriorityPlayerId(roomInfo);
+		/**如果此张出的牌，别的玩家都不需要，则下家摸牌*/
+		if (curPlayerId == null) {
+			curPlayerId = GameUtil.getNextPlayerId(playerList, playerId);
+			/**摸牌并校验补花*/
+			MjPlayerInfo curPlayer = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), curPlayerId);
+			/**将玩家当前轮补花数设置为0*/
+			curPlayer.setCurAddFlowerNum(0);
+			String moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+			if (StringUtils.isNotBlank(handCardAddFlower)) {
+				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
+			}
+			
+			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			for(MjPlayerInfo tempPlayer : playerList){
+				if (tempPlayer.getPlayerId().equals(curPlayerId)) {
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					data.put("moPaiAddFlower", moPaiAddFlower);
+					if (StringUtils.isNotBlank(handCardAddFlower)) {
+						data.put("handCardAddFlower", handCardAddFlower);
+					}
+					data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+					result.setMsgType(MsgTypeEnum.moPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+				}else{
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					result.setMsgType(MsgTypeEnum.chuPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+					
+					
+					/**给其他的玩家返回补花数*/
+					data.clear();
+					data.put("curPlayerId", curPlayerId);
+					data.put("addFlowerCount", curPlayer.getCurAddFlowerNum());
+					result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+				}
+			}
+		}else{
+			for(MjPlayerInfo tempPlayer : playerList){
+				if (tempPlayer.getPlayerId().equals(curPlayerId)) {
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+					result.setMsgType(MsgTypeEnum.chuPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+				}else{
+					Map<String, Object> data = new HashMap<String, Object>();
+					result.setData(data);
+					data.put("playerId", playerId);
+					data.put("cardIndex", msg.getCardIndex());
+					data.put("curPlayerId", curPlayerId);
+					result.setMsgType(MsgTypeEnum.chuPai.msgType);
+					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+				}
+			}
+		}
+		roomInfo.setUpdateTime(new Date());
+		redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 	}
 
-
+	
+	
 	@Override
 	public List<BaseRoomInfo> doRefreshRoom(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
 		return null;
