@@ -51,6 +51,22 @@ public class MjCardRule {
 		LinkedHashMap<Integer, TreeMap<Integer, String>> allPlayerOperations = roomInfo.getPlayerOperationMap();
 		return allPlayerOperations.get(playerId);
 	}
+	
+	public static boolean checkCurOperationValid(MjRoomInfo roomInfo, Integer playerId, Integer operationType, String operationStr){
+		LinkedHashMap<Integer, TreeMap<Integer, String>> allOperations = roomInfo.getPlayerOperationMap();
+		if (allOperations == null || allOperations.size() == 0) {
+			return false;
+		}
+		TreeMap<Integer, String> curOperation = allOperations.get(playerId);
+		if (curOperation == null || curOperation.size() == 0) {
+			return false;
+		}
+		String existOperationStr = curOperation.get(operationType);
+		if (!operationStr.equals(existOperationStr)) {
+			return false;
+		}
+		return true;
+	}
 	/**
 	 * 摇色子
 	 * @return

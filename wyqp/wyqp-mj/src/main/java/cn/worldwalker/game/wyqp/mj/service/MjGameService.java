@@ -28,6 +28,7 @@ import cn.worldwalker.game.wyqp.common.service.BaseGameService;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardResource;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardRule;
+import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjRoomStatusEnum;
 @Service(value="mjGameService")
@@ -253,6 +254,10 @@ public class MjGameService extends BaseGameService{
 		}
 		if (!roomInfo.getCurPlayerId().equals(playerId)) {
 			throw new BusinessException(ExceptionEnum.IS_NOT_YOUR_TURN);
+		}
+		/**校验玩家是否有吃操作权限*/
+		if (!MjCardRule.checkCurOperationValid(roomInfo, playerId, MjOperationEnum.chi.type, msg.getChiCards())) {
+			throw new BusinessException(ExceptionEnum.NO_AUTHORITY);
 		}
 		/**计算房间可操作权限*/
 		MjCardRule.calculateAllPlayerOperations(roomInfo, msg.getCardIndex(), playerId, 2);

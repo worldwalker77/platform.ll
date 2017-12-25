@@ -29,7 +29,8 @@ public enum ExceptionEnum {
     GIVE_AWAY_ROOM_CARD_FAIL(23, "赠送房卡失败"),
     /**斗牛100-199*/
     
-    /**斗牛200-299*/
+    /**麻将200-299*/
+    NO_AUTHORITY(201, "没有此权限"),
 	/**金花300-399*/
     IS_NOT_YOUR_TURN(300, "抱歉，还没轮到你说话"),
 	STAKE_SCORE_ERROR_1(301, "你的跟注分数必须大于或等于前一个玩家"),

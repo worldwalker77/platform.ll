@@ -19,6 +19,29 @@ public class MjMsg extends BaseMsg{
 	private Integer eachFlowerScore = 0;
 	/**胡牌封顶分数*/
 	private Integer huScoreLimit = 0;
+	
+	private String chiCards;
+	private String pengCards;
+	private String gangCards;
+	
+	public String getChiCards() {
+		return chiCards;
+	}
+	public void setChiCards(String chiCards) {
+		this.chiCards = chiCards;
+	}
+	public String getPengCards() {
+		return pengCards;
+	}
+	public void setPengCards(String pengCards) {
+		this.pengCards = pengCards;
+	}
+	public String getGangCards() {
+		return gangCards;
+	}
+	public void setGangCards(String gangCards) {
+		this.gangCards = gangCards;
+	}
 	public Integer getMjType() {
 		return mjType;
 	}
