@@ -49,6 +49,9 @@ public class MjCardRule {
 	}
 	public static TreeMap<Integer, String> getPlayerHighestPriority(MjRoomInfo roomInfo, Integer playerId){
 		LinkedHashMap<Integer, TreeMap<Integer, String>> allPlayerOperations = roomInfo.getPlayerOperationMap();
+		if (allPlayerOperations == null || allPlayerOperations.size() == 0) {
+			return null;
+		}
 		return allPlayerOperations.get(playerId);
 	}
 	
@@ -84,27 +87,86 @@ public class MjCardRule {
 		return Integer.valueOf(ar[len - 1]);
 	}
 	
-	public static void moveOperationCards(MjRoomInfo roomInfo, MjPlayerInfo player, MjOperationEnum operationType, String operationStr){
-		
+	public static List<Integer> moveOperationCards(MjRoomInfo roomInfo, MjPlayerInfo player, MjOperationEnum operationType, String operationStr){
+		List<Integer> operationList = new  ArrayList<Integer>();
 		String[] strArr = operationStr.split(",");
 		int len = strArr.length;
+		MjPlayerInfo lastPlayer = getPlayerInfoByPlayerId(roomInfo.getPlayerList(), roomInfo.getLastPlayerId());
+		List<Integer> lastPlayerDiscardCardList = lastPlayer.getDiscardCardList();
+		List<Integer> handCardList = player.getHandCardList();
 		switch (operationType) {
 		case chi:
-			
+			operationList.add(Integer.valueOf(strArr[0]));
+			operationList.add(Integer.valueOf(strArr[1]));
+			operationList.add(roomInfo.getLastCardIndex());
+			/**将吃牌的两张牌从手牌中移出*/
+			handCardList.remove(operationList.get(0));
+			handCardList.remove(operationList.get(1));
+			Collections.sort(operationList);
+			/**吃牌加入吃牌列表*/
+			player.getChiCardList().addAll(operationList);
+			/**将打出的那张牌移出已经出牌列表*/
+			lastPlayerDiscardCardList.remove(lastPlayerDiscardCardList.size() - 1);
 			break;
 		case peng:
+			Integer pengCardIndex = Integer.valueOf(strArr[0]);
+			handCardList.remove(pengCardIndex);
+			handCardList.remove(pengCardIndex);
+			List<Integer> pengCardList = player.getPengCardList();
+			pengCardList.add(pengCardIndex);
+			pengCardList.add(pengCardIndex);
+			pengCardList.add(pengCardIndex);
+			lastPlayerDiscardCardList.remove(lastPlayerDiscardCardList.size() - 1);
 			
+			operationList.add(pengCardIndex);
+			operationList.add(pengCardIndex);
+			operationList.add(pengCardIndex);
 			break;
 		case mingGang:
-	
+			Integer mingGangCardIndex = Integer.valueOf(strArr[0]);
+			List<Integer> mingGangCardList = player.getMingGangCardList();
+			/**如果是摸牌后的明杠*/
+			if (handCardList.size()%3 == 2) {
+				handCardList.remove(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
+				Collections.sort(mingGangCardList);
+			}else{/**如果是别人打的牌的明杠*/
+				/**从玩家手牌列表中移出三张杠牌*/
+				handCardList.remove(mingGangCardIndex);
+				handCardList.remove(mingGangCardIndex);
+				handCardList.remove(mingGangCardIndex);
+				/**从出牌玩家已经出牌列表中移出此张牌*/
+				lastPlayerDiscardCardList.remove(lastPlayerDiscardCardList.size() - 1);
+				/**将4张杠牌放入杠牌列表*/
+				mingGangCardList.add(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
+			}
+			operationList.add(mingGangCardIndex);
+			operationList.add(mingGangCardIndex);
+			operationList.add(mingGangCardIndex);
+			operationList.add(mingGangCardIndex);
 			break;
 		case anGang:
-			
+			Integer anGangCardIndex = Integer.valueOf(strArr[0]);
+			List<Integer> anGangCardList = player.getMingGangCardList();
+			/**将4张杠牌从手牌中移出*/
+			handCardList.remove(anGangCardIndex);
+			handCardList.remove(anGangCardIndex);
+			handCardList.remove(anGangCardIndex);
+			handCardList.remove(anGangCardIndex);
+			/***将4张杠牌加入暗杠列表*/
+			anGangCardList.add(anGangCardIndex);
+			anGangCardList.add(anGangCardIndex);
+			anGangCardList.add(anGangCardIndex);
+			anGangCardList.add(anGangCardIndex);
 			break;
 
 		default:
 			break;
 		}
+		return operationList;
 	}
 	
 	/**
@@ -131,7 +193,7 @@ public class MjCardRule {
 			}
 		}
 		List<Integer> handCardList = curPlayer.getHandCardList();
-		if (type == 0) {/**初始化手牌列表时的校验*/
+		if (type == 0) {/**手牌列表校验*/
 			/**格式化手牌*/
 			int len = handCardList.size();
 			int[] cards = new int[Hulib.indexLine];
@@ -603,7 +665,7 @@ public class MjCardRule {
 			return isHu;
 		}
 		List<Integer> handCardList = player.getHandCardList();
-		/**如果是开始庄家判胡*/
+		
 		if (cardIndex == null) {
 			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, Hulib.invalidCardInex);
 		}else{
