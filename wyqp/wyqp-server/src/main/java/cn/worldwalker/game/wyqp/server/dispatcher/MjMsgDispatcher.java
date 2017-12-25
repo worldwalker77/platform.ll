@@ -48,13 +48,6 @@ public class MjMsgDispatcher extends BaseMsgDisPatcher {
 		case userRecord:
 			mjGameService.userRecord(ctx, request, userInfo);
 			break;
-			
-		case initHandCards:
-			mjGameService.initHandCards(ctx, request, userInfo);
-			break;
-		case moPai:
-			mjGameService.moPai(ctx, request, userInfo);
-			break;
 		case chuPai:
 			mjGameService.chuPai(ctx, request, userInfo);
 			break;
@@ -75,9 +68,6 @@ public class MjMsgDispatcher extends BaseMsgDisPatcher {
 			break;
 		case huPai:
 			mjGameService.huPai(ctx, request, userInfo);
-			break;
-		case addFlowerNotice:
-			mjGameService.addFlowerNotice(ctx, request, userInfo);
 			break;
 		case pass:
 			mjGameService.pass(ctx, request, userInfo);
