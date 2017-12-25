@@ -84,6 +84,29 @@ public class MjCardRule {
 		return Integer.valueOf(ar[len - 1]);
 	}
 	
+	public static void moveOperationCards(MjRoomInfo roomInfo, MjPlayerInfo player, MjOperationEnum operationType, String operationStr){
+		
+		String[] strArr = operationStr.split(",");
+		int len = strArr.length;
+		switch (operationType) {
+		case chi:
+			
+			break;
+		case peng:
+			
+			break;
+		case mingGang:
+	
+			break;
+		case anGang:
+			
+			break;
+
+		default:
+			break;
+		}
+	}
+	
 	/**
 	 * 摸牌或者出牌的时候，依次计算每个玩家的可操作权限
 	 * @param list
