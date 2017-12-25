@@ -588,4 +588,8 @@ public class MjCardRule {
 		}
 		return isHu;
 	}
+	
+	public static void moveCardsFromHandCards(){
+		
+	}
 }

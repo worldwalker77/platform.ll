@@ -26,6 +26,7 @@ import cn.worldwalker.game.wyqp.common.exception.ExceptionEnum;
 import cn.worldwalker.game.wyqp.common.result.Result;
 import cn.worldwalker.game.wyqp.common.service.BaseGameService;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
+import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardResource;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardRule;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
@@ -259,6 +260,9 @@ public class MjGameService extends BaseGameService{
 		if (!MjCardRule.checkCurOperationValid(roomInfo, playerId, MjOperationEnum.chi.type, msg.getChiCards())) {
 			throw new BusinessException(ExceptionEnum.NO_AUTHORITY);
 		}
+		/**将吃的牌从手牌列表中移动到吃牌列表中*/
+		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
+		
 		/**计算房间可操作权限*/
 		MjCardRule.calculateAllPlayerOperations(roomInfo, msg.getCardIndex(), playerId, 2);
 		/**获取当前操作权限的玩家*/
@@ -335,7 +339,17 @@ public class MjGameService extends BaseGameService{
 		redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 	}
 
-	
+	public static void main(String[] args) {
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(1);
+		list.add(1);
+		list.add(2);
+		list.add(2);
+		list.add(3);
+		list.add(3);
+		list.remove(1);
+		System.out.println(JsonUtil.toJson(list));
+	}
 	
 	@Override
 	public List<BaseRoomInfo> doRefreshRoom(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
