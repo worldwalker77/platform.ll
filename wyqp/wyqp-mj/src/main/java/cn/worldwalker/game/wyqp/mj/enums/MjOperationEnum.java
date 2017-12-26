@@ -6,8 +6,8 @@ public enum MjOperationEnum {
 	peng(2, "碰"),
 	mingGang(3, "明杠"),
 	anGang(4, "暗杠"),
-	tingHu(5, "听胡"),
-	hu(6, "胡");
+	hu(5, "胡"),
+	tingHu(6, "听胡");
 	public Integer type;
 	public String desc;
 	

@@ -22,6 +22,10 @@ import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 public class MjCardRule {
 	
+	public static void delPlayerOperationByPlayerId(MjRoomInfo roomInfo, Integer playerId){
+		roomInfo.getPlayerOperationMap().remove(playerId);
+	}
+	
 	/**
 	 * 从玩家可操作权限列表里面获取具有最高操作权限的玩家id
 	 * 优先级顺序为：听胡>胡>杠、碰>吃
