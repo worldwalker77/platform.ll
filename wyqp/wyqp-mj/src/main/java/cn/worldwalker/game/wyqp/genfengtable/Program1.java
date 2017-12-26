@@ -1,9 +1,8 @@
-﻿package cn.worldwalker.game.wyqp.genfengtable;
+package cn.worldwalker.game.wyqp.genfengtable;
 
 import java.util.HashMap;
 
-public class Program
-{
+public class Program1 {
 	static HashMap<Integer, Boolean>[] gui_tested = new HashMap[9];
 	static HashMap<Integer, Boolean>[] gui_eye_tested = new HashMap[9];
 
