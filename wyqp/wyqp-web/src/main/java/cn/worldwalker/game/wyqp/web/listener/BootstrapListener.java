@@ -5,9 +5,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import cn.worldwalker.game.wyqp.common.utils.ApplicationContextUtil;
+import cn.worldwalker.game.wyqp.mj.huvalidate.TableMgr;
 import cn.worldwalker.game.wyqp.server.dispatcher.BaseMsgDisPatcher;
-import cn.worldwalker.game.wyqp.web.job.AccessTokenRefreshJob;
 
 @Component
 public class BootstrapListener implements ApplicationListener<ContextRefreshedEvent>  {
@@ -15,6 +14,6 @@ public class BootstrapListener implements ApplicationListener<ContextRefreshedEv
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
     	log.info("spring context refresh! -^-^-");
-        AccessTokenRefreshJob accessTokenRefreshJob = ApplicationContextUtil.ctx.getBean(AccessTokenRefreshJob.class);
+    	TableMgr.getInstance().load();
     }
 }

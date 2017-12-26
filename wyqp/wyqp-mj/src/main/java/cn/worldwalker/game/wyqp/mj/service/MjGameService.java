@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.struts.tiles.xmlDefinition.I18nFactorySet;
 import org.springframework.stereotype.Service;
 
+import cn.worldwalker.game.wyqp.common.domain.base.BaseMsg;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRequest;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
 import cn.worldwalker.game.wyqp.common.domain.base.UserInfo;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjMsg;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
-import cn.worldwalker.game.wyqp.common.domain.nn.NnRoomInfo;
 import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.enums.GameTypeEnum;
 import cn.worldwalker.game.wyqp.common.enums.MsgTypeEnum;
@@ -41,6 +40,7 @@ public class MjGameService extends BaseGameService{
 	public BaseRoomInfo doCreateRoom(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
 		MjMsg msg = (MjMsg)request.getMsg();
 		MjRoomInfo roomInfo = new MjRoomInfo();
+		roomInfo.setRoomBankerId(msg.getPlayerId());
 		roomInfo.setGameType(GameTypeEnum.mj.gameType);
 		roomInfo.setIsKaiBao(msg.getIsKaiBao());
 		roomInfo.setIsHuangFan(msg.getIsHuangFan());
@@ -56,8 +56,8 @@ public class MjGameService extends BaseGameService{
 
 	@Override
 	public BaseRoomInfo doEntryRoom(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
-		
-		MjRoomInfo roomInfo = redisOperationService.getRoomInfoByRoomId(userInfo.getRoomId(), MjRoomInfo.class);
+		BaseMsg msg = request.getMsg();
+		MjRoomInfo roomInfo = redisOperationService.getRoomInfoByRoomId(msg.getRoomId(), MjRoomInfo.class);
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		MjPlayerInfo playerInfo = new MjPlayerInfo();
 		playerList.add(playerInfo);
@@ -121,18 +121,31 @@ public class MjGameService extends BaseGameService{
 						handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
 					}
 					/**计算房间可操作权限*/
-					MjCardRule.calculateAllPlayerOperations(roomInfo, null, playerId, 0);
+					MjCardRule.calculateAllPlayerOperations(roomInfo, null, player.getPlayerId(), 0);
 					data.put("handCardList", handCardListBeforeAddFlower);
-					data.put("handCardAddFlower", handCardAddFlower);
-					data.put("operations", roomInfo.getPlayerOperationMap().get(playerId));
-					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+					if (StringUtils.isNotBlank(handCardAddFlower)) {
+						data.put("handCardAddFlower", handCardAddFlower);
+					}
+					if (MjCardRule.getPlayerHighestPriority(roomInfo, player.getPlayerId()) != null) {
+						data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, player.getPlayerId()));
+					}
+					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}else{/**闲家发13张牌*/
 					player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
 					data.put("handCardList", player.getHandCardList());
-					channelContainer.sendTextMsgByPlayerIds(result, playerId);
+					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}
 				/**设置每个玩家的解散房间状态为不同意解散，后面大结算返回大厅的时候回根据此状态判断是否解散房间*/
 				player.setDissolveStatus(DissolveStatusEnum.disagree.status);
+			}
+			MjPlayerInfo roomBankPlayer = MjCardRule.getPlayerInfoByPlayerId(playerList, roomInfo.getRoomBankerId());
+			/**给其他的玩家返回补花数*/
+			if (roomBankPlayer.getCurAddFlowerNum() > 0) {
+				data.clear();
+				data.put("curPlayerId", roomBankPlayer.getPlayerId());
+				data.put("addFlowerCount", roomBankPlayer.getCurAddFlowerNum());
+				result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
+				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, roomBankPlayer.getPlayerId()));
 			}
 			/**当前说话玩家的id*/
 			roomInfo.setCurPlayerId(roomInfo.getRoomBankerId());
@@ -167,6 +180,13 @@ public class MjGameService extends BaseGameService{
 		}
 		roomInfo.setLastPlayerId(playerId);
 		roomInfo.setLastCardIndex(msg.getCardIndex());
+		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(playerList, playerId);
+		if (player.getCurMoPaiCardIndex() != null) {
+			player.getHandCardList().add(player.getCurMoPaiCardIndex());
+			player.setCurMoPaiCardIndex(null);
+		}
+		player.getHandCardList().remove(msg.getCardIndex());
+		player.getDiscardCardList().add(msg.getCardIndex());
 		/**计算房间可操作权限*/
 		MjCardRule.calculateAllPlayerOperations(roomInfo, msg.getCardIndex(), playerId, 2);
 		/**获取当前操作权限的玩家*/
@@ -496,7 +516,7 @@ public class MjGameService extends BaseGameService{
 		}
 	}
 	
-	public void tingHu(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
+	public void tingPai(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
 		Result result = new Result();
 		MjMsg msg = (MjMsg)request.getMsg();
 		Integer roomId = userInfo.getRoomId();
@@ -610,7 +630,7 @@ public class MjGameService extends BaseGameService{
 		Map<String, Object> data = new HashMap<String, Object>();
 		result.setData(data);
 		/**如果是pass摸牌、吃、碰、杠后的可操作性权限，则当前说话的玩家还是当前玩家*/
-		if (player.getHandCardList().size()%3 == 2) {
+		if (MjCardRule.isHandCard3n2(player)) {
 			data.put("curPlayerId", playerId);
 			result.setMsgType(MsgTypeEnum.pass.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);
@@ -698,7 +718,7 @@ public class MjGameService extends BaseGameService{
 		Map<String, Object> data = new HashMap<String, Object>();
 		result.setData(data);
 		/**如果是pass摸牌、吃、碰、杠后的可操作性权限，则当前说话的玩家还是当前玩家*/
-		if (player.getHandCardList().size()%3 == 2) {
+		if (MjCardRule.isHandCard3n2(player)) {
 			data.put("curPlayerId", playerId);
 			result.setMsgType(MsgTypeEnum.pass.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);

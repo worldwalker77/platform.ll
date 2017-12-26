@@ -91,6 +91,17 @@ public class MjCardRule {
 		return Integer.valueOf(ar[len - 1]);
 	}
 	
+	public static boolean isHandCard3n2(MjPlayerInfo player){
+		int size = player.getHandCardList().size();
+		if (player.getCurMoPaiCardIndex() != null) {
+			size += 1;
+		}
+		if (size%3 == 2) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static List<Integer> moveOperationCards(MjRoomInfo roomInfo, MjPlayerInfo player, MjOperationEnum operationType, String operationStr){
 		List<Integer> operationList = new  ArrayList<Integer>();
 		String[] strArr = operationStr.split(",");
@@ -130,7 +141,7 @@ public class MjCardRule {
 			Integer mingGangCardIndex = Integer.valueOf(strArr[0]);
 			List<Integer> mingGangCardList = player.getMingGangCardList();
 			/**如果是摸牌后的明杠*/
-			if (handCardList.size()%3 == 2) {
+			if (isHandCard3n2(player)) {
 				handCardList.remove(mingGangCardIndex);
 				mingGangCardList.add(mingGangCardIndex);
 				Collections.sort(mingGangCardList);
@@ -251,6 +262,8 @@ public class MjCardRule {
 			if (checkHu(curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, "1");
 			}
+			/**将摸牌索引设置到玩家信息中*/
+			curPlayer.setCurMoPaiCardIndex(cardIndex);
 			operations.put(curPlayer.getPlayerId(), map);
 		}else{/**如果是出牌，则需要判断出牌人是否可以听胡，并依次判断其他的玩家是否可以吃、碰、明杠、胡**/
 			/**听牌校验(只针对当前出牌的玩家，因为需要通知玩家听牌)*/
