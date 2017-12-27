@@ -223,7 +223,10 @@ public class MjCardRule {
 			if (checkHu(curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, "1");
 			}
-			operations.put(curPlayer.getPlayerId(), map);
+			if (map.size() > 0) {
+				operations.put(curPlayer.getPlayerId(), map);
+			}
+			
 		}else if (type == 1) {/**如果是摸牌，则要判断摸牌的人是否可以明杠、暗杠、胡牌**/
 			TreeMap<Integer, String> map = new TreeMap<Integer, String>();
 			/**格式化手牌*/
@@ -264,7 +267,10 @@ public class MjCardRule {
 			}
 			/**将摸牌索引设置到玩家信息中*/
 			curPlayer.setCurMoPaiCardIndex(cardIndex);
-			operations.put(curPlayer.getPlayerId(), map);
+			if (map.size() > 0) {
+				operations.put(curPlayer.getPlayerId(), map);
+			}
+			
 		}else{/**如果是出牌，则需要判断出牌人是否可以听胡，并依次判断其他的玩家是否可以吃、碰、明杠、胡**/
 			/**听牌校验(只针对当前出牌的玩家，因为需要通知玩家听牌)*/
 			if (curPlayer.getIsTingHu() == 0) {
@@ -311,7 +317,9 @@ public class MjCardRule {
 				if (checkHu(nextPlayer, cardIndex)) {
 					map1.put(MjOperationEnum.hu.type, "0");
 				}
-				operations.put(nextPlayer.getPlayerId(), map1);
+				if (map1.size() > 0) {
+					operations.put(nextPlayer.getPlayerId(), map1);
+				}
 			}
 		}
 		roomInfo.setPlayerOperationMap(operations);

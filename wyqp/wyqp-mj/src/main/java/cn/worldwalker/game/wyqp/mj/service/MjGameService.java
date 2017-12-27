@@ -133,6 +133,8 @@ public class MjGameService extends BaseGameService{
 				}else{/**闲家发13张牌*/
 					player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
 					data.put("handCardList", player.getHandCardList());
+					data.remove("handCardAddFlower");
+					data.remove("operations");
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}
 				/**设置每个玩家的解散房间状态为不同意解散，后面大结算返回大厅的时候回根据此状态判断是否解散房间*/
@@ -204,6 +206,7 @@ public class MjGameService extends BaseGameService{
 				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
 			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 			
@@ -239,6 +242,7 @@ public class MjGameService extends BaseGameService{
 				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
 			}
 		}else{
+			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 			/**给其他玩家返回出牌消息及当前说话玩家*/
