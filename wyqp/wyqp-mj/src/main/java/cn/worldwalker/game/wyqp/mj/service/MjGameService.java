@@ -89,6 +89,7 @@ public class MjGameService extends BaseGameService{
 		
 		if (readyCount > 1 && readyCount == size) {
 			List<Integer> tableRemainderCardList = MjCardResource.genTableOutOrderCardList();
+//			List<Integer> tableRemainderCardList = MjCardRule.getTableCardList();
 			/**初始化桌牌*/
 			roomInfo.setTableRemainderCardList(tableRemainderCardList);
 			/**开始发牌时将房间内当前局数+1*/
@@ -112,6 +113,7 @@ public class MjGameService extends BaseGameService{
 					/**当前说话玩家的手牌缓存，由于没有补花之前的牌需要返回给客户端*/
 					List<Integer> handCardListBeforeAddFlower = new ArrayList<Integer>();
 					player.setHandCardList(MjCardResource.genHandCardList(tableRemainderCardList, 14));
+//					player.setHandCardList(MjCardRule.getHandCardListByIndex(i, true));//测试用
 					/**补花之前的牌缓存*/
 					handCardListBeforeAddFlower.addAll(player.getHandCardList());
 					/**校验手牌补花*/
@@ -132,6 +134,7 @@ public class MjGameService extends BaseGameService{
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}else{/**闲家发13张牌*/
 					player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
+//					player.setHandCardList(MjCardRule.getHandCardListByIndex(i, false));//测试用
 					data.put("handCardList", player.getHandCardList());
 					data.remove("handCardAddFlower");
 					data.remove("operations");
@@ -562,6 +565,7 @@ public class MjGameService extends BaseGameService{
 				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
 			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 			
@@ -594,6 +598,7 @@ public class MjGameService extends BaseGameService{
 				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
 			}
 		}else{
+			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 			/**给所有玩家返回听牌消息及当前说话的玩家*/
@@ -654,6 +659,7 @@ public class MjGameService extends BaseGameService{
 					handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 				}
 				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 				
@@ -683,6 +689,7 @@ public class MjGameService extends BaseGameService{
 					channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
 				}
 			}else{
+				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 				/**给所有玩家返回pass消息及当前说话的玩家*/

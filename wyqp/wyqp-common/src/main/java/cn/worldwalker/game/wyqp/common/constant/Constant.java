@@ -100,7 +100,7 @@ public class Constant {
 	
 	public static final String CODE_URL = "http://" + domain + clientFileUnrarFolder + "VERSION/game_code_VERSION.zip";//"D:/test/";
 	
-	public static final String mjTablePath = "C:/Users/lenovo/Desktop/game-ll/tables/";//CustomizedPropertyConfigurer.getContextProperty("mj.table.path");
+	public static final String mjTablePath = CustomizedPropertyConfigurer.getContextProperty("mj.table.path");//"C:/Users/lenovo/Desktop/game-ll/tables/";//
 
 
 }

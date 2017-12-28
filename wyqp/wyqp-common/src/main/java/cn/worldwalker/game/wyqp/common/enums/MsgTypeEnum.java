@@ -48,7 +48,7 @@ public enum MsgTypeEnum {
 	chuPai(211, "出牌"),
 	chi(212, "吃牌"),
 	peng(213, "碰牌"),
-	mingGang(215, "明杠牌"),
+	mingGang(214, "明杠牌"),
 	anGang(215, "暗杠牌"),
 	tingPai(216, "听牌"),
 	huPai(217, "胡牌"),

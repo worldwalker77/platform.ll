@@ -2,6 +2,7 @@ package cn.worldwalker.game.wyqp.mj.cards;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,93 @@ import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 
 public class MjCardRule {
+	private static Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+	static{
+		List<Integer> list1 = new ArrayList<Integer>();
+		list1.add(0);
+		list1.add(0);
+		list1.add(0);
+		list1.add(1);
+		list1.add(1);
+		list1.add(1);
+		list1.add(2);
+		list1.add(2);
+		list1.add(2);
+		list1.add(3);
+		list1.add(3);
+		list1.add(6);
+		list1.add(4);
+		list1.add(5);
+		List<Integer> list2 = new ArrayList<Integer>();
+		list2.add(4);
+		list2.add(6);
+		list2.add(7);
+		list2.add(7);
+		list2.add(7);
+		list2.add(8);
+		list2.add(9);
+		list2.add(10);
+		list2.add(11);
+		list2.add(12);
+		list2.add(14);
+		list2.add(15);
+		list2.add(19);
+		List<Integer> list3 = new ArrayList<Integer>();
+		list3.add(20);
+		list3.add(21);
+		list3.add(22);
+		list3.add(29);
+		list3.add(29);
+		list3.add(29);
+		list3.add(29);
+		list3.add(5);
+		list3.add(5);
+		list3.add(5);
+		list3.add(23);
+		list3.add(25);
+		list3.add(19);
+		List<Integer> list4 = new ArrayList<Integer>();
+		list4.add(20);
+		list4.add(21);
+		list4.add(17);
+		list4.add(30);
+		list4.add(22);
+		list4.add(34);
+		list4.add(38);
+		list4.add(26);
+		list4.add(27);
+		list4.add(24);
+		list4.add(23);
+		list4.add(25);
+		list4.add(19);
+		map.put(0, list1);
+		map.put(1, list2);
+		map.put(2, list3);
+		map.put(3, list4);
+	}
+	public static List<Integer> getHandCardListByIndex(int i, boolean isBanker){
+		
+		
+		return map.get(i);
+	}
+	public static List<Integer> getTableCardList(){
+		
+		List<Integer> list4 = new ArrayList<Integer>();
+		list4.add(12);
+		list4.add(13);
+		list4.add(14);
+		list4.add(15);
+		list4.add(16);
+		list4.add(17);
+		list4.add(18);
+		list4.add(19);
+		list4.add(20);
+		list4.add(21);
+		list4.add(22);
+		list4.add(23);
+		list4.add(24);
+		return list4;
+	}
 	
 	public static void delPlayerOperationByPlayerId(MjRoomInfo roomInfo, Integer playerId){
 		roomInfo.getPlayerOperationMap().remove(playerId);
@@ -176,6 +264,11 @@ public class MjCardRule {
 			anGangCardList.add(anGangCardIndex);
 			anGangCardList.add(anGangCardIndex);
 			anGangCardList.add(anGangCardIndex);
+			
+			operationList.add(anGangCardIndex);
+			operationList.add(anGangCardIndex);
+			operationList.add(anGangCardIndex);
+			operationList.add(anGangCardIndex);
 			break;
 
 		default:
@@ -563,7 +656,7 @@ public class MjCardRule {
 		/**没听胡才可以碰牌*/
 		if (isTingHu == 0) {
 			if (handCards[cardIndex] == 3 || handCards[cardIndex] == 2) {
-				pengSb.append(cardIndex).append(",").append(cardIndex).append(",").append(cardIndex);
+				pengSb.append(cardIndex);
 			}
 		}
 		return pengSb.toString();
@@ -577,7 +670,7 @@ public class MjCardRule {
 	public static String checkGang(int[] handCards, Integer cardIndex){
 		StringBuffer gangSb = new StringBuffer("");
 		if (handCards[cardIndex] == 3) {
-			gangSb.append(cardIndex).append(",").append(cardIndex).append(",").append(cardIndex);
+			gangSb.append(cardIndex);
 		}
 		return gangSb.toString();
 	}
@@ -594,7 +687,7 @@ public class MjCardRule {
 			return pengStr;
 		}
 		if (pengCardList.contains(cardIndex)) {
-			pengStr += cardIndex + "," + cardIndex + "," + cardIndex;
+			pengStr += cardIndex;
 		}
 		return pengStr;
 	}
@@ -610,10 +703,10 @@ public class MjCardRule {
 		StringBuffer mingGangSb = new StringBuffer("");
 		for(int i = 0; i < handCardLen; i++){
 			if (handCards[i] == 4) {
-				anGangSb.append(i).append(",").append(i).append(",").append(i).append("_");
+				anGangSb.append(i).append("_");
 			}
 			if (handCards[i] == 1 && pengCardList.contains(i)) {
-				mingGangSb.append(i).append(",").append(i).append(",").append(i).append("_");
+				mingGangSb.append(i).append("_");
 			}
 		}
 		TreeMap<Integer, String> map = new TreeMap<Integer, String>();
