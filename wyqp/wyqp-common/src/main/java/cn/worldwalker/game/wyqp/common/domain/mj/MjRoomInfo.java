@@ -1,8 +1,10 @@
 package cn.worldwalker.game.wyqp.common.domain.mj;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
@@ -29,7 +31,15 @@ public class MjRoomInfo extends BaseRoomInfo{
 	private Integer eachFlowerScore = 0;
 	/**封顶*/
 	private Integer huScoreLimit = 0;
+	/**胡牌玩家map*/
+	private Map<Integer, String> huPlayerMap = new HashMap<Integer, String>();
 	
+	public Map<Integer, String> getHuPlayerMap() {
+		return huPlayerMap;
+	}
+	public void setHuPlayerMap(Map<Integer, String> huPlayerMap) {
+		this.huPlayerMap = huPlayerMap;
+	}
 	public Integer getEachFlowerScore() {
 		return eachFlowerScore;
 	}

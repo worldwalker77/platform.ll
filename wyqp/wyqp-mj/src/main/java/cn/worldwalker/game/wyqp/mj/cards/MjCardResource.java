@@ -30,6 +30,11 @@ public class MjCardResource {
 		Collections.shuffle(cardList);
 		return cardList;
 	}
+	
+	public static List<Integer> sortCardList(List<Integer> cardList){
+		Collections.shuffle(cardList);
+		return cardList;
+	}
 	/**
 	 * 生成玩家手牌列表
 	 * @param tableRemainderCardList

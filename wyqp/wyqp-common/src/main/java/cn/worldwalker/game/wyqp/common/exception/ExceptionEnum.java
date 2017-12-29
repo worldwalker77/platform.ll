@@ -31,6 +31,7 @@ public enum ExceptionEnum {
     
     /**麻将200-299*/
     NO_AUTHORITY(201, "没有此权限"),
+    HU_TYPE_ERROR(202, "胡牌类型错误"),
 	/**金花300-399*/
     IS_NOT_YOUR_TURN(300, "抱歉，还没轮到你说话"),
 	STAKE_SCORE_ERROR_1(301, "你的跟注分数必须大于或等于前一个玩家"),

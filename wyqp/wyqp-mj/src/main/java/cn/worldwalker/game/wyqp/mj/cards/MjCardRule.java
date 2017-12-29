@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 
 import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
+import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
@@ -157,10 +158,38 @@ public class MjCardRule {
 			return false;
 		}
 		String existOperationStr = curOperation.get(operationType);
-		if (!operationStr.equals(existOperationStr)) {
-			return false;
+		if (operationType.equals(MjOperationEnum.hu) || operationType.equals(MjOperationEnum.tingHu)) {
+			if (StringUtils.isBlank(existOperationStr)) {
+				return false;
+			}
+		}else{
+			if (!operationStr.equals(existOperationStr)) {
+				return false;
+			}
 		}
+		
 		return true;
+	}
+	
+	public static void initMjRoom(MjRoomInfo roomInfo){
+		roomInfo.getHuPlayerMap().clear();
+		roomInfo.setLastCardIndex(null);
+		roomInfo.setLastPlayerId(null);
+	}
+	public static void initMjPlayer(MjPlayerInfo playerInfo){
+		playerInfo.setCurScore(0);
+		playerInfo.setIsTingHu(0);
+		playerInfo.setCurMoPaiCardIndex(null);
+		playerInfo.setCurAddFlowerNum(0);
+		playerInfo.setHandCardList(null);
+		playerInfo.getChiCardList().clear();
+		playerInfo.getPengCardList().clear();
+		playerInfo.getMingGangCardList().clear();
+		playerInfo.getAnGangCardList().clear();
+		playerInfo.getDiscardCardList().clear();
+		playerInfo.getFlowerCardList().clear();
+		/**设置每个玩家的解散房间状态为不同意解散，后面大结算返回大厅的时候回根据此状态判断是否解散房间*/
+		playerInfo.setDissolveStatus(DissolveStatusEnum.disagree.status);
 	}
 	/**
 	 * 摇色子
