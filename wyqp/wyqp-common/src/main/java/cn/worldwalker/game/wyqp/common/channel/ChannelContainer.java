@@ -23,6 +23,7 @@ import cn.worldwalker.game.wyqp.common.domain.base.BaseRequest;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
 import cn.worldwalker.game.wyqp.common.domain.base.RedisRelaModel;
 import cn.worldwalker.game.wyqp.common.domain.jh.JhRoomInfo;
+import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
 import cn.worldwalker.game.wyqp.common.domain.nn.NnRoomInfo;
 import cn.worldwalker.game.wyqp.common.enums.GameTypeEnum;
 import cn.worldwalker.game.wyqp.common.enums.MsgTypeEnum;
@@ -132,7 +133,7 @@ public class ChannelContainer {
 				if (GameTypeEnum.nn.gameType == gameType) {
 					roomInfo = redisOperationService.getRoomInfoByRoomId(roomId, NnRoomInfo.class);
 				}else if(GameTypeEnum.mj.gameType == gameType){
-					
+					roomInfo = redisOperationService.getRoomInfoByRoomId(roomId, MjRoomInfo.class);
 				}else if(GameTypeEnum.jh.gameType == gameType){
 					roomInfo = redisOperationService.getRoomInfoByRoomId(roomId, JhRoomInfo.class);
 				}

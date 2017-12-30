@@ -26,7 +26,31 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private Integer isTingHu = 0;
 	/**当前操作补花数*/
 	private Integer curAddFlowerNum = 0;
+	/**是否胡牌*/
+	private Integer isHu = 0;
+	/**倍数*/
+	private Integer multiple = 0;
+	/**胡类型 0：别人点炮 1：自摸 2：天胡 3：抢杠胡*/
+	private Integer huType = 0;
 	
+	public Integer getHuType() {
+		return huType;
+	}
+	public void setHuType(Integer huType) {
+		this.huType = huType;
+	}
+	public Integer getIsHu() {
+		return isHu;
+	}
+	public void setIsHu(Integer isHu) {
+		this.isHu = isHu;
+	}
+	public Integer getMultiple() {
+		return multiple;
+	}
+	public void setMultiple(Integer multiple) {
+		this.multiple = multiple;
+	}
 	public Integer getCurAddFlowerNum() {
 		return curAddFlowerNum;
 	}

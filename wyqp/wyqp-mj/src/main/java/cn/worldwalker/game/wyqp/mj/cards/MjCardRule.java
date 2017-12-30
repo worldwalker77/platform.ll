@@ -19,6 +19,7 @@ import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
+import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 
@@ -181,6 +182,9 @@ public class MjCardRule {
 		playerInfo.setIsTingHu(0);
 		playerInfo.setCurMoPaiCardIndex(null);
 		playerInfo.setCurAddFlowerNum(0);
+		playerInfo.setIsHu(0);
+		playerInfo.setHuType(0);
+		playerInfo.setMultiple(0);
 		playerInfo.setHandCardList(null);
 		playerInfo.getChiCardList().clear();
 		playerInfo.getPengCardList().clear();
@@ -190,6 +194,7 @@ public class MjCardRule {
 		playerInfo.getFlowerCardList().clear();
 		/**设置每个玩家的解散房间状态为不同意解散，后面大结算返回大厅的时候回根据此状态判断是否解散房间*/
 		playerInfo.setDissolveStatus(DissolveStatusEnum.disagree.status);
+		playerInfo.setStatus(MjPlayerStatusEnum.notReady.status);
 	}
 	/**
 	 * 摇色子
@@ -343,7 +348,7 @@ public class MjCardRule {
 			TreeMap<Integer, String> map = checkHandCardGang(cards, curPlayer.getPengCardList());
 			/**胡牌校验*/
 			if (checkHu(curPlayer, cardIndex)) {
-				map.put(MjOperationEnum.hu.type, "1");
+				map.put(MjOperationEnum.hu.type, "2");
 			}
 			if (map.size() > 0) {
 				operations.put(curPlayer.getPlayerId(), map);
@@ -808,15 +813,13 @@ public class MjCardRule {
 	 */
 	public static boolean checkHu(MjPlayerInfo player, Integer cardIndex){
 		boolean isHu = false;
-		if (player.getIsTingHu() == 0) {
-			return isHu;
-		}
 		List<Integer> handCardList = player.getHandCardList();
-		
-		if (cardIndex == null) {
+		if (handCardList.size() == 14) {
 			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, Hulib.invalidCardInex);
 		}else{
-			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, Hulib.invalidCardInex);
+			if (player.getIsTingHu() == 1) {
+				isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, Hulib.invalidCardInex);
+			}
 		}
 		return isHu;
 	}

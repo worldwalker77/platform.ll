@@ -27,6 +27,7 @@ public enum ExceptionEnum {
     TOTAL_GAME_OVER(21, "牌局已经结束"),
     ALREADY_IN_ROOM(22, "您已经在房间中，请输入房间号进入"),
     GIVE_AWAY_ROOM_CARD_FAIL(23, "赠送房卡失败"),
+    ROOM_STATUS_CAN_NOT_READY(24, "当前房间状态不能准备"),
     /**斗牛100-199*/
     
     /**麻将200-299*/
