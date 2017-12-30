@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseMsg;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRequest;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
@@ -95,8 +96,13 @@ public class MjGameService extends BaseGameService{
 		
 		if (readyCount == 4) {
 			MjCardRule.initMjRoom(roomInfo);
-			List<Integer> tableRemainderCardList = MjCardResource.genTableOutOrderCardList();
-//			List<Integer> tableRemainderCardList = MjCardRule.getTableCardList();//测试用
+			List<Integer> tableRemainderCardList = null;
+			if (Constant.isTest == 1) {
+				tableRemainderCardList = MjCardRule.getTableCardList();//测试用
+			}else{
+				tableRemainderCardList = MjCardResource.genTableOutOrderCardList();
+			}
+
 			/**初始化桌牌*/
 			roomInfo.setTableRemainderCardList(tableRemainderCardList);
 			/**开始发牌时将房间内当前局数+1*/
@@ -120,8 +126,13 @@ public class MjGameService extends BaseGameService{
 				if (player.getPlayerId().equals(roomInfo.getRoomBankerId())) {
 					/**当前说话玩家的手牌缓存，由于没有补花之前的牌需要返回给客户端*/
 					List<Integer> handCardListBeforeAddFlower = new ArrayList<Integer>();
-					player.setHandCardList(MjCardResource.genHandCardList(tableRemainderCardList, 14));
-//					player.setHandCardList(MjCardRule.getHandCardListByIndex(i, true));//测试用
+					if (Constant.isTest == 1) {
+						player.setHandCardList(MjCardRule.getHandCardListByIndex(i, true));//测试用
+					}else{
+						player.setHandCardList(MjCardResource.genHandCardList(tableRemainderCardList, 14));
+					}
+				
+
 					/**补花之前的牌缓存*/
 					handCardListBeforeAddFlower.addAll(player.getHandCardList());
 					/**校验手牌补花*/
@@ -141,8 +152,13 @@ public class MjGameService extends BaseGameService{
 					}
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}else{/**闲家发13张牌*/
-					player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
-//					player.setHandCardList(MjCardRule.getHandCardListByIndex(i, false));//测试用
+					if (Constant.isTest == 1) {
+						player.setHandCardList(MjCardRule.getHandCardListByIndex(i, false));//测试用
+					}else{
+						player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
+					}
+					
+
 					data.put("handCardList", player.getHandCardList());
 					data.remove("handCardAddFlower");
 					data.remove("operations");

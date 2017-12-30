@@ -159,7 +159,7 @@ public class MjCardRule {
 			return false;
 		}
 		String existOperationStr = curOperation.get(operationType);
-		if (operationType.equals(MjOperationEnum.hu) || operationType.equals(MjOperationEnum.tingHu)) {
+		if (operationType.equals(MjOperationEnum.hu.type) || operationType.equals(MjOperationEnum.tingHu.type)) {
 			if (StringUtils.isBlank(existOperationStr)) {
 				return false;
 			}
@@ -177,6 +177,7 @@ public class MjCardRule {
 		roomInfo.setLastCardIndex(null);
 		roomInfo.setLastPlayerId(null);
 	}
+	
 	public static void initMjPlayer(MjPlayerInfo playerInfo){
 		playerInfo.setCurScore(0);
 		playerInfo.setIsTingHu(0);
