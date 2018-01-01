@@ -43,10 +43,13 @@ public class RedisOperationService {
 	
 	/**roomId->roomInfo 映射*/
 	public void setRoomIdRoomInfo(Integer roomId, BaseRoomInfo roomInfo){
+		Date date = new Date();
 		if (gameInfoStorageType == 0 ) {
 			jedisTemplate.hset(Constant.roomIdRoomInfoMap, String.valueOf(roomId), JsonUtil.toJson(roomInfo));
+			setRoomIdGameTypeUpdateTime(roomId, roomInfo.getGameType(), date);
 		}else{
 			GameInfoMemoryContainer.roomIdRoomInfoMap.put(String.valueOf(roomId), JsonUtil.toJson(roomInfo));
+			GameInfoMemoryContainer.roomIdGameTypeUpdateTimeMap.put(String.valueOf(roomId), roomInfo.getGameType() + "_" + date.getTime());
 		}
 	}
 	

@@ -331,7 +331,7 @@ public class MjGameService extends BaseGameService{
 		Map<String, Object> data = new HashMap<String, Object>();
 		result.setData(data);
 		data.put("curPlayerId", playerId);
-		data.put("cardIndex", msg.getCardIndex());
+		data.put("cardIndex", roomInfo.getLastCardIndex());
 		data.put("chiCardList", chiCardList);
 		result.setMsgType(MsgTypeEnum.chi.msgType);
 		channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
@@ -714,8 +714,8 @@ public class MjGameService extends BaseGameService{
 			if (curPlayerId == null) {
 				String huStr = delOperation.get(MjOperationEnum.hu.type);
 				/**如果pass的是抢杠，则需要给当时杠的玩家返回摸牌*/
-				if (StringUtils.isNotBlank(huStr) || huStr.startsWith("3")) {
-					curPlayerId = Integer.valueOf(huStr.split("_")[1]);
+				if (StringUtils.isNotBlank(huStr) && huStr.startsWith("3")) {
+					curPlayerId = roomInfo.getLastPlayerId();
 				}else{/**否则，出牌玩家的下家摸牌*/
 					curPlayerId = GameUtil.getNextPlayerId(playerList, roomInfo.getLastPlayerId());
 				}
