@@ -18,6 +18,7 @@ import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
 import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
+import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
@@ -42,33 +43,33 @@ public class MjCardRule {
 		list1.add(4);
 		list1.add(5);
 		List<Integer> list2 = new ArrayList<Integer>();
-		list2.add(4);
-		list2.add(6);
-		list2.add(7);
+		list2.add(5);
+		list2.add(5);
+		list2.add(5);
 		list2.add(7);
 		list2.add(7);
 		list2.add(8);
+		list2.add(8);
+		list2.add(9);
 		list2.add(9);
 		list2.add(10);
-		list2.add(11);
-		list2.add(12);
-		list2.add(14);
 		list2.add(15);
+		list2.add(17);
 		list2.add(19);
 		List<Integer> list3 = new ArrayList<Integer>();
-		list3.add(20);
-		list3.add(21);
-		list3.add(22);
-		list3.add(29);
-		list3.add(29);
-		list3.add(29);
-		list3.add(29);
-		list3.add(5);
-		list3.add(5);
-		list3.add(5);
-		list3.add(23);
-		list3.add(25);
-		list3.add(19);
+		list3.add(3);
+		list3.add(4);
+		list3.add(6);
+		list3.add(7);
+		list3.add(8);
+		list3.add(9);
+		list3.add(10);
+		list3.add(11);
+		list3.add(12);
+		list3.add(13);
+		list3.add(14);
+		list3.add(17);
+		list3.add(17);
 		List<Integer> list4 = new ArrayList<Integer>();
 		list4.add(20);
 		list4.add(21);
@@ -112,8 +113,8 @@ public class MjCardRule {
 		return list4;
 	}
 	
-	public static void delPlayerOperationByPlayerId(MjRoomInfo roomInfo, Integer playerId){
-		roomInfo.getPlayerOperationMap().remove(playerId);
+	public static TreeMap<Integer, String> delPlayerOperationByPlayerId(MjRoomInfo roomInfo, Integer playerId){
+		return roomInfo.getPlayerOperationMap().remove(playerId);
 	}
 	
 	/**
@@ -173,7 +174,6 @@ public class MjCardRule {
 	}
 	
 	public static void initMjRoom(MjRoomInfo roomInfo){
-		roomInfo.getHuPlayerMap().clear();
 		roomInfo.setLastCardIndex(null);
 		roomInfo.setLastPlayerId(null);
 	}
@@ -348,8 +348,8 @@ public class MjCardRule {
 			/**暗杠校验**/
 			TreeMap<Integer, String> map = checkHandCardGang(cards, curPlayer.getPengCardList());
 			/**胡牌校验*/
-			if (checkHu(curPlayer, cardIndex)) {
-				map.put(MjOperationEnum.hu.type, "2");
+			if (checkHu(curPlayer, null)) {
+				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.tianHu.type));
 			}
 			if (map.size() > 0) {
 				operations.put(curPlayer.getPlayerId(), map);
@@ -391,7 +391,7 @@ public class MjCardRule {
 			
 			/**胡牌校验*/
 			if (checkHu(curPlayer, cardIndex)) {
-				map.put(MjOperationEnum.hu.type, "1");
+				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.ziMo.type));
 			}
 			/**将摸牌索引设置到玩家信息中*/
 			curPlayer.setCurMoPaiCardIndex(cardIndex);
@@ -399,7 +399,7 @@ public class MjCardRule {
 				operations.put(curPlayer.getPlayerId(), map);
 			}
 			
-		}else{/**如果是出牌，则需要判断出牌人是否可以听胡，并依次判断其他的玩家是否可以吃、碰、明杠、胡**/
+		}else if(type == 2){/**如果是出牌，则需要判断出牌人是否可以听胡，并依次判断其他的玩家是否可以吃、碰、明杠、胡**/
 			/**听牌校验(只针对当前出牌的玩家，因为需要通知玩家听牌)*/
 			if (curPlayer.getIsTingHu() == 0) {
 				if (checkTingHu(curPlayer)) {
@@ -443,11 +443,81 @@ public class MjCardRule {
 				
 				/**以胡牌校验*/
 				if (checkHu(nextPlayer, cardIndex)) {
-					map1.put(MjOperationEnum.hu.type, "0");
+					map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.zhuaChong.type));
 				}
 				if (map1.size() > 0) {
 					operations.put(nextPlayer.getPlayerId(), map1);
 				}
+			}
+		}else if(type == 3){/**判断是否可以抢杠*/
+			/**按顺序依次计算出剩余三个玩家可操作权限*/
+			for(int i = 1; i <= 3; i++){
+				MjPlayerInfo nextPlayer = list.get((curPlayerIndex + i)%4);
+				handCardList = nextPlayer.getHandCardList();
+				TreeMap<Integer, String> map1 = new TreeMap<Integer, String>();
+				/**格式化手牌*/
+				int len = handCardList.size();
+				int[] cards = new int[Hulib.indexLine];
+				for(int j = 0; j < len; j++){
+					if (handCardList.get(j) < Hulib.indexLine) {
+						cards[handCardList.get(j)]++;
+					}
+				}
+				
+				/**以胡牌校验*/
+				if (checkHu(nextPlayer, cardIndex)) {
+					map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.qiangGang.type));
+					roomInfo.setLastCardIndex(cardIndex);
+					roomInfo.setLastPlayerId(playerId);
+				}
+				if (map1.size() > 0) {
+					operations.put(nextPlayer.getPlayerId(), map1);
+				}
+			}
+//			roomInfo.getPlayerOperationMap().putAll(operations);
+//			return roomInfo.getPlayerOperationMap();
+		}else if(type == 4){/**判断是否可以杠开*/
+			TreeMap<Integer, String> map = new TreeMap<Integer, String>();
+			/**格式化手牌*/
+			int len = handCardList.size();
+			int[] cards = new int[Hulib.indexLine];
+			for(int j = 0; j < len; j++){
+				if (handCardList.get(j) < Hulib.indexLine) {
+					cards[handCardList.get(j)]++;
+				}
+			}
+			/**明杠校验**/
+			String mingGangStr = checkMingGangByMoPai(curPlayer.getPengCardList(), cardIndex);
+			if (StringUtils.isNotBlank(mingGangStr)) {
+				map.put(MjOperationEnum.mingGang.type, mingGangStr);
+			}
+			/**暗杠校验**/
+			String anGangStr = checkGang(cards, cardIndex);
+			if (StringUtils.isNotBlank(anGangStr)) {
+				map.put(MjOperationEnum.anGang.type, anGangStr);
+			}
+			/**之前放弃杠的牌再次校验**/
+			TreeMap<Integer, String> handCardMap = checkHandCardGang(cards, curPlayer.getPengCardList());
+			/**将杠合并，如果有*/
+			if (StringUtils.isNotBlank(map.get(MjOperationEnum.mingGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.mingGang.type))) {
+				map.put(MjOperationEnum.mingGang.type, map.get(MjOperationEnum.mingGang.type) + "_" + handCardMap.get(MjOperationEnum.mingGang.type));
+			}else if(StringUtils.isBlank(map.get(MjOperationEnum.mingGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.mingGang.type))){
+				map.put(MjOperationEnum.mingGang.type, handCardMap.get(MjOperationEnum.mingGang.type));
+			}
+			if (StringUtils.isNotBlank(map.get(MjOperationEnum.anGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.anGang.type))) {
+				map.put(MjOperationEnum.anGang.type, map.get(MjOperationEnum.anGang.type) + "_" + handCardMap.get(MjOperationEnum.anGang.type));
+			}else if(StringUtils.isBlank(map.get(MjOperationEnum.anGang.type))&&StringUtils.isNotBlank(handCardMap.get(MjOperationEnum.anGang.type))){
+				map.put(MjOperationEnum.anGang.type, handCardMap.get(MjOperationEnum.anGang.type));
+			}
+			
+			/**胡牌校验*/
+			if (checkHu(curPlayer, cardIndex)) {
+				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.gangKai.type));
+			}
+			/**将摸牌索引设置到玩家信息中*/
+			curPlayer.setCurMoPaiCardIndex(cardIndex);
+			if (map.size() > 0) {
+				operations.put(curPlayer.getPlayerId(), map);
 			}
 		}
 		roomInfo.setPlayerOperationMap(operations);
@@ -601,6 +671,9 @@ public class MjCardRule {
 	 */
 	public static String checkChiPai(MjPlayerInfo player, Integer cardIndex){
 		StringBuffer chiSb = new StringBuffer("");
+		if (cardIndex >= 27) {
+			return chiSb.toString();
+		}
 		if (player.getIsTingHu() == 0) {
 			List<Integer> handCardList = player.getHandCardList();
 			/**获取当前牌索引的前两张牌索引和后两张牌索引*/
@@ -802,8 +875,6 @@ public class MjCardRule {
 		if (sum != 1) {
 			return false;
 		}
-		/**设置当前玩家为已经听胡*/
-		player.setIsTingHu(1);
 		return true;
 	}
 	/**
@@ -814,13 +885,15 @@ public class MjCardRule {
 	 */
 	public static boolean checkHu(MjPlayerInfo player, Integer cardIndex){
 		boolean isHu = false;
+		if (player.getIsTingHu() == 0) {
+			return isHu;
+		}
+		
 		List<Integer> handCardList = player.getHandCardList();
 		if (handCardList.size() == 14) {
 			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, Hulib.invalidCardInex);
 		}else{
-			if (player.getIsTingHu() == 1) {
-				isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, Hulib.invalidCardInex);
-			}
+			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, Hulib.invalidCardInex);
 		}
 		return isHu;
 	}

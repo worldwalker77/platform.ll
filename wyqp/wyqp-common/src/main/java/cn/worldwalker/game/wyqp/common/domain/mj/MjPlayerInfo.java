@@ -32,7 +32,15 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private Integer multiple = 0;
 	/**胡类型 0：别人点炮 1：自摸 2：天胡 3：抢杠胡*/
 	private Integer huType = 0;
+	/**牌型列表，可能是组合牌型，比如清一色碰碰胡*/
+	private List<Integer> mjCardTypeList = new ArrayList<Integer>();
 	
+	public List<Integer> getMjCardTypeList() {
+		return mjCardTypeList;
+	}
+	public void setMjCardTypeList(List<Integer> mjCardTypeList) {
+		this.mjCardTypeList = mjCardTypeList;
+	}
 	public Integer getHuType() {
 		return huType;
 	}

@@ -20,7 +20,7 @@ public enum MsgTypeEnum {
 	onlineNotice(15, "通知玩家上线"),
 	delRoomConfirmBeforeReturnHall(16, "客户端返回大厅时的通知消息"),
 	queryPlayerInfo(17, "查看玩家信息"),
-	dissolveRoomCausedByOffline(18, "玩家离线超过20分钟，解散房间"),
+	dissolveRoomCausedByOffline(18, "玩家离线超过4分钟，解散房间"),
 	chatMsg(19, "聊天消息"),
 	heartBeat(20, "心跳检测"),
 	roomCardNumUpdate(21, "房卡数更新"),

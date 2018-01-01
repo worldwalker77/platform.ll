@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +33,7 @@ import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardResource;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardRule;
+import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjRoomStatusEnum;
@@ -95,6 +95,8 @@ public class MjGameService extends BaseGameService{
 		}
 		
 		if (readyCount == 4) {
+			/**计算庄家*/
+			calculateRoomBanker(roomInfo);
 			MjCardRule.initMjRoom(roomInfo);
 			List<Integer> tableRemainderCardList = null;
 			if (Constant.isTest == 1) {
@@ -232,7 +234,12 @@ public class MjGameService extends BaseGameService{
 			if (StringUtils.isNotBlank(handCardAddFlower)) {
 				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
-			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			/**计算摸牌后当前玩家有哪些操作权限*/
+			if (moPaiAddFlower.length() > 1) {/**补花后是否可以杠开*/
+				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 4);
+			}else{
+				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			}
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
@@ -434,48 +441,74 @@ public class MjGameService extends BaseGameService{
 		/**将杠的牌从手牌列表中移动到杠牌列表中*/
 		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
 		List<Integer> mingGangCardList = MjCardRule.moveOperationCards(roomInfo, player, MjOperationEnum.mingGang, msg.getGangCards());
-		/**将玩家当前轮补花数设置为0*/
-		player.setCurAddFlowerNum(0);
-		String moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), player);
-		String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
-		if (StringUtils.isNotBlank(handCardAddFlower)) {
-			handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
-		}
-		MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), playerId, 1);
-		roomInfo.setUpdateTime(new Date());
-		redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 		
-		/**给当前玩家返回摸牌信息*/
-		Map<String, Object> data = new HashMap<String, Object>();
-		result.setData(data);
-		data.put("playerId", roomInfo.getLastPlayerId());
-		data.put("cardIndex", roomInfo.getLastCardIndex());
-		data.put("curPlayerId", playerId);
-		data.put("moPaiAddFlower", moPaiAddFlower);
-		if (StringUtils.isNotBlank(handCardAddFlower)) {
-			data.put("handCardAddFlower", handCardAddFlower);
-		}
-		if (MjCardRule.getPlayerHighestPriority(roomInfo, playerId) != null) {
-			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, playerId));
-		}
-		result.setMsgType(MsgTypeEnum.moPai.msgType);
-		channelContainer.sendTextMsgByPlayerIds(result, playerId);
-		
-		/**给其他玩家返回明杠信息*/
-		data.clear();
-		data.put("curPlayerId", playerId);
-		data.put("cardIndex", mingGangCardList.get(0));
-		data.put("mingGangCardList", mingGangCardList);
-		result.setMsgType(MsgTypeEnum.mingGang.msgType);
-		channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
-		
-		/**如果手牌存在补花，则给其他玩家返回补花数*/
-		if (player.getCurAddFlowerNum() > 0) {
+		/**计算其玩家是否可以抢杠*/
+		MjCardRule.calculateAllPlayerOperations(roomInfo, Integer.valueOf(msg.getGangCards()), playerId, 3);
+		Integer curPlayerId = MjCardRule.getPlayerHighestPriorityPlayerId(roomInfo);
+		/**不为空，则说明其他玩家可以抢杠*/
+		if (curPlayerId != null) {
+			roomInfo.setCurPlayerId(curPlayerId);
+			roomInfo.setUpdateTime(new Date());
+			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
+			Map<String, Object> data = new HashMap<String, Object>();
+			result.setData(data);
+			/**给抢杠玩家以外的玩家返回杠玩家的信息及获取操作权限的玩家*/
+			data.put("curPlayerId", curPlayerId);
+			data.put("playerId", playerId);
+			data.put("cardIndex", mingGangCardList.get(0));
+			data.put("mingGangCardList", mingGangCardList);
+			result.setMsgType(MsgTypeEnum.mingGang.msgType);
+			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
+			/***给抢杠的玩家返回可操作权限*/
+			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+			channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+		}else{
+			/**将玩家当前轮补花数设置为0*/
+			player.setCurAddFlowerNum(0);
+			String moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), player);
+			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+			if (StringUtils.isNotBlank(handCardAddFlower)) {
+				/**将手牌中的花牌全部替换为补花后的正常牌*/
+				handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
+			}
+			/**计算摸牌后当前玩家有哪些操作权限(杠开)*/
+			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), playerId, 4);
+			
+			roomInfo.setUpdateTime(new Date());
+			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
+			
+			/**给当前玩家返回摸牌信息*/
+			Map<String, Object> data = new HashMap<String, Object>();
+			result.setData(data);
+			data.put("playerId", roomInfo.getLastPlayerId());
+			data.put("cardIndex", roomInfo.getLastCardIndex());
+			data.put("curPlayerId", playerId);
+			data.put("moPaiAddFlower", moPaiAddFlower);
+			if (StringUtils.isNotBlank(handCardAddFlower)) {
+				data.put("handCardAddFlower", handCardAddFlower);
+			}
+			if (MjCardRule.getPlayerHighestPriority(roomInfo, playerId) != null) {
+				data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, playerId));
+			}
+			result.setMsgType(MsgTypeEnum.moPai.msgType);
+			channelContainer.sendTextMsgByPlayerIds(result, playerId);
+			
+			/**给其他玩家返回明杠信息*/
 			data.clear();
 			data.put("curPlayerId", playerId);
-			data.put("addFlowerCount", player.getCurAddFlowerNum());
-			result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
+			data.put("cardIndex", mingGangCardList.get(0));
+			data.put("mingGangCardList", mingGangCardList);
+			result.setMsgType(MsgTypeEnum.mingGang.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
+			
+			/**如果手牌存在补花，则给其他玩家返回补花数*/
+			if (player.getCurAddFlowerNum() > 0) {
+				data.clear();
+				data.put("curPlayerId", playerId);
+				data.put("addFlowerCount", player.getCurAddFlowerNum());
+				result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
+				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
+			}
 		}
 	}
 	
@@ -511,7 +544,8 @@ public class MjGameService extends BaseGameService{
 //		if (StringUtils.isNotBlank(handCardAddFlower)) {
 //			handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
 //		}
-		MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), playerId, 1);
+		/**计算摸牌后当前玩家有哪些操作权限*/
+		MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), playerId, 4);
 		roomInfo.setUpdateTime(new Date());
 		redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 		
@@ -588,7 +622,12 @@ public class MjGameService extends BaseGameService{
 			if (StringUtils.isNotBlank(handCardAddFlower)) {
 				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
-			MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			/**计算摸牌后当前玩家有哪些操作权限*/
+			if (moPaiAddFlower.length() > 1) {/**补花后是否可以杠开*/
+				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 4);
+			}else{
+				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+			}
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
@@ -659,7 +698,7 @@ public class MjGameService extends BaseGameService{
 		/**设置状态为听牌*/
 		player.setIsTingHu(1);
 		/**将当前玩家的可操作性权限删除*/
-		MjCardRule.delPlayerOperationByPlayerId(roomInfo, playerId);
+		TreeMap<Integer, String> delOperation = MjCardRule.delPlayerOperationByPlayerId(roomInfo, playerId);
 		Map<String, Object> data = new HashMap<String, Object>();
 		result.setData(data);
 		/**如果是pass摸牌、吃、碰、杠后的可操作性权限，则当前说话的玩家还是当前玩家*/
@@ -668,11 +707,18 @@ public class MjGameService extends BaseGameService{
 			result.setMsgType(MsgTypeEnum.pass.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);
 		}else{/**如果是pass别人打出的牌*/
+			
 			/**获取下个可操作性玩家的可操作权限*/
 			Integer curPlayerId = MjCardRule.getPlayerHighestPriorityPlayerId(roomInfo);
 			/**如果剩余玩家都没有操作权限了，则下家摸牌*/
 			if (curPlayerId == null) {
-				curPlayerId = GameUtil.getNextPlayerId(playerList, playerId);
+				String huStr = delOperation.get(MjOperationEnum.hu.type);
+				/**如果pass的是抢杠，则需要给当时杠的玩家返回摸牌*/
+				if (StringUtils.isNotBlank(huStr) || huStr.startsWith("3")) {
+					curPlayerId = Integer.valueOf(huStr.split("_")[1]);
+				}else{/**否则，出牌玩家的下家摸牌*/
+					curPlayerId = GameUtil.getNextPlayerId(playerList, roomInfo.getLastPlayerId());
+				}
 				/**摸牌并校验补花*/
 				MjPlayerInfo curPlayer = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), curPlayerId);
 				/**将玩家当前轮补花数设置为0*/
@@ -682,7 +728,12 @@ public class MjGameService extends BaseGameService{
 				if (StringUtils.isNotBlank(handCardAddFlower)) {
 					handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 				}
-				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+				/**计算摸牌后当前玩家有哪些操作权限*/
+				if (moPaiAddFlower.length() > 1) {/**补花后是否可以杠开*/
+					MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 4);
+				}else{
+					MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
+				}
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
@@ -712,6 +763,7 @@ public class MjGameService extends BaseGameService{
 					result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
 					channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
 				}
+				
 			}else{
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
@@ -754,10 +806,8 @@ public class MjGameService extends BaseGameService{
 		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
 		player.setIsHu(1);
 		player.setCardType(1);
-		/**添加胡牌玩家map*/
-		String playerHuType = MjCardRule.getPlayerHighestPriority(roomInfo, playerId).get(MjOperationEnum.hu.type);
-		roomInfo.getHuPlayerMap().put(playerId, playerHuType);
-		
+		/**获取胡牌的类型*/
+		Integer playerHuTypeInt = Integer.valueOf(MjCardRule.getPlayerHighestPriority(roomInfo, playerId).get(MjOperationEnum.hu.type));
 		/**将当前玩家的可操作性权限删除*/
 		MjCardRule.delPlayerOperationByPlayerId(roomInfo, playerId);
 		
@@ -765,7 +815,7 @@ public class MjGameService extends BaseGameService{
 		Integer curPlayerId = MjCardRule.getPlayerHighestPriorityPlayerId(roomInfo);
 		if (curPlayerId == null) {
 			curPlayerId = playerId;
-			calculateScoreAndRoomBanker(roomInfo);
+			calculateScore(roomInfo);
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
@@ -775,7 +825,18 @@ public class MjGameService extends BaseGameService{
 				result.setMsgType(MsgTypeEnum.curSettlement.msgType);
 			}
 			data.put("curPlayerId", curPlayerId);
-			data.putAll(getHuTypeAndHuCardIndex(playerHuType, roomInfo.getLastPlayerId(), roomInfo.getLastCardIndex(), player));
+			data.put("huType", playerHuTypeInt);
+			player.setHuType(playerHuTypeInt);
+			if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
+				data.put("cardIndex", roomInfo.getLastCardIndex());
+				data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
+			}else if(MjHuTypeEnum.ziMo.type.equals(playerHuTypeInt) || MjHuTypeEnum.gangKai.type.equals(playerHuTypeInt)){
+				data.put("cardIndex", player.getCurMoPaiCardIndex());
+			}else if(MjHuTypeEnum.tianHu.type.equals(playerHuTypeInt)){
+				
+			}else{
+				throw new BusinessException(ExceptionEnum.HU_TYPE_ERROR);
+			}
 			data.put("totalWinnerId", roomInfo.getTotalWinnerId());
 			List<Map<String, Object>> newPlayerList = new ArrayList<Map<String,Object>>();
 			for(MjPlayerInfo temp : playerList){
@@ -804,7 +865,7 @@ public class MjGameService extends BaseGameService{
 			/**如果没有其他玩家可以胡牌，则本局结束，开始结算*/
 			if (curPlayerOperations == null || curPlayerOperations.size() == 0 || !curPlayerOperations.containsKey(MjOperationEnum.hu.type)) {
 				curPlayerId = playerId;
-				calculateScoreAndRoomBanker(roomInfo);
+				calculateScore(roomInfo);
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
@@ -815,7 +876,18 @@ public class MjGameService extends BaseGameService{
 					result.setMsgType(MsgTypeEnum.curSettlement.msgType);
 				}
 				data.put("curPlayerId", curPlayerId);
-				data.putAll(getHuTypeAndHuCardIndex(playerHuType, roomInfo.getLastPlayerId(), roomInfo.getLastCardIndex(), player));
+				data.put("huType", playerHuTypeInt);
+				player.setHuType(playerHuTypeInt);
+				if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
+					data.put("cardIndex", roomInfo.getLastCardIndex());
+					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
+				}else if(MjHuTypeEnum.ziMo.type.equals(playerHuTypeInt) || MjHuTypeEnum.gangKai.type.equals(playerHuTypeInt)){
+					data.put("cardIndex", player.getCurMoPaiCardIndex());
+				}else if(MjHuTypeEnum.tianHu.type.equals(playerHuTypeInt)){
+					
+				}else{
+					throw new BusinessException(ExceptionEnum.HU_TYPE_ERROR);
+				}
 				data.put("totalWinnerId", roomInfo.getTotalWinnerId());
 				List<Map<String, Object>> newPlayerList = new ArrayList<Map<String,Object>>();
 				for(MjPlayerInfo temp : playerList){
@@ -847,7 +919,18 @@ public class MjGameService extends BaseGameService{
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 				data.put("handCardList", player.getHandCardList());
 				data.put("playerId", playerId);
-				data.putAll(getHuTypeAndHuCardIndex(playerHuType, roomInfo.getLastPlayerId(), roomInfo.getLastCardIndex(), player));
+				data.put("huType", playerHuTypeInt);
+				player.setHuType(playerHuTypeInt);
+				if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
+					data.put("cardIndex", roomInfo.getLastCardIndex());
+					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
+				}else if(MjHuTypeEnum.ziMo.type.equals(playerHuTypeInt) || MjHuTypeEnum.gangKai.type.equals(playerHuTypeInt)){
+					data.put("cardIndex", player.getCurMoPaiCardIndex());
+				}else if(MjHuTypeEnum.tianHu.type.equals(playerHuTypeInt)){
+					
+				}else{
+					throw new BusinessException(ExceptionEnum.HU_TYPE_ERROR);
+				}
 				/**当前说话者id*/
 				data.put("curPlayerId", curPlayerId);
 				result.setMsgType(MsgTypeEnum.huPai.msgType);
@@ -863,46 +946,37 @@ public class MjGameService extends BaseGameService{
 		}
 		
 	}
-	
-	private Map<String, Object> getHuTypeAndHuCardIndex(String playerHuType, Integer lastPlayerId, Integer lastCardIndex, MjPlayerInfo player){
-		Map<String, Object> data = new HashMap<String, Object>();
-		if (playerHuType.startsWith("0")) {/**别人点炮的胡*/
-			data.put("cardIndex", lastCardIndex);
-			data.put("huType", 0);
-			data.put("dianPaoPlayerId", lastPlayerId);
-			player.setHuType(0);
-		}else if(playerHuType.startsWith("1")){/**自摸胡*/
-			data.put("cardIndex", player.getCurMoPaiCardIndex());
-			data.put("huType", 1);
-			player.setHuType(1);
-		}else if(playerHuType.startsWith("2")){/**天胡*/
-			data.put("huType", 2);
-			player.setHuType(2);
-		}else if(playerHuType.startsWith("3")){/**抢杠胡3_111111_3,玩家111111明杠3，被抢杠了*/
-			String[] temp = playerHuType.split("_");
-			data.put("cardIndex", temp[2]);
-			data.put("huType", 3);
-			data.put("dianPaoPlayerId", temp[1]);
-			player.setHuType(3);
-		}else{
-			throw new BusinessException(ExceptionEnum.HU_TYPE_ERROR);
-		}
-		return data;
-	}
-	
-	private void calculateScoreAndRoomBanker(MjRoomInfo roomInfo){
+	/**
+	 * 计算庄家
+	 * @param roomInfo
+	 */
+	private void calculateRoomBanker(MjRoomInfo roomInfo){
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
-		/**找出庄家*/
-		Map<Integer, String> huPlayerMap = roomInfo.getHuPlayerMap();
-		if (huPlayerMap.size() == 1) {
-			Set<Integer> keySet = huPlayerMap.keySet();
-			for(Integer roomBankerId : keySet){
-				roomInfo.setRoomBankerId(roomBankerId);
-				break;
+		List<Integer> huPlayerIdList = new ArrayList<Integer>();
+		/**将其他玩家的牌依次与庄家进行比较，计算各自得当前局分及总得分，最大牌型，并计算下一次庄家是谁*/
+		for(MjPlayerInfo player : playerList){
+			/**计算各自的最大牌型*/
+			if (player.getCardType() > player.getMaxCardType()) {
+				player.setMaxCardType(player.getCardType());
 			}
+			if (player.getIsHu() == 1) {
+				huPlayerIdList.add(player.getPlayerId());
+			}
+		}
+		if (huPlayerIdList.size() == 0) {/**可能是开局或者荒庄*/
+			
+		}else if(huPlayerIdList.size() == 1){
+			roomInfo.setRoomBankerId(huPlayerIdList.get(0));
 		}else{
 			roomInfo.setRoomBankerId(roomInfo.getLastPlayerId());
 		}
+	}
+	/**
+	 * 牌局结束，计算得分
+	 * @param roomInfo
+	 */
+	private void calculateScore(MjRoomInfo roomInfo){
+		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		/**将其他玩家的牌依次与庄家进行比较，计算各自得当前局分及总得分，最大牌型，并计算下一次庄家是谁*/
 		for(MjPlayerInfo player : playerList){
 			/**计算各自的最大牌型*/
@@ -910,7 +984,6 @@ public class MjGameService extends BaseGameService{
 				player.setMaxCardType(player.getCardType());
 			}
 		}
-		
 		/**设置房间的总赢家及当前赢家*/
 		Integer totalWinnerId = playerList.get(0).getPlayerId();
 		Integer curWinnerId = playerList.get(0).getPlayerId();
