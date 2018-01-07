@@ -165,7 +165,7 @@ public class MjCardRule {
 				return false;
 			}
 		}else{
-			if (!operationStr.equals(existOperationStr)) {
+			if (!existOperationStr.contains(operationStr)) {
 				return false;
 			}
 		}
@@ -587,17 +587,19 @@ public class MjCardRule {
 	}
 	
 	public static void main(String[] args) {
-		List<Integer> handCardList = new ArrayList<Integer>();
-		handCardList.add(34);
-		handCardList.add(34);
-		handCardList.add(34);
-		handCardList.add(34);
-		String ss = "34,35,1_34,2_34,36,3_34,37,39,4";
-		System.out.println(ss);
-		String str = replaceFlowerCards(handCardList, ss);
-		
-		System.out.println(str);
-		System.out.println(JsonUtil.toJson(handCardList));
+//		List<Integer> handCardList = new ArrayList<Integer>();
+//		handCardList.add(34);
+//		handCardList.add(34);
+//		handCardList.add(34);
+//		handCardList.add(34);
+//		String ss = "34,35,1_34,2_34,36,3_34,37,39,4";
+//		System.out.println(ss);
+//		String str = replaceFlowerCards(handCardList, ss);
+//		
+//		System.out.println(str);
+//		System.out.println(JsonUtil.toJson(handCardList));
+		String a = "0,1_2,3";
+		System.out.println(a.contains("2,3"));
 	}
 	/**
 	 * 校验摸牌补花的情况

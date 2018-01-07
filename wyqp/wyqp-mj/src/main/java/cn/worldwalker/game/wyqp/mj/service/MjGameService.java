@@ -349,6 +349,7 @@ public class MjGameService extends BaseGameService{
 			data.clear();
 			data.put("curPlayerId", playerId);
 			data.put("addFlowerCount", player.getCurAddFlowerNum());
+			result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
 		}
 		
@@ -583,6 +584,8 @@ public class MjGameService extends BaseGameService{
 	
 	public void tingPai(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
 		Result result = new Result();
+		Map<String, Object> data = new HashMap<String, Object>();
+		result.setData(data);
 		MjMsg msg = (MjMsg)request.getMsg();
 		Integer roomId = userInfo.getRoomId();
 		Integer playerId = userInfo.getPlayerId();
@@ -633,7 +636,6 @@ public class MjGameService extends BaseGameService{
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 			
 			/**给所有玩家返回听胡消息及当前说话的玩家*/
-			Map<String, Object> data = new HashMap<String, Object>();
 			data.put("playerId", playerId);
 			data.put("curPlayerId", curPlayerId);
 			result.setMsgType(MsgTypeEnum.tingPai.msgType);
@@ -665,7 +667,6 @@ public class MjGameService extends BaseGameService{
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 			/**给所有玩家返回听牌消息及当前说话的玩家*/
-			Map<String, Object> data = new HashMap<String, Object>();
 			result.setData(data);
 			data.put("playerId", playerId);
 			data.put("curPlayerId", curPlayerId);
