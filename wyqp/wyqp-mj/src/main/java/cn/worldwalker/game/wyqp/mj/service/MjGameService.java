@@ -979,13 +979,6 @@ public class MjGameService extends BaseGameService{
 	 */
 	private void calculateScore(MjRoomInfo roomInfo){
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
-		/**将其他玩家的牌依次与庄家进行比较，计算各自得当前局分及总得分，最大牌型，并计算下一次庄家是谁*/
-		for(MjPlayerInfo player : playerList){
-			/**计算各自的最大牌型*/
-			if (player.getCardType() > player.getMaxCardType()) {
-				player.setMaxCardType(player.getCardType());
-			}
-		}
 		/**设置房间的总赢家及当前赢家*/
 		Integer totalWinnerId = playerList.get(0).getPlayerId();
 		Integer curWinnerId = playerList.get(0).getPlayerId();

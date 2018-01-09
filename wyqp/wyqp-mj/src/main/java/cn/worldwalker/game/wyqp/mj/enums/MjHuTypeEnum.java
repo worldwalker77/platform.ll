@@ -9,6 +9,7 @@ public enum MjHuTypeEnum {
 	gangKai(4, 2, "杠开");
 	
 	public Integer type;
+	/**倍数*/
 	public Integer multiple;
 	public String desc;
 	
@@ -18,7 +19,7 @@ public enum MjHuTypeEnum {
 		this.desc = desc;
 	}
 	
-	public static MjHuTypeEnum getCardSuitBySuit(Integer type){
+	public static MjHuTypeEnum getMjHuTypeEnum(Integer type){
 		for(MjHuTypeEnum cardType : MjHuTypeEnum.values()){
 			if (cardType.type.equals(type)) {
 				return cardType;
