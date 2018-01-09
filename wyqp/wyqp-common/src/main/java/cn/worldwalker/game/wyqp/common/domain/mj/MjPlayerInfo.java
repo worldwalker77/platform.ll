@@ -2,6 +2,7 @@ package cn.worldwalker.game.wyqp.common.domain.mj;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import cn.worldwalker.game.wyqp.common.domain.base.BasePlayerInfo;
 
@@ -26,6 +27,8 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private Integer isTingHu = 0;
 	/**当前操作补花数*/
 	private Integer curAddFlowerNum = 0;
+	/**所有补花数*/
+	private Integer totalAddFlowerNum = 0;
 	/**是否胡牌*/
 	private Integer isHu = 0;
 	/**倍数*/
@@ -34,7 +37,29 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private Integer huType = 0;
 	/**牌型列表，可能是组合牌型，比如清一色碰碰胡*/
 	private List<Integer> mjCardTypeList = new ArrayList<Integer>();
+	/**底分和花分*/
+	private Integer buttomAndFlowerScore = 0;
+	/**断线重连刷新的时候会通过这个接口返回当前玩家的操作权限*/
+	private TreeMap<Integer, String> operations;
 	
+	public Integer getTotalAddFlowerNum() {
+		return totalAddFlowerNum;
+	}
+	public void setTotalAddFlowerNum(Integer totalAddFlowerNum) {
+		this.totalAddFlowerNum = totalAddFlowerNum;
+	}
+	public TreeMap<Integer, String> getOperations() {
+		return operations;
+	}
+	public void setOperations(TreeMap<Integer, String> operations) {
+		this.operations = operations;
+	}
+	public Integer getButtomAndFlowerScore() {
+		return buttomAndFlowerScore;
+	}
+	public void setButtomAndFlowerScore(Integer buttomAndFlowerScore) {
+		this.buttomAndFlowerScore = buttomAndFlowerScore;
+	}
 	public List<Integer> getMjCardTypeList() {
 		return mjCardTypeList;
 	}

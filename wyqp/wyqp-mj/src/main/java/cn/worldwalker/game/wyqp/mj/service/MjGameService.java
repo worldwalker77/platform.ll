@@ -23,6 +23,7 @@ import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
 import cn.worldwalker.game.wyqp.common.enums.GameTypeEnum;
 import cn.worldwalker.game.wyqp.common.enums.MsgTypeEnum;
+import cn.worldwalker.game.wyqp.common.enums.OnlineStatusEnum;
 import cn.worldwalker.game.wyqp.common.enums.RoomCardOperationEnum;
 import cn.worldwalker.game.wyqp.common.enums.RoomStatusEnum;
 import cn.worldwalker.game.wyqp.common.exception.BusinessException;
@@ -1067,7 +1068,88 @@ public class MjGameService extends BaseGameService{
 	
 	@Override
 	public List<BaseRoomInfo> doRefreshRoom(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
-		return null;
+		List<BaseRoomInfo> roomInfoList = new ArrayList<BaseRoomInfo>();
+		Integer playerId = userInfo.getPlayerId();
+		Integer roomId = userInfo.getRoomId();
+		MjRoomInfo roomInfo = redisOperationService.getRoomInfoByRoomId(roomId, MjRoomInfo.class);
+		MjRoomInfo newRoomInfo = new MjRoomInfo();
+		roomInfoList.add(roomInfo);
+		roomInfoList.add(newRoomInfo);
+		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
+		/**根据不同的房间及玩家状态设置返回房间信息*/
+		MjRoomStatusEnum roomStatusEnum = MjRoomStatusEnum.getRoomStatusEnum(roomInfo.getStatus());
+		newRoomInfo.setGameType(roomInfo.getGameType());
+		newRoomInfo.setStatus(roomStatusEnum.status);
+		newRoomInfo.setRoomId(roomId);
+		newRoomInfo.setRoomOwnerId(roomInfo.getRoomOwnerId());
+		newRoomInfo.setRoomBankerId(roomInfo.getRoomBankerId());
+		newRoomInfo.setTotalGames(roomInfo.getTotalGames());
+		newRoomInfo.setCurGame(roomInfo.getCurGame());
+		newRoomInfo.setPayType(roomInfo.getPayType());
+		newRoomInfo.setCurPlayerId(roomInfo.getCurPlayerId());
+		newRoomInfo.setLastPlayerId(roomInfo.getLastPlayerId());
+		newRoomInfo.setLastCardIndex(roomInfo.getLastCardIndex());
+		for(MjPlayerInfo player : playerList){
+			MjPlayerInfo newPlayer = new MjPlayerInfo();
+			newRoomInfo.getPlayerList().add(newPlayer);
+			newPlayer.setPlayerId(player.getPlayerId());
+			newPlayer.setNickName(player.getNickName());
+			newPlayer.setHeadImgUrl(player.getHeadImgUrl());
+			newPlayer.setOrder(player.getOrder());
+			newPlayer.setRoomCardNum(player.getRoomCardNum());
+			newPlayer.setLevel(player.getLevel());
+			newPlayer.setStatus(player.getStatus());
+			newPlayer.setTotalScore(player.getTotalScore());
+			if (playerId.equals(player.getPlayerId())) {
+				newPlayer.setOnlineStatus(OnlineStatusEnum.online.status);
+			}else{
+				newPlayer.setOnlineStatus(player.getOnlineStatus());
+			}
+			newPlayer.setChiCardList(player.getChiCardList());
+			newPlayer.setPengCardList(player.getPengCardList());
+			newPlayer.setMingGangCardList(player.getMingGangCardList());
+			newPlayer.setAnGangCardList(player.getAnGangCardList());
+			newPlayer.setDiscardCardList(player.getDiscardCardList());
+			newPlayer.setTotalAddFlowerNum(player.getFlowerCardList().size());
+			switch (roomStatusEnum) {
+				case justBegin:
+					break;
+				case inGame:
+					newPlayer.setIsTingHu(player.getIsTingHu());
+					if (playerId.equals(player.getPlayerId())) {
+						newPlayer.setHandCardList(player.getHandCardList());
+						if (playerId.equals(roomInfo.getCurPlayerId())) {
+							newPlayer.setOperations(MjCardRule.getPlayerHighestPriority(roomInfo, playerId));
+							newPlayer.setCurMoPaiCardIndex(player.getCurMoPaiCardIndex());
+						}
+					}
+					break;
+				case curGameOver:
+					newPlayer.setHandCardList(player.getHandCardList());
+					newPlayer.setIsHu(player.getIsHu());
+					newPlayer.setHuType(player.getHuType());
+					newPlayer.setMjCardTypeList(player.getMjCardTypeList());
+					newPlayer.setCurScore(player.getCurScore());
+					newPlayer.setMultiple(player.getMultiple());
+					newPlayer.setButtomAndFlowerScore(player.getButtomAndFlowerScore());
+					break;
+				case totalGameOver:
+					newPlayer.setHandCardList(player.getHandCardList());
+					newPlayer.setIsHu(player.getIsHu());
+					newPlayer.setHuType(player.getHuType());
+					newPlayer.setMjCardTypeList(player.getMjCardTypeList());
+					newPlayer.setCurScore(player.getCurScore());
+					newPlayer.setMultiple(player.getMultiple());
+					newPlayer.setButtomAndFlowerScore(player.getButtomAndFlowerScore());
+					newPlayer.setWinTimes(player.getWinTimes());
+					newPlayer.setLoseTimes(player.getLoseTimes());
+					break;
+				default:
+					break;
+			}
+		}
+		
+		return roomInfoList;
 	}
 
 	@Override
