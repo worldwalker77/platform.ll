@@ -75,14 +75,14 @@ public class MjCardTypeCalculation {
 	public static void calShangHaiQiaoMaCardTypeAndMultiple(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
 		
 		/****************牌型计算*****************************/
-		/**大吊车校验*/
-		checkDaDiaoChe(player, mjTypeEnum, handCards);
 		/**门清校验*/
 		checkMenQing(player, mjTypeEnum, handCards);
 		/**清一色校验*/
 		checkQingYiSe(player, mjTypeEnum, handCards);
 		/**混一色校验*/
 		checkHunYiSe(player, mjTypeEnum, handCards);
+		/**大吊车校验*/
+		checkDaDiaoChe(player, mjTypeEnum, handCards);
 		/**碰碰胡校验*/
 		checkPengPengHu(player, mjTypeEnum, handCards);
 		List<Integer> mjCardTypeList = player.getMjCardTypeList();
