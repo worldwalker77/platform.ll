@@ -186,6 +186,9 @@ public class MjCardRule {
 		playerInfo.setIsHu(0);
 		playerInfo.setHuType(0);
 		playerInfo.setMultiple(0);
+		playerInfo.setTotalAddFlowerNum(0);
+		playerInfo.setButtomAndFlowerScore(0);
+		playerInfo.getMjCardTypeList().clear();
 		playerInfo.setHandCardList(null);
 		playerInfo.getChiCardList().clear();
 		playerInfo.getPengCardList().clear();

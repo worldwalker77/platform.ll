@@ -5,11 +5,36 @@ import java.util.List;
 
 import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
+import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.QmCardTypeEnum;
+import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 public class MjCardTypeCalculation {
+	
+	public static void main(String[] args) {
+		
+		MjRoomInfo roomInfo = new MjRoomInfo();
+		roomInfo.setHuButtomScore(1);
+		roomInfo.setEachFlowerScore(1);
+		roomInfo.setLastCardIndex(3);
+		MjPlayerInfo player = new MjPlayerInfo();
+		player.setHuType(MjHuTypeEnum.zhuaChong.type);
+		List<Integer> handCardList = Arrays.asList(3);
+		List<Integer> chiCardList = Arrays.asList(1,2);
+		List<Integer> pengCardList = Arrays.asList(0,0,0,1,1,1,4,4,4,30,30,30);
+		List<Integer> mingGangCardList = Arrays.asList(1,2);
+		List<Integer> anGangCardList = Arrays.asList(1,2);
+		List<Integer> flowerCardList = Arrays.asList(33,33,34,34);
+		player.setHandCardList(handCardList);
+		player.setPengCardList(pengCardList);
+		player.setFlowerCardList(flowerCardList);
+		calButtomFlowerScoreAndCardTypeAndMultiple(player, roomInfo);
+		System.out.println(JsonUtil.toJson(player.getMjCardTypeList()));
+		System.out.println("底花分：" + player.getButtomAndFlowerScore());
+		System.out.println("倍数：" + player.getMultiple());
+	}
 	
 	/**
 	 * 计算底花分、牌型、倍数
@@ -34,7 +59,7 @@ public class MjCardTypeCalculation {
 	
 	public static int[] getHandCards(MjPlayerInfo player, MjRoomInfo roomInfo){
 		List<Integer> handCardList = player.getHandCardList();
-		int[] handCards = new int[31];
+		int[] handCards = new int[Hulib.indexLine];
 		for(Integer cardIndex : handCardList){
 			handCards[cardIndex]++;
 		}
@@ -130,7 +155,7 @@ public class MjCardTypeCalculation {
 	
 	public static void checkDaDiaoChe(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
 		
-		if (handCards.length == 2) {
+		if (player.getHandCardList().size() == 1) {
 			switch (mjTypeEnum) {
 				case shangHaiQiaoMa:
 					player.getMjCardTypeList().add(QmCardTypeEnum.daDiaoChe.type);
@@ -148,12 +173,12 @@ public class MjCardTypeCalculation {
 				case shangHaiQiaoMa:
 					player.getMjCardTypeList().add(QmCardTypeEnum.menQing.type);
 					break;
-		
 				default:
 					break;
 			}
 		}
 	}
+	
 	public static void checkQingYiSe(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
 		List<Integer> handCardList = player.getHandCardList();
 		Integer maxCardIndex = handCardList.get(0);
@@ -233,44 +258,112 @@ public class MjCardTypeCalculation {
 	
 	
 	public static void checkHunYiSe(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
-		
-		if (handCards.length == 2) {
-			switch (mjTypeEnum) {
-				case shangHaiQiaoMa:
-					player.getMjCardTypeList().add(QmCardTypeEnum.daDiaoChe.type);
-					break;
-		
-				default:
-					break;
+		List<Integer> handCardList = player.getHandCardList();
+		List<Integer> chiCardList = player.getChiCardList();
+		List<Integer> pengCardList = player.getPengCardList();
+		List<Integer> mingGangCardList = player.getMingGangCardList();
+		List<Integer> anGangCardList = player.getAnGangCardList();
+		int wanNum = 0;
+		int tongNum = 0;
+		int tiaoNum = 0;
+		int fengNum = 0;
+		for(Integer cardInex : handCardList){
+			if (cardInex >= 0 && cardInex <= 8) {
+				wanNum++;
+			}else if(cardInex >= 9 && cardInex <= 17){
+				tongNum++;
+			}else if(cardInex >= 18 && cardInex <= 26){
+				tiaoNum++;
+			}else{
+				fengNum++;
 			}
 		}
-	}
-	public static void checkWuHuaGuo(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
-		
-		if (handCards.length == 2) {
-			switch (mjTypeEnum) {
-				case shangHaiQiaoMa:
-					player.getMjCardTypeList().add(QmCardTypeEnum.daDiaoChe.type);
-					break;
-		
-				default:
-					break;
+		for(Integer cardInex : chiCardList){
+			if (cardInex >= 0 && cardInex <= 8) {
+				wanNum++;
+			}else if(cardInex >= 9 && cardInex <= 17){
+				tongNum++;
+			}else if(cardInex >= 18 && cardInex <= 26){
+				tiaoNum++;
+			}else{
+				fengNum++;
 			}
 		}
+		for(Integer cardInex : pengCardList){
+			if (cardInex >= 0 && cardInex <= 8) {
+				wanNum++;
+			}else if(cardInex >= 9 && cardInex <= 17){
+				tongNum++;
+			}else if(cardInex >= 18 && cardInex <= 26){
+				tiaoNum++;
+			}else{
+				fengNum++;
+			}
+		}
+		for(Integer cardInex : mingGangCardList){
+			if (cardInex >= 0 && cardInex <= 8) {
+				wanNum++;
+			}else if(cardInex >= 9 && cardInex <= 17){
+				tongNum++;
+			}else if(cardInex >= 18 && cardInex <= 26){
+				tiaoNum++;
+			}else{
+				fengNum++;
+			}
+		}
+		for(Integer cardInex : anGangCardList){
+			if (cardInex >= 0 && cardInex <= 8) {
+				wanNum++;
+			}else if(cardInex >= 9 && cardInex <= 17){
+				tongNum++;
+			}else if(cardInex >= 18 && cardInex <= 26){
+				tiaoNum++;
+			}else{
+				fengNum++;
+			}
+		}
+		if (fengNum == 0) {
+			return;
+		}
+		if ((wanNum > 0 && tongNum == 0 && tiaoNum == 0) 
+			||(wanNum == 0 && tongNum > 0 && tiaoNum == 0)
+			||(wanNum == 0 && tongNum == 0 && tiaoNum > 0)) {
+			switch (mjTypeEnum) {
+			case shangHaiQiaoMa:
+				player.getMjCardTypeList().add(QmCardTypeEnum.hunYiSe.type);
+				break;
+	
+			default:
+				break;
+			}
+		}
+		
 	}
+	
 	public static void checkPengPengHu(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
-		
-		if (handCards.length == 2) {
-			switch (mjTypeEnum) {
-				case shangHaiQiaoMa:
-					player.getMjCardTypeList().add(QmCardTypeEnum.daDiaoChe.type);
-					break;
-		
-				default:
-					break;
+		if (player.getChiCardList().size() > 0) {
+			return;
+		}
+		int cardNum2 = 0;
+		for(int i = 0; i < Hulib.indexLine; i++){
+			if (handCards[i] == 1 || handCards[i] == 4) {
+				return;
+			}else if (handCards[i] == 2) {
+				cardNum2++;
 			}
 		}
-	}
+		if (cardNum2 > 1) {
+			return;
+		}
+		switch (mjTypeEnum) {
+			case shangHaiQiaoMa:
+				player.getMjCardTypeList().add(QmCardTypeEnum.pengPengHu.type);
+				break;
+	
+			default:
+				break;
+		}
+}
 	
 	
 }

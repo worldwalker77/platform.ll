@@ -41,7 +41,31 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private Integer buttomAndFlowerScore = 0;
 	/**断线重连刷新的时候会通过这个接口返回当前玩家的操作权限*/
 	private TreeMap<Integer, String> operations;
+	/**自摸次数*/
+	private Integer ziMoCount = 0;
+	/**抓冲次数*/
+	private Integer zhuaChongCount = 0;
+	/**点炮次数*/
+	private Integer dianPaoCount = 0;
 	
+	public Integer getZiMoCount() {
+		return ziMoCount;
+	}
+	public void setZiMoCount(Integer ziMoCount) {
+		this.ziMoCount = ziMoCount;
+	}
+	public Integer getZhuaChongCount() {
+		return zhuaChongCount;
+	}
+	public void setZhuaChongCount(Integer zhuaChongCount) {
+		this.zhuaChongCount = zhuaChongCount;
+	}
+	public Integer getDianPaoCount() {
+		return dianPaoCount;
+	}
+	public void setDianPaoCount(Integer dianPaoCount) {
+		this.dianPaoCount = dianPaoCount;
+	}
 	public Integer getTotalAddFlowerNum() {
 		return totalAddFlowerNum;
 	}

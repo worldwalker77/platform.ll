@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseMsg;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRequest;
@@ -34,6 +35,7 @@ import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardResource;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardRule;
+import cn.worldwalker.game.wyqp.mj.cards.MjCardTypeCalculation;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
@@ -807,7 +809,6 @@ public class MjGameService extends BaseGameService{
 		}
 		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
 		player.setIsHu(1);
-		player.setCardType(1);
 		/**获取胡牌的类型*/
 		Integer playerHuTypeInt = Integer.valueOf(MjCardRule.getPlayerHighestPriority(roomInfo, playerId).get(MjOperationEnum.hu.type));
 		/**将当前玩家的可操作性权限删除*/
@@ -857,6 +858,11 @@ public class MjGameService extends BaseGameService{
 				newPlayer.put("huType", temp.getHuType());
 				newPlayer.put("buttomAndFlowerScore", 0);
 				newPlayer.put("multiple", temp.getMultiple());
+				if (roomInfo.getStatus().equals(MjRoomStatusEnum.totalGameOver.status)) {
+					newPlayer.put("ziMoCount", temp.getZiMoCount());
+					newPlayer.put("zhuaChongCount", temp.getZhuaChongCount());
+					newPlayer.put("dianPaoCount", temp.getDianPaoCount());
+				}
 				newPlayerList.add(newPlayer);
 			}
 			data.put("playerList", newPlayerList);
@@ -908,8 +914,11 @@ public class MjGameService extends BaseGameService{
 					newPlayer.put("huType", temp.getHuType());
 					newPlayer.put("buttomAndFlowerScore", 0);
 					newPlayer.put("multiple", temp.getMultiple());
-					newPlayer.put("winTimes", temp.getWinTimes());
-					newPlayer.put("loseTimes", temp.getLoseTimes());
+					if (roomInfo.getStatus().equals(MjRoomStatusEnum.totalGameOver.status)) {
+						newPlayer.put("ziMoCount", temp.getZiMoCount());
+						newPlayer.put("zhuaChongCount", temp.getZhuaChongCount());
+						newPlayer.put("dianPaoCount", temp.getDianPaoCount());
+					}
 					newPlayerList.add(newPlayer);
 				}
 				data.put("playerList", newPlayerList);
@@ -939,7 +948,7 @@ public class MjGameService extends BaseGameService{
 				/**给下一个可胡牌玩家之外的其他玩家返回信息*/
 				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
 				TreeMap<Integer, String> operations = new TreeMap<Integer, String>();
-				operations.put(MjOperationEnum.hu.type, "0");
+				operations.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.zhuaChong.type));
 				/**当前说话者可操作权限，胡牌*/
 				data.put("operations", operations);
 				/**给下一个可胡牌玩家返回信息*/
@@ -979,25 +988,59 @@ public class MjGameService extends BaseGameService{
 	 */
 	private void calculateScore(MjRoomInfo roomInfo){
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
-		/**设置房间的总赢家及当前赢家*/
-		Integer totalWinnerId = playerList.get(0).getPlayerId();
-		Integer curWinnerId = playerList.get(0).getPlayerId();
-		Integer maxTotalScore = playerList.get(0).getTotalScore();
-		Integer maxCurScore = playerList.get(0).getCurScore();
+		List<MjPlayerInfo> huPlayerList = new ArrayList<MjPlayerInfo>();
 		for(MjPlayerInfo player : playerList){
+			if (player.getIsHu() == 1) {
+				MjCardTypeCalculation.calButtomFlowerScoreAndCardTypeAndMultiple(player, roomInfo);
+				huPlayerList.add(player);
+			}
+		}
+		MjPlayerInfo huPlayer = null;
+		MjPlayerInfo dianPaoPlayer = null;
+		/**如果只有一个人胡牌*/
+		if (huPlayerList.size() == 1) {
+			huPlayer = huPlayerList.get(0);
+			Integer tempScore = huPlayer.getButtomAndFlowerScore()*huPlayer.getMultiple();
+			Integer huType = huPlayer.getHuType();
+			if (MjHuTypeEnum.zhuaChong.type.equals(huType) || MjHuTypeEnum.qiangGang.type.equals(huType)) {
+				huPlayer.setCurScore(tempScore);
+				huPlayer.setZhuaChongCount(huPlayer.getZhuaChongCount() + 1);
+				dianPaoPlayer = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), roomInfo.getLastPlayerId());
+				dianPaoPlayer.setCurScore(0 - tempScore);
+				dianPaoPlayer.setDianPaoCount(dianPaoPlayer.getDianPaoCount() + 1);
+			}else if(MjHuTypeEnum.ziMo.type.equals(huType) || MjHuTypeEnum.gangKai.type.equals(huType)){
+				huPlayer.setCurScore(tempScore*3);
+				huPlayer.setZiMoCount(huPlayer.getZiMoCount() + 1);
+				for(MjPlayerInfo player : playerList){
+					if (!player.getPlayerId().equals(huPlayer.getPlayerId())) {
+						player.setCurScore(0 - tempScore);
+					}
+				}
+			}
+		}else if(huPlayerList.size() > 1 && huPlayerList.size() < 4){/**如果是一炮多响*/
+			dianPaoPlayer = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), roomInfo.getLastPlayerId());
+			for(MjPlayerInfo player : huPlayerList){
+				Integer tempScore = player.getButtomAndFlowerScore()*player.getMultiple();
+				player.setCurScore(tempScore);
+				player.setZhuaChongCount(player.getZhuaChongCount() + 1);
+				dianPaoPlayer.setCurScore(dianPaoPlayer.getCurScore() - tempScore);
+				dianPaoPlayer.setDianPaoCount(dianPaoPlayer.getDianPaoCount() + 1);
+			}
+		}else{
+			throw new BusinessException(ExceptionEnum.HU_PLAYER_NUM_ERROR);
+		}
+		/**计算每个玩家总得分及设置房间的总赢家*/
+		Integer totalWinnerId = playerList.get(0).getPlayerId();
+		Integer maxTotalScore = playerList.get(0).getTotalScore();
+		for(MjPlayerInfo player : playerList){
+			player.setTotalScore(player.getTotalScore() + player.getCurScore());
 			Integer tempTotalScore = player.getTotalScore();
-			Integer tempCurScore = player.getCurScore();
 			if (tempTotalScore > maxTotalScore) {
 				maxTotalScore = tempTotalScore;
 				totalWinnerId = player.getPlayerId();
 			}
-			if (tempCurScore > maxCurScore) {
-				maxCurScore = tempCurScore;
-				curWinnerId = player.getPlayerId();
-			}
 		}
 		roomInfo.setTotalWinnerId(totalWinnerId);
-		roomInfo.setCurWinnerId(curWinnerId);
 		/**如果当前局数小于总局数，则设置为当前局结束*/
 		if (roomInfo.getCurGame() < roomInfo.getTotalGames()) {
 			roomInfo.setStatus(MjRoomStatusEnum.curGameOver.status);
