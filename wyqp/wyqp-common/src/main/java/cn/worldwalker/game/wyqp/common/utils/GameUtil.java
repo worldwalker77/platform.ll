@@ -78,6 +78,18 @@ public class GameUtil {
 		return arr;
 	}
 	
+	public static List<Integer> getPlayerIdListWithOutSelf(List playerList, Integer playerId){
+		int size = playerList.size();
+		List<Integer> playerIdList = new ArrayList<Integer>();
+		for(int i = 0; i < size; i++){
+			BasePlayerInfo playerInfo = (BasePlayerInfo)playerList.get(i);
+			if (!playerId.equals(playerInfo.getPlayerId())) {
+				playerIdList.add(playerInfo.getPlayerId());
+			}
+		}
+		return playerIdList;
+	}
+	
 	public static Integer[] getPlayerIdArrWithOutRoomBanker(List playerList, Integer roomBankerId){
 		int size = playerList.size();
 		List<Integer> playerIdList = new ArrayList<Integer>();

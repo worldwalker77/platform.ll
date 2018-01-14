@@ -68,6 +68,22 @@ public class ChannelContainer {
 		}
 	}
 	
+	public void sendTextMsgByPlayerIds(Result result, List<Integer> playerIds){
+		if (redisOperationService.isLogFuseOpen() && result.getMsgType() != MsgTypeEnum.heartBeat.msgType) {
+			log.info("返回 ," + MsgTypeEnum.getMsgTypeEnumByType(result.getMsgType()).desc + ": " + JsonUtil.toJson(result));
+		}
+		for(Integer playerId : playerIds){
+			Channel channel = getChannel(playerId);
+			if (null != channel) {
+				try {
+					channel.writeAndFlush(new TextWebSocketFrame(JsonUtil.toJson(result)));
+				} catch (Exception e) {
+					log.error("sendTextMsgByPlayerId error, playerId: " + playerId + ", result : " + JsonUtil.toJson(result), e);
+				}
+			}
+		}
+	}
+	
 	public void sendTextMsgToAllPlayer(Result result){
 		if (redisOperationService.isLogFuseOpen()) {
 			log.info("返回 ：" + JsonUtil.toJson(result));

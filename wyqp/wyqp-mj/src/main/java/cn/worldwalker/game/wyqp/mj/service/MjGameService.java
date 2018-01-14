@@ -254,7 +254,11 @@ public class MjGameService extends BaseGameService{
 			data.put("cardIndex", roomInfo.getLastCardIndex());
 			data.put("curPlayerId", curPlayerId);
 			result.setMsgType(MsgTypeEnum.chuPai.msgType);
-			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
+			List<Integer> playerIdList = GameUtil.getPlayerIdListWithOutSelf(playerList, curPlayerId);
+			playerIdList.remove(playerId);
+			channelContainer.sendTextMsgByPlayerIds(result, playerIdList);
+			data.put("handCardList", player.getHandCardList());
+			channelContainer.sendTextMsgByPlayerIds(result, playerId);
 			/**给当前玩家返回摸牌信息*/
 			data.clear();
 			data.put("playerId", roomInfo.getLastPlayerId());
@@ -268,6 +272,9 @@ public class MjGameService extends BaseGameService{
 				data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
 			}
 			result.setMsgType(MsgTypeEnum.moPai.msgType);
+			/**给摸牌的玩家返回手牌*/
+			curPlayer.getHandCardList().add(MjCardRule.getRealMoPai(moPaiAddFlower));
+			data.put("handCardList", curPlayer.getHandCardList());
 			channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
 			
 			/**给其他的玩家返回补花数*/
@@ -289,9 +296,24 @@ public class MjGameService extends BaseGameService{
 			data.put("cardIndex", msg.getCardIndex());
 			data.put("curPlayerId", curPlayerId);
 			result.setMsgType(MsgTypeEnum.chuPai.msgType);
-			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
-			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
-			channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+			List<Integer> playerIdList = GameUtil.getPlayerIdListWithOutSelf(playerList, curPlayerId);
+			MjPlayerInfo curPlayer = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), curPlayerId);
+			/**如果出牌的玩家和出牌吼后具有操作权限的玩家是同一个，则说明是出牌后听牌操作*/
+			if (curPlayerId.equals(playerId)) {
+				channelContainer.sendTextMsgByPlayerIds(result, playerIdList);
+				data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+				data.put("handCardList", curPlayer.getHandCardList());
+				channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+			}else{
+				playerIdList.remove(playerId);
+				channelContainer.sendTextMsgByPlayerIds(result, playerIdList);
+				data.put("handCardList", player.getHandCardList());
+				channelContainer.sendTextMsgByPlayerIds(result, playerId);
+				data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
+				data.remove("handCardList");
+				channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+			}
+			
 		}
 		
 	}
@@ -495,6 +517,9 @@ public class MjGameService extends BaseGameService{
 				data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, playerId));
 			}
 			result.setMsgType(MsgTypeEnum.moPai.msgType);
+			/**给摸牌的玩家返回手牌*/
+			player.getHandCardList().add(MjCardRule.getRealMoPai(moPaiAddFlower));
+			data.put("handCardList", player.getHandCardList());
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);
 			
 			/**给其他玩家返回明杠信息*/
@@ -565,6 +590,9 @@ public class MjGameService extends BaseGameService{
 			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, playerId));
 		}
 		result.setMsgType(MsgTypeEnum.moPai.msgType);
+		/**给摸牌的玩家返回手牌*/
+		player.getHandCardList().add(MjCardRule.getRealMoPai(moPaiAddFlower));
+		data.put("handCardList", player.getHandCardList());
 		channelContainer.sendTextMsgByPlayerIds(result, playerId);
 		
 		/**给其他玩家返回明杠信息*/
@@ -656,6 +684,9 @@ public class MjGameService extends BaseGameService{
 				data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
 			}
 			result.setMsgType(MsgTypeEnum.moPai.msgType);
+			/**给摸牌的玩家返回手牌*/
+			curPlayer.getHandCardList().add(MjCardRule.getRealMoPai(moPaiAddFlower));
+			data.put("handCardList", curPlayer.getHandCardList());
 			channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
 			/**给其他的玩家返回补花数*/
 			if (curPlayer.getCurAddFlowerNum() > 0) {
@@ -758,6 +789,9 @@ public class MjGameService extends BaseGameService{
 					data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
 				}
 				result.setMsgType(MsgTypeEnum.moPai.msgType);
+				/**给摸牌的玩家返回手牌*/
+				curPlayer.getHandCardList().add(MjCardRule.getRealMoPai(moPaiAddFlower));
+				data.put("handCardList", curPlayer.getHandCardList());
 				channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
 				/**给其他的玩家返回补花数*/
 				if (curPlayer.getCurAddFlowerNum() > 0) {
