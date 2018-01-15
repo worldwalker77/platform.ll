@@ -55,6 +55,26 @@
 	     					now(), 
 	     					now())    
     </insert>  
+    
+    
+    <update id="updateUserByPlayerId"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.UserModel">
+		update t_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="mobile != null">
+				mobile = #{mobile},
+			</if>
+			<if test="realName != null">
+				real_name = #{realName},
+			</if>
+			<if test="idNo != null">
+				id_no = #{idNo},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime},
+			</if>
+		</trim>
+		where player_id = #{playerId}
+	</update>
 
 </mapper>
 

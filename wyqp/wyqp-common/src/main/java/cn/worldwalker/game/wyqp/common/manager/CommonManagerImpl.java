@@ -323,4 +323,8 @@ public class CommonManagerImpl implements CommonManager{
 	public Integer addRoomCard(Map<String, Object> map) {
 		return userDao.addRoomCard(map);
 	}
+	@Override
+	public Integer updateUserByPlayerId(UserModel userModel) {
+		return userDao.updateUserByPlayerId(userModel);
+	}
 }

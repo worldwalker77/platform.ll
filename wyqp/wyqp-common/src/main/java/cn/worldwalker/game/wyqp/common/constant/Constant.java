@@ -39,6 +39,8 @@ public class Constant {
 	/**炸金花玩家超过30s没操作，则自动弃牌*/
 	public final static String jhNoOperationIpPlayerIdRoomIdTimeMap = curCompany + "_jh_no_operation_ip_player_id_room_id_time_map_" + localIp;
 	
+	/**sms短信验证码超时map*/
+	public final static String smsValidCodeMap = curCompany + "_sms_valide_code_map";
 
 	public static String noticeMsg = "游戏忠告:文明游戏，禁止赌博及其他违法行为  游戏代理及相关咨询加微信：" + CustomizedPropertyConfigurer.getContextProperty("proxy.cus.weixin");
 	
@@ -102,7 +104,14 @@ public class Constant {
 	
 	public static final int isTest = Integer.valueOf(CustomizedPropertyConfigurer.getContextProperty("is.test"));
 	
-	public static final String mjTablePath = (isTest == 1? "C:/Users/lenovo/Desktop/game-ll/tables/" : CustomizedPropertyConfigurer.getContextProperty("mj.table.path"));
-
+	public static final String mjTablePath = (isTest == 1? "C:/Users/jinfeng.liu/Desktop/game/tables/" : CustomizedPropertyConfigurer.getContextProperty("mj.table.path"));
+	
+	public static final String sendSmsUrl = CustomizedPropertyConfigurer.getContextProperty("send.sms.url");
+	
+	public static final String smsAppId = CustomizedPropertyConfigurer.getContextProperty("sms.app.id");
+	
+	public static final String smsApiKey = CustomizedPropertyConfigurer.getContextProperty("sms.api.key");
+	
+	public static final String smsContent = "您的验证码是：CODE。请不要把验证码泄露给其他人。";
 	
 }

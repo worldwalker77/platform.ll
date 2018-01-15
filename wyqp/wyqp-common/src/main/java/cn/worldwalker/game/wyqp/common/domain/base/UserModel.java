@@ -18,11 +18,51 @@ public class UserModel {
 	
 	private Integer roomCardNum;
 	
+	private String mobile;
+	
+	private Integer sex;
+	
+	private String realName;
+	
+	private String idNo;
+	
 	private Date createtime;
 	
 	private Date updateTime;
 
 	private Integer winProbability = 0;
+
+	public String getRealName() {
+		return realName;
+	}
+
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+
+	public String getIdNo() {
+		return idNo;
+	}
+
+	public void setIdNo(String idNo) {
+		this.idNo = idNo;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public Integer getSex() {
+		return sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
 
 	public Integer getWinProbability() {
 		return winProbability;

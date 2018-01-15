@@ -47,7 +47,15 @@ public class MjPlayerInfo extends BasePlayerInfo{
 	private Integer zhuaChongCount = 0;
 	/**点炮次数*/
 	private Integer dianPaoCount = 0;
+	/**飞苍蝇牌索引*/
+	private Integer feiCangYingCardIndex;
 	
+	public Integer getFeiCangYingCardIndex() {
+		return feiCangYingCardIndex;
+	}
+	public void setFeiCangYingCardIndex(Integer feiCangYingCardIndex) {
+		this.feiCangYingCardIndex = feiCangYingCardIndex;
+	}
 	public Integer getZiMoCount() {
 		return ziMoCount;
 	}

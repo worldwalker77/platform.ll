@@ -16,8 +16,9 @@ import org.apache.commons.lang.StringUtils;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
 import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
+import cn.worldwalker.game.wyqp.common.exception.BusinessException;
+import cn.worldwalker.game.wyqp.common.exception.ExceptionEnum;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
-import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
@@ -176,6 +177,11 @@ public class MjCardRule {
 	public static void initMjRoom(MjRoomInfo roomInfo){
 		roomInfo.setLastCardIndex(null);
 		roomInfo.setLastPlayerId(null);
+		roomInfo.setIsCurGameKaiBao(0);
+		if (roomInfo.getIsCurGameHuangZhuang() == 1) {
+			roomInfo.setHuangFanNum(roomInfo.getHuangFanNum() + 1);
+			roomInfo.setIsCurGameHuangZhuang(0);
+		}
 	}
 	
 	public static void initMjPlayer(MjPlayerInfo playerInfo){
@@ -188,6 +194,7 @@ public class MjCardRule {
 		playerInfo.setMultiple(0);
 		playerInfo.setTotalAddFlowerNum(0);
 		playerInfo.setButtomAndFlowerScore(0);
+		playerInfo.setFeiCangYingCardIndex(null);
 		playerInfo.getMjCardTypeList().clear();
 		playerInfo.setHandCardList(null);
 		playerInfo.getChiCardList().clear();
@@ -204,11 +211,16 @@ public class MjCardRule {
 	 * 摇色子
 	 * @return
 	 */
-	public static List<Integer> playDices(){
-		List<Integer> list = new ArrayList<Integer>();
-		list.add(GameUtil.genDice());
-		list.add(GameUtil.genDice());
-		return list;
+	public static boolean playDices(List<Integer> list){
+		Integer dice1 = GameUtil.genDice();
+		Integer dice2 = GameUtil.genDice();
+		list.add(dice1);
+		list.add(dice2);
+		String temp = dice1 + "" + dice2;
+		if ("11".equals(temp) || "44".equals(temp) ||"14".equals(temp) ||"41".equals(temp)) {
+			return true;
+		}
+		return false;
 	}
 	
 	public static Integer getRealMoPai(String moPaiAddFlower){
@@ -427,9 +439,11 @@ public class MjCardRule {
 				}
 				/**吃牌校验（只对出牌玩家的下家计算,只有没听胡的玩家才可以吃牌）*/
 				if (i == 1) {
-					String chiStr = checkChiPai(nextPlayer, cardIndex);
-					if (StringUtils.isNotBlank(chiStr)) {
-						map1.put(MjOperationEnum.chi.type, chiStr);
+					if (roomInfo.getIsChiPai() > 0) {
+						String chiStr = checkChiPai(nextPlayer, cardIndex);
+						if (StringUtils.isNotBlank(chiStr)) {
+							map1.put(MjOperationEnum.chi.type, chiStr);
+						}
 					}
 				}
 				/**碰牌校验*/
@@ -611,6 +625,10 @@ public class MjCardRule {
 	 * @return
 	 */
 	public static String checkMoPaiAddFlower(List<Integer> tableRemainderCardList, MjPlayerInfo player){
+		/**如果桌牌数为0，则结束*/
+		if (tableRemainderCardList.size() == 0) {
+			throw new BusinessException(ExceptionEnum.NO_MORE_CARD_ERROR);
+		}
 		Integer tempCard = MjCardResource.mopai(tableRemainderCardList);
 		/**如果摸的是非花牌，则直接返回这张牌*/
 		if (tempCard  < Hulib.indexLine) {

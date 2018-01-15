@@ -8,22 +8,30 @@ public class MjMsg extends BaseMsg{
 	/**牌索引*/
 	private Integer cardIndex;
 	/**是否开宝 0:不开宝 1：开宝*/
-	private Integer isKaiBao = 0;
+	private Integer isKaiBao = 1;
 	/**是否荒翻 0：不荒翻 1：荒翻*/
-	private Integer isHuangFan = 0;
+	private Integer isHuangFan = 1;
 	/**是否飞苍蝇 0：不飞苍蝇 1：飞苍蝇*/
 	private Integer isFeiCangyin = 0;
+	/**是否可以吃牌 0：不可以 1：可以*/
+	private Integer isChiPai = 1;
 	/**胡牌底分*/
-	private Integer huButtomScore = 0;
+	private Integer huButtomScore = 2;
 	/**每个花的分数*/
-	private Integer eachFlowerScore = 0;
+	private Integer eachFlowerScore = 1;
 	/**胡牌封顶分数*/
-	private Integer huScoreLimit = 0;
+	private Integer huScoreLimit = 20;
 	
 	private String chiCards;
 	private String pengCards;
 	private String gangCards;
 	
+	public Integer getIsChiPai() {
+		return isChiPai;
+	}
+	public void setIsChiPai(Integer isChiPai) {
+		this.isChiPai = isChiPai;
+	}
 	public String getChiCards() {
 		return chiCards;
 	}

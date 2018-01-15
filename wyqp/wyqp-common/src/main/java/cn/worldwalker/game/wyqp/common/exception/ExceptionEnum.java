@@ -28,12 +28,17 @@ public enum ExceptionEnum {
     ALREADY_IN_ROOM(22, "您已经在房间中，请输入房间号进入"),
     GIVE_AWAY_ROOM_CARD_FAIL(23, "赠送房卡失败"),
     ROOM_STATUS_CAN_NOT_READY(24, "当前房间状态不能准备"),
+    SEND_SMS_ERROR(25, "发送短信验证码异常"),
+    SMS_CODE_ERROR(26, "短信验证码错误或过期"),
     /**斗牛100-199*/
     
     /**麻将200-299*/
     NO_AUTHORITY(201, "没有此权限"),
     HU_TYPE_ERROR(202, "胡牌类型错误"),
     HU_PLAYER_NUM_ERROR(203, "胡牌玩家数量错误"),
+    NO_MORE_CARD_ERROR(204, "桌牌数量为0"),
+    
+    
 	/**金花300-399*/
     IS_NOT_YOUR_TURN(300, "抱歉，还没轮到你说话"),
 	STAKE_SCORE_ERROR_1(301, "你的跟注分数必须大于或等于前一个玩家"),

@@ -304,6 +304,45 @@ public class RedisOperationService {
 		return map;
 	}
 	
+	/**短信验证码超时map*/
+	public void setSmsMobileValideCodeTime(String mobile, String validCode){
+		if (gameInfoStorageType == 0 ) {
+			jedisTemplate.hset(Constant.smsValidCodeMap, mobile, validCode + "_" + String.valueOf(System.currentTimeMillis()));
+		}else{
+			GameInfoMemoryContainer.smsValidCodeMap.put(mobile, validCode + "_" + String.valueOf(System.currentTimeMillis()));
+		}
+		
+	}
+	
+	public String getSmsMobileValideCodeTime(String mobile){
+		String res = null;
+		if (gameInfoStorageType == 0 ) {
+			res = jedisTemplate.hget(Constant.smsValidCodeMap, mobile);
+		}else{
+			res = GameInfoMemoryContainer.smsValidCodeMap.get(mobile);
+		}
+		return res;
+	}
+	
+	public void delSmsMobileValideCodeTime(String mobile){
+		if (gameInfoStorageType == 0 ) {
+			jedisTemplate.hdel(Constant.smsValidCodeMap, mobile);
+		}else{
+			GameInfoMemoryContainer.smsValidCodeMap.remove(mobile);
+		}
+	}
+	
+	public Map<String, String> getAllSmsMobileValideCodeTime(){
+		Map<String, String> map = new HashMap<String, String>();
+		if (gameInfoStorageType == 0 ) {
+			map = jedisTemplate.hgetAll(Constant.smsValidCodeMap);
+		}else{
+			map.putAll(GameInfoMemoryContainer.smsValidCodeMap);
+			
+		}
+		return map;
+	}
+	
 	/**炸金花玩家超过120s没操作，则自动弃牌ip->playerId->roomId_curGame_stakeTimes_time*/
 	public void setJhNoOperationIpPlayerIdRoomIdTime(Integer playerId, Integer roomId, Integer curGame, Integer stakeTimes){
 		if (gameInfoStorageType == 0 ) {

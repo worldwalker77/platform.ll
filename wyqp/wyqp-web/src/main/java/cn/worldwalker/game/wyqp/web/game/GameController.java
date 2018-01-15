@@ -17,11 +17,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.domain.base.UserInfo;
+import cn.worldwalker.game.wyqp.common.exception.BusinessException;
 import cn.worldwalker.game.wyqp.common.manager.CommonManager;
 import cn.worldwalker.game.wyqp.common.result.Result;
-import cn.worldwalker.game.wyqp.common.service.BaseGameService;
 import cn.worldwalker.game.wyqp.common.service.RedisOperationService;
 import cn.worldwalker.game.wyqp.nn.service.NnGameService;
+import cn.worldwalker.game.wyqp.server.service.CommonGameService;
 
 @Controller
 @RequestMapping("game/")
@@ -32,7 +33,7 @@ public class GameController {
 	@Autowired
 	private RedisOperationService redisOperationService;
 	@Resource(name="commonGameService")
-	private BaseGameService commonGameService;
+	private CommonGameService commonGameService;
 	
 	@Resource(name="nnGameService")
 	private NnGameService nnGameService;
@@ -43,7 +44,7 @@ public class GameController {
 	@ResponseBody
 	public Result login(String code,String deviceType,HttpServletResponse response,HttpServletRequest request){
 		response.addHeader("Access-Control-Allow-Origin", "*");
-		Result result = new Result();
+		Result result = null;
 		try {
 			if (redisOperationService.isLoginFuseOpen()) {
 				result = commonGameService.login(code, deviceType, request);
@@ -53,6 +54,70 @@ public class GameController {
 			
 		} catch (Exception e) {
 			log.error("code:" + code, e);
+			result = new Result();
+			result.setCode(1);
+			result.setDesc("系统异常");
+		}
+		return result;
+	}
+	
+	@RequestMapping("sendSms")
+	@ResponseBody
+	public Result sendSms(String token, String mobile, HttpServletResponse response){
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		Result result = null;
+		try {
+			result = commonGameService.sendSms(token, mobile);
+		}catch (BusinessException e) {
+			log.error("mobile:" + mobile + ", token:" + token, e);
+			result = new Result();
+			result.setCode(e.getBussinessCode());
+			result.setDesc(e.getMessage());
+		} catch (Exception e) {
+			log.error("mobile:" + mobile + ", token:" + token, e);
+			result = new Result();
+			result.setCode(1);
+			result.setDesc("系统异常");
+		}
+		return result;
+	}
+	
+	@RequestMapping("bindMobile")
+	@ResponseBody
+	public Result bindMobile(String token, String mobile, String validCode, HttpServletResponse response){
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		Result result = null;
+		try {
+			result = commonGameService.bindMobile(token, mobile, validCode);
+		}catch (BusinessException e) {
+			log.error("mobile:" + mobile + ", validCode:" + validCode + ", token:" + token, e);
+			result = new Result();
+			result.setCode(e.getBussinessCode());
+			result.setDesc(e.getMessage());
+		}  catch (Exception e) {
+			log.error("mobile:" + mobile + ", validCode:" + validCode + ", token:" + token, e);
+			result = new Result();
+			result.setCode(1);
+			result.setDesc("系统异常");
+		}
+		return result;
+	}
+	
+	@RequestMapping("bindRealNameAndIdNo")
+	@ResponseBody
+	public Result bindRealNameAndIdNo(String token, String realName, String idNo, HttpServletResponse response){
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		Result result = null;
+		try {
+			result = commonGameService.bindRealNameAndIdNo(token, realName, idNo);
+		}catch (BusinessException e) {
+			log.error("realName:" + realName + ", idNo:" + idNo + ", token:" + token, e);
+			result = new Result();
+			result.setCode(e.getBussinessCode());
+			result.setDesc(e.getMessage());
+		}  catch (Exception e) {
+			log.error("realName:" + realName + ", idNo:" + idNo + ", token:" + token, e);
+			result = new Result();
 			result.setCode(1);
 			result.setDesc("系统异常");
 		}

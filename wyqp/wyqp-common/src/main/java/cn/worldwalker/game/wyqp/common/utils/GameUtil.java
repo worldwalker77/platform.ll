@@ -8,7 +8,6 @@ import java.util.Random;
 import org.apache.commons.lang.StringUtils;
 
 import cn.worldwalker.game.wyqp.common.domain.base.BasePlayerInfo;
-import cn.worldwalker.game.wyqp.common.domain.jh.JhPlayerInfo;
 import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.enums.OnlineStatusEnum;
 import cn.worldwalker.game.wyqp.common.enums.PlayerStatusEnum;
@@ -26,6 +25,22 @@ public class GameUtil {
 	public static Integer genPlayerId(){
 		int max=999999;
 		int min=100000;
+        Random random = new Random();
+        int s = random.nextInt(max)%(max-min+1) + min;
+		return s;
+	}
+	
+	public static Integer genSmsValidCode(){
+		int max=9999;
+		int min=1000;
+        Random random = new Random();
+        int s = random.nextInt(max)%(max-min+1) + min;
+		return s;
+	}
+	
+	public static Integer genFeiCangYingCardIndex(){
+		int max=0;
+		int min=41;
         Random random = new Random();
         int s = random.nextInt(max)%(max-min+1) + min;
 		return s;

@@ -16,4 +16,6 @@ public interface UserDao {
 	 
 	 public Integer addRoomCard(Map<String, Object> map);
 	 
+	 public Integer updateUserByPlayerId(UserModel userModel);
+	 
 }

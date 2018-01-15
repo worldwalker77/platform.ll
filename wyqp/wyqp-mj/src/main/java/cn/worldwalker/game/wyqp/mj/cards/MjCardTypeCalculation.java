@@ -48,7 +48,7 @@ public class MjCardTypeCalculation {
 		switch (mjTypeEnum) {
 			case shangHaiQiaoMa:
 				calButtomAndFlowerScore(player, roomInfo);
-				calShangHaiQiaoMaCardTypeAndMultiple(player, mjTypeEnum, handCards);
+				calShangHaiQiaoMaCardTypeAndMultiple(roomInfo, player, mjTypeEnum, handCards);
 				break;
 	
 			default:
@@ -72,7 +72,7 @@ public class MjCardTypeCalculation {
 		return handCards;
 	} 
 	
-	public static void calShangHaiQiaoMaCardTypeAndMultiple(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
+	public static void calShangHaiQiaoMaCardTypeAndMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
 		
 		/****************牌型计算*****************************/
 		/**门清校验*/
@@ -95,9 +95,14 @@ public class MjCardTypeCalculation {
 		/**胡牌类型倍数*/
 		player.setMultiple(MjHuTypeEnum.getMjHuTypeEnum(player.getHuType()).multiple);
 		/**荒翻倍数*/
-		
+		if (roomInfo.getHuangFanNum() > 0) {
+			player.setMultiple(player.getMultiple() * 2);
+			roomInfo.setHuangFanNum(roomInfo.getHuangFanNum() - 1);
+		}
 		/**开宝倍数*/
-		
+		if (roomInfo.getIsCurGameKaiBao() > 0) {
+			player.setMultiple(player.getMultiple() * 2);
+		}
 		/**牌型组合倍数*/
 		for(Integer cardType : mjCardTypeList){
 			player.setMultiple(player.getMultiple() * QmCardTypeEnum.getCardSuitBySuit(cardType).multiple);

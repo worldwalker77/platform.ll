@@ -54,6 +54,7 @@ public enum MsgTypeEnum {
 	huPai(217, "胡牌"),
 	addFlowerNotice(218, "补花通知"),
 	pass(219, "过"),
+	remaindCardNum(220, "通知玩家剩余桌牌数"),
 	
 	/**金花特有300-399*/
 	stake(300, "压分"),

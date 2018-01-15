@@ -19,7 +19,6 @@ import cn.worldwalker.game.wyqp.common.enums.MsgTypeEnum;
 import cn.worldwalker.game.wyqp.common.result.Result;
 import cn.worldwalker.game.wyqp.common.service.RedisOperationService;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
-import cn.worldwalker.game.wyqp.common.utils.IPUtil;
 import cn.worldwalker.game.wyqp.nn.enums.NnRoomStatusEnum;
 
 @Component(value="nnRobBankerOverTimeNoticeJob")

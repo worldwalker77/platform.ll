@@ -20,18 +20,39 @@ public class MjRoomInfo extends BaseRoomInfo{
 	 * 玩家id-1吃、2碰、3明杠、4暗杠、5听胡、6胡-吃的牌索引字符串，碰的牌索引字符串，明杠的牌索引字符串，暗杠的牌索引字符串，听胡、胡默认值0*/
 	private LinkedHashMap<Integer, TreeMap<Integer, String>> playerOperationMap;
 	/**是否开宝 0:不开宝 1：开宝*/
-	private Integer isKaiBao = 0;
+	private Integer isKaiBao = 1;
+	/**当前局是否开宝*/
+	private Integer isCurGameKaiBao = 0;
 	/**是否荒翻 0：不荒翻 1：荒翻*/
-	private Integer isHuangFan = 0;
+	private Integer isHuangFan = 1;
+	/**荒翻次数*/
+	private Integer huangFanNum = 0;
+	/**当前局是否荒*/
+	private Integer isCurGameHuangZhuang = 0;
 	/**是否飞苍蝇 0：不飞苍蝇 1：飞苍蝇*/
 	private Integer isFeiCangyin = 0;
+	
+	/**是否可以吃牌 0：不可以 1：可以*/
+	private Integer isChiPai = 1;
 	/**胡牌底分*/
 	private Integer huButtomScore = 0;
 	/**每个花的分数*/
 	private Integer eachFlowerScore = 0;
 	/**封顶*/
-	private Integer huScoreLimit = 0;
+	private Integer huScoreLimit = 20;
 	
+	public Integer getIsChiPai() {
+		return isChiPai;
+	}
+	public void setIsChiPai(Integer isChiPai) {
+		this.isChiPai = isChiPai;
+	}
+	public Integer getHuangFanNum() {
+		return huangFanNum;
+	}
+	public void setHuangFanNum(Integer huangFanNum) {
+		this.huangFanNum = huangFanNum;
+	}
 	public Integer getEachFlowerScore() {
 		return eachFlowerScore;
 	}
@@ -98,6 +119,18 @@ public class MjRoomInfo extends BaseRoomInfo{
 	}
 	public void setMjType(Integer mjType) {
 		this.mjType = mjType;
+	}
+	public Integer getIsCurGameKaiBao() {
+		return isCurGameKaiBao;
+	}
+	public void setIsCurGameKaiBao(Integer isCurGameKaiBao) {
+		this.isCurGameKaiBao = isCurGameKaiBao;
+	}
+	public Integer getIsCurGameHuangZhuang() {
+		return isCurGameHuangZhuang;
+	}
+	public void setIsCurGameHuangZhuang(Integer isCurGameHuangZhuang) {
+		this.isCurGameHuangZhuang = isCurGameHuangZhuang;
 	}
 	
 }
