@@ -21,6 +21,8 @@ public interface CommonManager {
 	
 	public List<UserRecordModel> getUserRecord(UserRecordModel model);
 	
+	public List<UserRecordModel> getUserRecordDetail(UserRecordModel model);
+	
 	public List<Integer> deductRoomCard(BaseRoomInfo roomInfo, RoomCardOperationEnum operationEnum);
 	
 	public List<Integer> deductRoomCardForObserver(BaseRoomInfo roomInfo, RoomCardOperationEnum operationEnum);
@@ -28,6 +30,8 @@ public interface CommonManager {
 	public Integer doDeductRoomCard(Integer gameType, Integer payType, Integer totalGames, RoomCardOperationEnum operationEnum, Integer playerId);
 	
 	public void addUserRecord(BaseRoomInfo roomInfo);
+	
+	public void addUserRecordDetail(BaseRoomInfo roomInfo);
 	
 	public void roomCardCheck(Integer playerId, Integer gameType, Integer payType, Integer totalGames);
 	

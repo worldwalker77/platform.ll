@@ -24,7 +24,21 @@ public class BaseMsg {
 	private Integer proxyId;
 	private Integer productId;
 	private Integer playerNumLimit;
+	private Long recordUuid;
+	private Long recordDetailUuid;
 	
+	public Long getRecordDetailUuid() {
+		return recordDetailUuid;
+	}
+	public void setRecordDetailUuid(Long recordDetailUuid) {
+		this.recordDetailUuid = recordDetailUuid;
+	}
+	public Long getRecordUuid() {
+		return recordUuid;
+	}
+	public void setRecordUuid(Long recordUuid) {
+		this.recordUuid = recordUuid;
+	}
 	public Integer getPlayerNumLimit() {
 		return playerNumLimit;
 	}

@@ -109,6 +109,7 @@ public abstract class BaseMsgDisPatcher {
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.heartBeat.msgType, MsgTypeEnum.heartBeat);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.userFeedback.msgType, MsgTypeEnum.userFeedback);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.userRecord.msgType, MsgTypeEnum.userRecord);
+		notNeedLockMsgTypeMap.put(MsgTypeEnum.userRecordDetail.msgType, MsgTypeEnum.userRecordDetail);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.queryPlayerInfo.msgType, MsgTypeEnum.queryPlayerInfo);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.syncPlayerLocation.msgType, MsgTypeEnum.syncPlayerLocation);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.productList.msgType, MsgTypeEnum.productList);

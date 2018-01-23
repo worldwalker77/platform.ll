@@ -31,6 +31,16 @@ public class UserModel {
 	private Date updateTime;
 
 	private Integer winProbability = 0;
+	
+	private Integer extensionCode;
+	
+	public Integer getExtensionCode() {
+		return extensionCode;
+	}
+
+	public void setExtensionCode(Integer extensionCode) {
+		this.extensionCode = extensionCode;
+	}
 
 	public String getRealName() {
 		return realName;

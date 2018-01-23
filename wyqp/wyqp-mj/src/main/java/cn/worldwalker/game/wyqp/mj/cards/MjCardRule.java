@@ -19,6 +19,7 @@ import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.exception.BusinessException;
 import cn.worldwalker.game.wyqp.common.exception.ExceptionEnum;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
+import cn.worldwalker.game.wyqp.common.utils.SnowflakeIdGenerator;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
@@ -182,6 +183,7 @@ public class MjCardRule {
 			roomInfo.setHuangFanNum(roomInfo.getHuangFanNum() + 1);
 			roomInfo.setIsCurGameHuangZhuang(0);
 		}
+		roomInfo.setCurGameUuid(SnowflakeIdGenerator.idWorker.nextId());
 	}
 	
 	public static void initMjPlayer(MjPlayerInfo playerInfo){
@@ -877,28 +879,7 @@ public class MjCardRule {
 		}
 		/**将上步骤中的牌作为癞子，查表判断是否可以胡牌*/
 		boolean canHu = Hulib.getInstance().get_hu_info(handCardList, notContainIndex, notContainIndex);
-		if (canHu) {
-			return true;
-		}
-		
-		if (size < 13) {
-			return false;
-		}
-		/**如果查表判断不能胡牌，则判断是否是可以胡七对*/
-		/**将手牌进行格式化*/
-		int[] cards = new int[Hulib.indexLine];
-		for(int i = 0; i < size; i++){
-			cards[handCardList.get(i)]++;
-		}
-		int sum = 0;
-		for (int i = 0 ; i < Hulib.indexLine ; ++i)
-		{
-			sum += cards[i] % 2;
-		}
-		if (sum != 1) {
-			return false;
-		}
-		return true;
+		return canHu;
 	}
 	/**
 	 * 判胡

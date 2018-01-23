@@ -153,7 +153,16 @@ public class MjCardTypeCalculation {
 		if (flowerNum == 0) {
 			flowerNum = 10;
 		}
-		
+		/**飞苍蝇*/
+		if (roomInfo.getIsFeiCangyin() > 0) {
+			Integer feiCangYingCardIndex = player.getFeiCangYingCardIndex();
+			/**如果是风牌，则算5花*/
+			if (feiCangYingCardIndex > 26) {
+				flowerNum += 5;
+			}else{
+				flowerNum += feiCangYingCardIndex%9;
+			}
+		}
 		/**计算底和花分*/
 		player.setButtomAndFlowerScore(flowerNum*roomInfo.getEachFlowerScore() + roomInfo.getHuButtomScore());
 	}

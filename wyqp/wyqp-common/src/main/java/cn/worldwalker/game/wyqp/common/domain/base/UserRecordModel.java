@@ -7,9 +7,13 @@ public class UserRecordModel {
 	
 	private Long id;
 	
+	private Integer playerId;
+	
+	private Long recordUuid;
+	
 	private Integer gameType;
 	
-	private Integer playerId;
+	private Integer detailType;
 	
 	private Integer roomId;
 	
@@ -23,9 +27,54 @@ public class UserRecordModel {
 	
 	private String remark; 
 	
+	private Long recordDetailUuid;
+	
+	private Integer curGame;
+	
 	private Date createTime;
 	
 	private List<RecordModel> recordList;
+
+	public Integer getPlayerId() {
+		return playerId;
+	}
+
+	public void setPlayerId(Integer playerId) {
+		this.playerId = playerId;
+	}
+
+	public Long getRecordDetailUuid() {
+		return recordDetailUuid;
+	}
+
+	public void setRecordDetailUuid(Long recordDetailUuid) {
+		this.recordDetailUuid = recordDetailUuid;
+	}
+
+	public Integer getCurGame() {
+		return curGame;
+	}
+
+	public void setCurGame(Integer curGame) {
+		this.curGame = curGame;
+	}
+
+	public Integer getDetailType() {
+		return detailType;
+	}
+
+	public void setDetailType(Integer detailType) {
+		this.detailType = detailType;
+	}
+
+
+	public Long getRecordUuid() {
+		return recordUuid;
+	}
+
+	public void setRecordUuid(Long recordUuid) {
+		this.recordUuid = recordUuid;
+	}
 
 	public Long getId() {
 		return id;
@@ -41,14 +90,6 @@ public class UserRecordModel {
 
 	public void setGameType(Integer gameType) {
 		this.gameType = gameType;
-	}
-
-	public Integer getPlayerId() {
-		return playerId;
-	}
-
-	public void setPlayerId(Integer playerId) {
-		this.playerId = playerId;
 	}
 
 	public Integer getRoomId() {

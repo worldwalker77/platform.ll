@@ -48,6 +48,9 @@ public class MjMsgDispatcher extends BaseMsgDisPatcher {
 		case userRecord:
 			mjGameService.userRecord(ctx, request, userInfo);
 			break;
+		case userRecordDetail:
+			mjGameService.userRecordDetail(ctx, request, userInfo);
+			break;
 		case chuPai:
 			mjGameService.chuPai(ctx, request, userInfo);
 			break;

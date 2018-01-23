@@ -54,6 +54,7 @@ public class MjGameService extends BaseGameService{
 		roomInfo.setHuButtomScore(msg.getHuButtomScore());
 		roomInfo.setEachFlowerScore(msg.getEachFlowerScore());
 		roomInfo.setHuScoreLimit(msg.getHuScoreLimit());
+		roomInfo.setIsChiPai(msg.getIsChiPai());
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		MjPlayerInfo player = new MjPlayerInfo();
 		playerList.add(player);
@@ -784,8 +785,6 @@ public class MjGameService extends BaseGameService{
 			throw new BusinessException(ExceptionEnum.IS_NOT_YOUR_TURN);
 		}
 		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
-		/**设置状态为听牌*/
-		player.setIsTingHu(1);
 		/**将当前玩家的可操作性权限删除*/
 		TreeMap<Integer, String> delOperation = MjCardRule.delPlayerOperationByPlayerId(roomInfo, playerId);
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -913,6 +912,10 @@ public class MjGameService extends BaseGameService{
 		/**获取剩余玩家最高可操作性权限*/
 		Integer curPlayerId = MjCardRule.getPlayerHighestPriorityPlayerId(roomInfo);
 		if (curPlayerId == null) {
+			if (roomInfo.getIsFeiCangyin() > 0) {
+				Integer feiCangYingCardIndex = feiCangYing(player, roomInfo.getTableRemainderCardList());
+				data.put("feiCangYingCardIndex", feiCangYingCardIndex);
+			}
 			curPlayerId = playerId;
 			calculateScore(roomInfo);
 			roomInfo.setCurPlayerId(curPlayerId);
@@ -968,6 +971,12 @@ public class MjGameService extends BaseGameService{
 			TreeMap<Integer, String> curPlayerOperations = MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId);
 			/**如果没有其他玩家可以胡牌，则本局结束，开始结算*/
 			if (curPlayerOperations == null || curPlayerOperations.size() == 0 || !curPlayerOperations.containsKey(MjOperationEnum.hu.type)) {
+				
+				if (roomInfo.getIsFeiCangyin() > 0) {
+					Integer feiCangYingCardIndex = feiCangYing(player, roomInfo.getTableRemainderCardList());
+					data.put("feiCangYingCardIndex", feiCangYingCardIndex);
+				}
+				
 				curPlayerId = playerId;
 				calculateScore(roomInfo);
 				roomInfo.setCurPlayerId(curPlayerId);
@@ -1021,9 +1030,16 @@ public class MjGameService extends BaseGameService{
 				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArr(playerList));
 				
 			}else{/**如果有其他玩家可以胡牌，则需要通知其他玩家胡牌*/
+				if (roomInfo.getIsFeiCangyin() > 0) {
+					Integer feiCangYingCardIndex = feiCangYing(player, roomInfo.getTableRemainderCardList());
+					data.put("feiCangYingCardIndex", feiCangYingCardIndex);
+				}
+				
+				
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
+				
 				data.put("handCardList", player.getHandCardList());
 				data.put("playerId", playerId);
 				data.put("huType", playerHuTypeInt);
@@ -1051,6 +1067,18 @@ public class MjGameService extends BaseGameService{
 				channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
 			}
 		}
+	}
+	
+	public Integer feiCangYing(MjPlayerInfo player, List<Integer> tableRemainderCardList){
+		Integer feiCangYingCardIndex = null;
+		if (tableRemainderCardList.size() > 0) {
+			feiCangYingCardIndex = tableRemainderCardList.remove(0);
+		}else{
+			feiCangYingCardIndex = GameUtil.genFeiCangYingCardIndex();
+		}
+		player.setFeiCangYingCardIndex(feiCangYingCardIndex);
+		return feiCangYingCardIndex;
+		
 	}
 	/**荒庄处理*/
 	public void huangZhuang(MjRoomInfo roomInfo, Integer roomId){
@@ -1200,6 +1228,8 @@ public class MjGameService extends BaseGameService{
 				e.printStackTrace();
 			}
 		}
+		/**记录每一局得分*/
+		commonManager.addUserRecordDetail(roomInfo);
 		/**如果是第一局结束，则扣除房卡;扣除房卡异常不影响游戏进行，会将异常数据放入redis中，由定时任务进行补偿扣除*/
 		if (roomInfo.getCurGame() == 1) {
 			if (redisOperationService.isLoginFuseOpen()) {

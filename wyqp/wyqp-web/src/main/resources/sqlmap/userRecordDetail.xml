@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.worldwalker.game.wyqp.common.dao.UserRecordDetailDao">
+	
+	<resultMap id="userRecorDetailResultMap" type="cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel" >
+		<id column="id" property="id"/>
+		<result column="record_uuid" property="recordUuid"/>
+		<result column="record_detail_uuid" property="recordDetailUuid"/>
+		<result column="cur_game" property="curGame"/>
+		<result column="record_info" property="recordInfo"/>
+		<result column="create_time" property="createTime"/>
+	</resultMap>
+	
+	 <insert id="insertRecordDetail" parameterType="cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel">  
+	     <!-- 使用这种方式要注意，resultType是要设置的，否则将抛异常，该值对应的User类中的主键类型 -->  
+	     <!-- keyProperty对应的是UserModel类中的主键名，假设取名为user_id，则这边也要改成user_id -->  
+	     <selectKey keyProperty="id" resultType="Long">  
+	         select LAST_INSERT_ID()  
+	     </selectKey>  
+	     insert into t_user_record_detail( 
+	     					record_uuid, 
+	     					record_detail_uuid,
+	     					cur_game,
+	     					record_info,
+	     					create_time) 
+	     			values(  
+	     					#{recordUuid}, 
+	     					#{recordDetailUuid},
+	     					#{curGame}, 
+	     					#{recordInfo},
+	     					now())    
+    </insert> 
+    <insert id="batchInsertRecordDetail" parameterType="java.util.List">  
+        insert into t_user_record_detail ( 
+	     					record_uuid, 
+	     					record_detail_uuid,
+	     					cur_game,
+	     					record_info,
+	     					create_time)  
+        values  
+        <foreach collection="list" item="item" index="index" separator="," >  
+            (#{item.recordUuid},#{item.recordDetailUuid},#{item.curGame},#{item.recordInfo},#{item.createTime})  
+        </foreach>  
+    </insert>  
+     
+    <select id="getUserRecordDetail"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel" resultMap="userRecorDetailResultMap">
+	    SELECT record_detail_uuid,cur_game,record_info
+		from t_user_record_detail
+		where record_uuid = #{recordUuid}
+	</select>
+</mapper>
+
+

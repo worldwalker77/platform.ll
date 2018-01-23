@@ -6,8 +6,10 @@
 	
 	<resultMap id="userRecordResultMap" type="cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel" >
 		<id column="id" property="id"/>
+		<result column="record_uuid" property="recordUuid"/>
 		<result column="player_id" property="playerId"/>
 		<result column="game_type" property="gameType"/>
+		<result column="detail_type" property="detailType"/>
 		<result column="room_id" property="roomId"/>
 		<result column="pay_type" property="payType"/>
 		<result column="total_games" property="totalGames"/>
@@ -24,8 +26,10 @@
 	         select LAST_INSERT_ID()  
 	     </selectKey>  
 	     insert into t_user_record( 
+	    					record_uuid,
 	     					player_id, 
 	     					game_type,
+	     					detail_type,
 	     					room_id,
 	     					pay_type,
 	     					total_games,
@@ -34,8 +38,10 @@
 	     					remark,
 	     					create_time) 
 	     			values(  
+	     					#{recordUuid}, 
 	     					#{playerId}, 
 	     					#{gameType},
+	     					#{detailType},
 	     					#{roomId}, 
 	     					#{payType},
 	     					#{totalGames},
@@ -46,8 +52,10 @@
     </insert> 
     <insert id="batchInsertRecord" parameterType="java.util.List">  
         insert into t_user_record ( 
+        					record_uuid,
 	     					player_id, 
 	     					game_type,
+	     					detail_type,
 	     					room_id,
 	     					pay_type,
 	     					total_games,
@@ -57,12 +65,16 @@
 	     					create_time)  
         values  
         <foreach collection="list" item="item" index="index" separator="," >  
-            (#{item.playerId},#{item.gameType},#{item.roomId},#{item.payType},#{item.totalGames},#{item.score},#{item.recordInfo},#{item.remark},#{item.createTime})  
+            (#{item.recordUuid},#{item.playerId},#{item.gameType},#{item.detailType},#{item.roomId},#{item.payType},#{item.totalGames},#{item.score},#{item.recordInfo},#{item.remark},#{item.createTime})  
         </foreach>  
     </insert>  
      
     <select id="getUserRecord"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel" resultMap="userRecordResultMap">
-	    select room_id,create_time, record_info, remark from t_user_record where player_id = #{playerId} and game_type = #{gameType} order by create_time desc limit 20
+	    SELECT record_uuid,player_id,score,record_info,remark
+		from t_user_record
+		where player_id = #{playerId}
+		order by create_time DESC
+		limit 20
 	</select>
 </mapper>
 

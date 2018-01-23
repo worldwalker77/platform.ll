@@ -14,10 +14,11 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_time" property="updateTime"/>
 		<result column="win_probability" property="winProbability"/>
+		<result column="extension_code" property="extensionCode"/>
 	</resultMap>
 	
 	<select id="getUserByWxOpenId"  parameterType = "String" resultMap="userResultMap">
-	    select player_id, room_card_num, user_level,win_probability from t_user where wx_open_id = #{wxOpenId} limit 1
+	    select player_id, room_card_num, user_level,win_probability,extension_code from t_user where wx_open_id = #{wxOpenId} limit 1
 	</select>
 	
 	<select id="getUserById"  parameterType = "Long" resultMap="userResultMap">
@@ -46,12 +47,14 @@
 	     					head_img_url, 
 	     					wx_open_id,
 	     					room_card_num,
+	     					extension_code,
 	     					create_time,
 	     					update_time) 
 	     			values( #{nickName}, 
 	     					#{headImgUrl}, 
 	     					#{wxOpenId}, 
 	     					#{roomCardNum}, 
+	     					#{extensionCode}, 
 	     					now(), 
 	     					now())    
     </insert>  

@@ -38,6 +38,14 @@ public class GameUtil {
 		return s;
 	}
 	
+	public static Integer genExtensionCode(){
+		int max=999999;
+		int min=100000;
+        Random random = new Random();
+        int s = random.nextInt(max)%(max-min+1) + min;
+		return s;
+	}
+	
 	public static Integer genFeiCangYingCardIndex(){
 		int max=0;
 		int min=41;

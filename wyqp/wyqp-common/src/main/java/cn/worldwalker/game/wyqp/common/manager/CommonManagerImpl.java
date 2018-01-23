@@ -20,6 +20,7 @@ import cn.worldwalker.game.wyqp.common.dao.RoomCardLogDao;
 import cn.worldwalker.game.wyqp.common.dao.UserDao;
 import cn.worldwalker.game.wyqp.common.dao.UserFeedbackDao;
 import cn.worldwalker.game.wyqp.common.dao.UserRecordDao;
+import cn.worldwalker.game.wyqp.common.dao.UserRecordDetailDao;
 import cn.worldwalker.game.wyqp.common.dao.VersionDao;
 import cn.worldwalker.game.wyqp.common.domain.base.BasePlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
@@ -50,6 +51,8 @@ public class CommonManagerImpl implements CommonManager{
 	private UserFeedbackDao userFeedbackDao;
 	@Autowired
 	private UserRecordDao userRecordDao;
+	@Autowired
+	private UserRecordDetailDao userRecordDetailDao;
 	@Autowired
 	private OrderDao orderDao;
 	@Autowired
@@ -160,7 +163,15 @@ public class CommonManagerImpl implements CommonManager{
 		}
 		return list;
 	}
-	
+	@Override
+	public List<UserRecordModel> getUserRecordDetail(UserRecordModel model) {
+		List<UserRecordModel> list = userRecordDetailDao.getUserRecordDetail(model);
+		for(UserRecordModel userRecordModel : list){
+			userRecordModel.setRecordList(JsonUtil.json2list(userRecordModel.getRecordInfo(), RecordModel.class));
+			userRecordModel.setRecordInfo(null);
+		}
+		return list;
+	}
 	
 	@Override
 	public void addUserRecord(BaseRoomInfo roomInfo) {
@@ -173,7 +184,7 @@ public class CommonManagerImpl implements CommonManager{
 		for(int i = 0; i < size; i++){
 			BasePlayerInfo player = (BasePlayerInfo)playerList.get(i);
 			RecordModel recordModel = new RecordModel();
-			recordModel.setHeadImgUrl(player.getHeadImgUrl());
+//			recordModel.setHeadImgUrl(player.getHeadImgUrl());
 			recordModel.setNickName(player.getNickName());
 			recordModel.setPlayerId(player.getPlayerId());
 			recordModel.setScore(player.getTotalScore());
@@ -185,11 +196,13 @@ public class CommonManagerImpl implements CommonManager{
 		for(int i = 0; i < size; i++){
 			BasePlayerInfo player = (BasePlayerInfo)playerList.get(i);
 			UserRecordModel model = new UserRecordModel();
+			model.setRecordUuid(roomInfo.getRoomUuid());
 			model.setGameType(roomInfo.getGameType());
-			model.setPlayerId(player.getPlayerId());
+			model.setDetailType(roomInfo.getDetailType());
 			model.setRoomId(roomInfo.getRoomId());
 			model.setPayType(roomInfo.getPayType());
 			model.setTotalGames(roomInfo.getTotalGames());
+			model.setPlayerId(player.getPlayerId());
 			model.setScore(player.getTotalScore());
 			model.setRecordInfo(recordInfo);
 			model.setRemark(RoomCardConsumeEnum.getRoomCardConsumeEnum(roomInfo.getGameType(), roomInfo.getPayType(), roomInfo.getTotalGames()).desc);
@@ -197,6 +210,34 @@ public class CommonManagerImpl implements CommonManager{
 			modelList.add(model);
 		}
 		userRecordDao.batchInsertRecord(modelList);
+	}
+	
+	@Override
+	public void addUserRecordDetail(BaseRoomInfo roomInfo) {
+		List playerList = roomInfo.getPlayerList();
+		if (CollectionUtils.isEmpty(playerList)) {
+			return;
+		}
+		int size = playerList.size();
+		List<RecordModel> recordModelList = new ArrayList<RecordModel>();
+		for(int i = 0; i < size; i++){
+			BasePlayerInfo player = (BasePlayerInfo)playerList.get(i);
+			RecordModel recordModel = new RecordModel();
+//			recordModel.setHeadImgUrl(player.getHeadImgUrl());
+			recordModel.setNickName(player.getNickName());
+			recordModel.setPlayerId(player.getPlayerId());
+			recordModel.setScore(player.getTotalScore());
+			recordModelList.add(recordModel);
+		}
+		String recordInfo = JsonUtil.toJson(recordModelList);
+		
+		UserRecordModel model = new UserRecordModel();
+		model.setRecordUuid(roomInfo.getRoomUuid());
+		model.setRecordDetailUuid(roomInfo.getCurGameUuid());
+		model.setCurGame(roomInfo.getCurGame());
+		model.setRecordInfo(recordInfo);
+		userRecordDetailDao.insertRecordDetail(model);
+		
 	}
 	@Override
 	public void roomCardCheck(Integer playerId, Integer gameType, Integer payType, Integer totalGames) {

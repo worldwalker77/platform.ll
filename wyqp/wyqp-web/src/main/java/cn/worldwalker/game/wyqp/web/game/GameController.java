@@ -17,10 +17,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.domain.base.UserInfo;
+import cn.worldwalker.game.wyqp.common.enums.MsgTypeEnum;
 import cn.worldwalker.game.wyqp.common.exception.BusinessException;
 import cn.worldwalker.game.wyqp.common.manager.CommonManager;
 import cn.worldwalker.game.wyqp.common.result.Result;
 import cn.worldwalker.game.wyqp.common.service.RedisOperationService;
+import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.nn.service.NnGameService;
 import cn.worldwalker.game.wyqp.server.service.CommonGameService;
 
@@ -43,6 +45,7 @@ public class GameController {
 	@RequestMapping("login")
 	@ResponseBody
 	public Result login(String code,String deviceType,HttpServletResponse response,HttpServletRequest request){
+		log.info("请求 ,登录: code=" + code);
 		response.addHeader("Access-Control-Allow-Origin", "*");
 		Result result = null;
 		try {
@@ -58,6 +61,7 @@ public class GameController {
 			result.setCode(1);
 			result.setDesc("系统异常");
 		}
+		log.info("返回 ,登录: " + JsonUtil.toJson(result));
 		return result;
 	}
 	
@@ -117,6 +121,27 @@ public class GameController {
 			result.setDesc(e.getMessage());
 		}  catch (Exception e) {
 			log.error("realName:" + realName + ", idNo:" + idNo + ", token:" + token, e);
+			result = new Result();
+			result.setCode(1);
+			result.setDesc("系统异常");
+		}
+		return result;
+	}
+	
+	@RequestMapping("obtainRoomCardByExtensionCode")
+	@ResponseBody
+	public Result obtainRoomCardByExtensionCode(String extensionCode, String token, HttpServletResponse response){
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		Result result = null;
+		try {
+//			result = commonGameService.bindRealNameAndIdNo(token, realName, idNo);
+		}catch (BusinessException e) {
+			log.error("extensionCode:" + extensionCode  + ", token:" + token, e);
+			result = new Result();
+			result.setCode(e.getBussinessCode());
+			result.setDesc(e.getMessage());
+		}  catch (Exception e) {
+			log.error("extensionCode:" + extensionCode  + ", token:" + token, e);
 			result = new Result();
 			result.setCode(1);
 			result.setDesc("系统异常");

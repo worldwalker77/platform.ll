@@ -49,6 +49,7 @@ import cn.worldwalker.game.wyqp.common.roomlocks.RoomLockContainer;
 import cn.worldwalker.game.wyqp.common.rpc.WeiXinRpc;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.IPUtil;
+import cn.worldwalker.game.wyqp.common.utils.SnowflakeIdGenerator;
 import cn.worldwalker.game.wyqp.common.utils.UrlImgDownLoadUtil;
 import cn.worldwalker.game.wyqp.common.utils.wxpay.DateUtils;
 import cn.worldwalker.game.wyqp.common.utils.wxpay.HttpUtil;
@@ -84,12 +85,14 @@ public abstract class BaseGameService {
 			throw new BusinessException(ExceptionEnum.QUERY_WEIXIN_USER_INFO_FAIL);
 		}
 		UserModel userModel = commonManager.getUserByWxOpenId(weixinUserInfo.getOpneid());
+		Integer extensionCode = GameUtil.genExtensionCode();
 		if (null == userModel) {
 			userModel = new UserModel();
 			userModel.setNickName(weixinUserInfo.getName());
 			userModel.setHeadImgUrl(weixinUserInfo.getHeadImgUrl());
 			userModel.setWxOpenId(weixinUserInfo.getOpneid());
 			userModel.setRoomCardNum(10);
+			userModel.setExtensionCode(extensionCode);
 			commonManager.insertUser(userModel);
 		}
 		/**从redis查看此用户是否有roomId*/
@@ -112,6 +115,7 @@ public abstract class BaseGameService {
 		/**设置赢牌概率*/
 		userInfo.setWinProbability(userModel.getWinProbability());
 		userInfo.setRoomCardNum(userModel.getRoomCardNum());
+		userInfo.setExtensionCode(userModel.getExtensionCode());
 		redisOperationService.setUserInfo(loginToken, userInfo);
 		/****-------*/
 //		redisOperationService.hdelOfflinePlayerIdRoomIdGameTypeTime(userModel.getPlayerId());
@@ -189,6 +193,8 @@ public abstract class BaseGameService {
 		
 		/**组装房间对象*/
 		roomInfo.setRoomId(roomId);
+		/**设置此房间唯一标示*/
+		roomInfo.setRoomUuid(SnowflakeIdGenerator.idWorker.nextId());
 		roomInfo.setRoomOwnerId(msg.getPlayerId());
 		roomInfo.setPayType(msg.getPayType());
 		roomInfo.setTotalGames(msg.getTotalGames());
@@ -476,6 +482,11 @@ public abstract class BaseGameService {
 			data.put("roomInfo", roomInfo);
 			result.setMsgType(MsgTypeEnum.successDissolveRoom.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArr(playerList));
+			try {
+				commonManager.addUserRecord(roomInfo);
+			} catch (Exception e) {
+				log.error("解散房间时添加记录失败", e);
+			}
 			return ;
 		}
 		result.setMsgType(MsgTypeEnum.agreeDissolveRoom.msgType);
@@ -667,6 +678,20 @@ public abstract class BaseGameService {
 		qmodel.setPlayerId(userInfo.getPlayerId());
 		List<UserRecordModel> list = commonManager.getUserRecord(qmodel);
 		result.setMsgType(MsgTypeEnum.userRecord.msgType);
+		result.setData(list);
+		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
+	}
+	
+	public void userRecordDetail(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
+		Result result = new Result();
+		Map<String, Object> data = new HashMap<String, Object>();
+		result.setData(data);
+		result.setGameType(request.getGameType());
+		BaseMsg msg = request.getMsg();
+		UserRecordModel qmodel = new UserRecordModel();
+		qmodel.setRecordUuid(request.getMsg().getRecordUuid());
+		List<UserRecordModel> list = commonManager.getUserRecordDetail(qmodel);
+		result.setMsgType(MsgTypeEnum.userRecordDetail.msgType);
 		result.setData(list);
 		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
 	}

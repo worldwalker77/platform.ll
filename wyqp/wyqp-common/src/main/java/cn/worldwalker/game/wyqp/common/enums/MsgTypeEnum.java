@@ -33,6 +33,9 @@ public enum MsgTypeEnum {
 	checkBindProxy(28, "校验是否绑定代理"),
 	unifiedOrder(29, "微信预支付前统一下单接口"),
 //	notReadyTimer(30, "未准备玩家计时器"),
+	userRecordDetail(31, "玩家战绩详情"),
+	playBack(32, "回放"),
+	
 	
 	/**斗牛特有100-199*/
 	readyRobBanker(100, "准备抢庄"),

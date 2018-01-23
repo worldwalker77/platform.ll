@@ -37,7 +37,37 @@ public class BaseRoomInfo {
 	
 	private Integer gameType;
 	
+	private Integer detailType = 0;
+	
 	private Integer playerNumLimit;
+	/**当前房间随机uuid*/
+	private Long roomUuid;
+	/**当前局随机uuid*/
+	private Long curGameUuid;
+
+	public Integer getDetailType() {
+		return detailType;
+	}
+
+	public void setDetailType(Integer detailType) {
+		this.detailType = detailType;
+	}
+
+	public Long getRoomUuid() {
+		return roomUuid;
+	}
+
+	public void setRoomUuid(Long roomUuid) {
+		this.roomUuid = roomUuid;
+	}
+
+	public Long getCurGameUuid() {
+		return curGameUuid;
+	}
+
+	public void setCurGameUuid(Long curGameUuid) {
+		this.curGameUuid = curGameUuid;
+	}
 
 	public Integer getPlayerNumLimit() {
 		return playerNumLimit;

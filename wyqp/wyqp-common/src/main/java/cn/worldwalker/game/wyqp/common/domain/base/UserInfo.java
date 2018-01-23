@@ -29,6 +29,16 @@ public class UserInfo {
 	private String y;
 	
 	private Integer winProbability = 0;
+	
+	private Integer extensionCode;
+
+	public Integer getExtensionCode() {
+		return extensionCode;
+	}
+
+	public void setExtensionCode(Integer extensionCode) {
+		this.extensionCode = extensionCode;
+	}
 
 	public Integer getWinProbability() {
 		return winProbability;

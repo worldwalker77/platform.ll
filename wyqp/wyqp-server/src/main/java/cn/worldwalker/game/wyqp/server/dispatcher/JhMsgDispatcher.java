@@ -60,6 +60,9 @@ public class JhMsgDispatcher extends BaseMsgDisPatcher {
 			case userRecord:
 				jhGameService.userRecord(ctx, request, userInfo);
 				break;
+			case userRecordDetail:
+				jhGameService.userRecordDetail(ctx, request, userInfo);
+				break;
 			default:
 				break;
 		}
