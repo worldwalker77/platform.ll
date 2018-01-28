@@ -117,5 +117,6 @@ public abstract class BaseMsgDisPatcher {
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.checkBindProxy.msgType, MsgTypeEnum.checkBindProxy);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.unifiedOrder.msgType, MsgTypeEnum.unifiedOrder);
 		notNeedLockMsgTypeMap.put(MsgTypeEnum.notice.msgType, MsgTypeEnum.notice);
+		notNeedLockMsgTypeMap.put(MsgTypeEnum.playBack.msgType, MsgTypeEnum.playBack);
 	}
 }

@@ -26,6 +26,7 @@ http://www.springframework.org/schema/task/spring-task-3.0.xsd
 			</list>
 		</property>
 	</bean>
+	<bean id="applicationContextUtil" class="cn.worldwalker.game.wyqp.common.utils.ApplicationContextUtil" lazy-init="false"></bean>
 	<import resource="spring-config-service.xml" />
 	<import resource="spring-config-datasource.xml" />
 	<import resource="spring-config-dao.xml" />

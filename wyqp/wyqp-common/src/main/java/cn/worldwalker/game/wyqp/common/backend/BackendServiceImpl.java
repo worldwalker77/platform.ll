@@ -328,5 +328,186 @@ public class BackendServiceImpl implements BackendService{
 		}
 		return result;
 	}
+	@Override
+	public Result getProxyClubs(GameQuery gameQuery) {
+		if (!isAdmin()) {
+			gameQuery.setProxyId(RequestUtil.getUserSession().getProxyId());
+		}
+		Result result = new Result();
+		List<GameModel> list = null;
+		Long total = 0L;
+		try {
+			list = gameDao.getProxyClubs(gameQuery);
+			total = gameDao.getProxyClubsCount(gameQuery);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setCode(1);
+			result.setDesc("系统异常");
+			return result;
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("total", total);
+		map.put("rows", list);
+		result.setData(map);
+		return result;
+	}
+	/**
+	 * 增加俱乐部/修改俱乐部
+	 */
+	@Override
+	public Result modifyProxyClub(GameQuery gameQuery) {
+		Result result = new Result();
+		if (gameQuery.getClubId() == null ) {
+			result.setCode(1);
+			result.setDesc("参数不能为空");
+			return result;
+		}
+		gameQuery.setProxyId(RequestUtil.getProxyId());
+		gameQuery.setPlayerId(RequestUtil.getPlayerId());
+		try {
+			if (gameQuery.getClubId() > 0) {
+				gameDao.updateProxyClub(gameQuery);
+			}else{
+				gameDao.insertProxyClub(gameQuery);
+			}
+		} catch (Exception e) {
+			log.error("modifyProxyClub异常，gameQuery：" + JsonUtil.toJson(gameQuery), e);
+			result.setCode(1);
+			result.setDesc("数据库异常");
+			return result;
+		}
+		return result;
+	}
+	@Override
+	public Result insertClubUser(GameQuery gameQuery) {
+		/**加入俱乐部，前台操作*/
+		return null;
+	}
+	@Override
+	public Result getClubUsers(GameQuery gameQuery) {
+		if (!isAdmin()) {
+			gameQuery.setProxyId(RequestUtil.getUserSession().getProxyId());
+		}
+		Result result = new Result();
+		List<GameModel> list = null;
+		Long total = 0L;
+		try {
+			list = gameDao.getClubUsers(gameQuery);
+			total = gameDao.getClubUsersCount(gameQuery);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setCode(1);
+			result.setDesc("系统异常");
+			return result;
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("total", total);
+		map.put("rows", list);
+		result.setData(map);
+		return result;
+	}
+	/**
+	 * 添加俱乐部玩家
+	 * 
+	 */
+	@Override
+	public Result modifyClubUser(GameQuery gameQuery) {
+		Result result = new Result();
+		if (gameQuery.getClubId() == null || gameQuery.getPlayerId() == null  || gameQuery.getStatus() == null ) {
+			result.setCode(1);
+			result.setDesc("参数不能为空");
+			return result;
+		}
+		if (gameQuery.getStatus() != 0 && gameQuery.getStatus() != 1) {
+			result.setCode(1);
+			result.setDesc("审核状态必须为1或者0");
+			return result;
+		}
+		Integer proxyId = RequestUtil.getProxyId();
+		/**俱乐部是否存在*/
+		GameQuery tempQuery  = new GameQuery();
+		tempQuery.setClubId(gameQuery.getClubId());
+		tempQuery.setProxyId(proxyId);
+		List<GameModel> modelist = gameDao.getProxyClubs(tempQuery);
+		if (CollectionUtils.isEmpty(modelist)) {
+			result.setCode(1);
+			result.setDesc("您没有此俱乐部");
+			return result;
+		}
+		/**玩家是否存在**/
+//		GameQuery tempQuery1  = new GameQuery();
+//		tempQuery1.setPlayerId(gameQuery.getPlayerId());
+//		modelist = gameDao.getUserByCondition(tempQuery1);
+//		if (CollectionUtils.isEmpty(modelist)) {
+//			result.setCode(1);
+//			result.setDesc("玩家id不存在");
+//			return result;
+//		}
+		
+		gameQuery.setProxyId(proxyId);
+//		gameQuery.setNickName(modelist.get(0).getNickName());
+		try {
+			if (gameQuery.getId() > 0) {
+				gameDao.updateClubUser(gameQuery);
+			}else{
+				gameDao.insertClubUser(gameQuery);
+			}
+		} catch (Exception e) {
+			log.error("modifyClubUser异常，gameQuery：" + JsonUtil.toJson(gameQuery), e);
+			result.setCode(1);
+			result.setDesc("数据库异常");
+			return result;
+		}
+		return result;
+	}
+	@Override
+	public Result auditClubUser(GameQuery gameQuery) {
+		Result result = new Result();
+		if (gameQuery.getClubId() == null || gameQuery.getPlayerId() == null) {
+			result.setCode(1);
+			result.setDesc("参数不能为空");
+			return result;
+		}
+		Integer proxyId = RequestUtil.getProxyId();
+		/**判断玩家是否在此代理的俱乐部中*/
+		GameQuery tempQuery  = new GameQuery();
+		tempQuery.setClubId(gameQuery.getClubId());
+		tempQuery.setProxyId(proxyId);
+		tempQuery.setPlayerId(gameQuery.getPlayerId());
+		List<GameModel> modelist = gameDao.getClubUsers(gameQuery);
+		if (CollectionUtils.isEmpty(modelist)) {
+			result.setCode(1);
+			result.setDesc("此玩家不在您的俱乐部中");
+			return result;
+		}
+		gameQuery.setProxyId(proxyId);
+		gameQuery.setStatus(1);
+		gameDao.updateClubUser(gameQuery);
+		return result;
+	}
+	@Override
+	public Result delClubUser(GameQuery gameQuery) {
+		Result result = new Result();
+		if (gameQuery.getClubId() == null || gameQuery.getPlayerId() == null) {
+			result.setCode(1);
+			result.setDesc("参数不能为空");
+			return result;
+		}
+		Integer proxyId = RequestUtil.getProxyId();
+		/**判断玩家是否在此代理的俱乐部中*/
+		GameQuery tempQuery  = new GameQuery();
+		tempQuery.setClubId(gameQuery.getClubId());
+		tempQuery.setProxyId(proxyId);
+		tempQuery.setPlayerId(gameQuery.getPlayerId());
+		List<GameModel> modelist = gameDao.getClubUsers(gameQuery);
+		if (CollectionUtils.isEmpty(modelist)) {
+			result.setCode(1);
+			result.setDesc("此玩家不在您的俱乐部中");
+			return result;
+		}
+		gameQuery.setProxyId(proxyId);
+		gameDao.delClubUser(gameQuery);
+		return result;
+	}
 
 }

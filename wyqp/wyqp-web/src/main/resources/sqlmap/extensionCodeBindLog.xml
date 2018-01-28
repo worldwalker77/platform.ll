@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.worldwalker.game.wyqp.common.dao.ExtensionCodeBindDao">
+	
+	<resultMap id="extensionCodeBindResultMap" type="cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel" >
+		<result column="player_id" property="playerId"/>
+		<result column="nick_name" property="nickName"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="extension_code" property="extensionCode"/>
+	</resultMap>
+	
+	
+    <insert id="insertExtensionCodeBindLog" parameterType="cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel">  
+	     <!-- 使用这种方式要注意，resultType是要设置的，否则将抛异常，该值对应的User类中的主键类型 -->  
+	     <!-- keyProperty对应的是UserModel类中的主键名，假设取名为user_id，则这边也要改成user_id -->  
+	     <selectKey keyProperty="id" resultType="Integer">  
+	         select LAST_INSERT_ID()  
+	     </selectKey>  
+	     insert into t_extension_code_bind_log( 
+	     					player_id,
+	     					nick_name, 
+	     					extension_code,
+	     					create_time,
+	     					update_time) 
+	     			values( 
+	     					#{playerId}, 
+	     					#{nickName}, 
+	     					#{extensionCode}, 
+	     					now(), 
+	     					now())    
+    </insert>  
+    
+    
+	<select id="getExtensionCodeBindLogByCondition"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel" resultMap="extensionCodeBindResultMap">
+	    select player_id from t_user 
+	    where  1 = 1
+	    <if test="extensionCode != null">
+			and extension_code = #{extensionCode},
+		</if>
+		<if test="playerId != null">
+			and player_id = #{playerId},
+		</if>
+	</select>
+
+</mapper>
+
+

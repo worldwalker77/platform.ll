@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.worldwalker.game.wyqp.common.dao.RecordPlayBackDao">
+	
+	<resultMap id="playBackResultMap" type="cn.worldwalker.game.wyqp.common.domain.base.PlayBackModel" >
+		<id column="id" property="id"/>
+		<result column="record_detail_uuid" property="recordDetailUuid"/>
+		<result column="msg" property="msg"/>
+		<result column="operation_time" property="operationTime"/>
+	</resultMap>
+	
+	 <insert id="insertPlayBack" parameterType="cn.worldwalker.game.wyqp.common.domain.base.PlayBackModel">  
+	     <!-- 使用这种方式要注意，resultType是要设置的，否则将抛异常，该值对应的User类中的主键类型 -->  
+	     <!-- keyProperty对应的是UserModel类中的主键名，假设取名为user_id，则这边也要改成user_id -->  
+	     <selectKey keyProperty="id" resultType="Long">  
+	         select LAST_INSERT_ID()  
+	     </selectKey>  
+	     insert into t_record_play_back( 
+	     					record_detail_uuid,
+	     					msg,
+	     					operation_time) 
+	     			values(  
+	     					#{recordDetailUuid},
+	     					#{msg}, 
+	     					#{operationTime})    
+    </insert> 
+    <insert id="batchInsertPlayBack" parameterType="java.util.List">  
+        insert into t_record_play_back ( 
+	     					record_detail_uuid,
+	     					msg,
+	     					operation_time)  
+        values  
+        <foreach collection="list" item="item" index="index" separator="," >  
+            (#{item.recordDetailUuid},#{item.msg},#{item.operationTime})  
+        </foreach>  
+    </insert>  
+     
+    <select id="getPlayBack"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.PlayBackModel" resultType="java.lang.String">
+	    SELECT msg
+		from t_record_play_back
+		where record_detail_uuid = #{recordDetailUuid}
+		order by operation_time asc;
+	</select>
+</mapper>
+
+

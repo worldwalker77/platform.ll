@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
+import cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel;
 import cn.worldwalker.game.wyqp.common.domain.base.OrderModel;
+import cn.worldwalker.game.wyqp.common.domain.base.PlayBackModel;
 import cn.worldwalker.game.wyqp.common.domain.base.ProductModel;
 import cn.worldwalker.game.wyqp.common.domain.base.UserFeedbackModel;
 import cn.worldwalker.game.wyqp.common.domain.base.UserModel;
@@ -51,6 +53,8 @@ public interface CommonManager {
 	
 	public UserModel getUserById(Integer playerId);
 	
+	public UserModel getUserByExtensionCode(Integer extensionCode);
+	
 	public Integer getProxyUserCountByPlayerId(Integer playerId);
 	
 	public Integer getProxyIdByPlayerId(Integer playerId);
@@ -58,5 +62,13 @@ public interface CommonManager {
 	public Integer addRoomCard(Map<String, Object> map);
 	
 	public Integer updateUserByPlayerId(UserModel userModel);
+	
+	public long batchInsertPlayBack(List<PlayBackModel> modelList);
+	
+	public List<String> getPlayBack(Long recordDetailUuid);
+	
+	public ExtensionCodeBindModel getExtensionCodeBindLogByPlayerId(Integer playerId);
+	
+	public void insertExtensionCodeBindLog(Integer extensionCode, Integer playerId, String nickName);
 	
 }

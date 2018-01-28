@@ -5,8 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
 
-import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class MjRoomInfo extends BaseRoomInfo{
 	
 	private Integer mjType = 1;
@@ -40,7 +42,15 @@ public class MjRoomInfo extends BaseRoomInfo{
 	private Integer eachFlowerScore = 0;
 	/**封顶*/
 	private Integer huScoreLimit = 20;
+	/**色字*/
+	private List<Integer> dices ;
 	
+	public List<Integer> getDices() {
+		return dices;
+	}
+	public void setDices(List<Integer> dices) {
+		this.dices = dices;
+	}
 	public Integer getIsChiPai() {
 		return isChiPai;
 	}

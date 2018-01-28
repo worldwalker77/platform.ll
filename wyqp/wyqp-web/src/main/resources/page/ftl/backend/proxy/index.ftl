@@ -26,12 +26,13 @@
 	        <div id="tab2" class="weui-tab__bd-item" style="-webkit-overflow-scrolling:touch; overflow: scroll;">
 	          <iframe style='width:100%;height:90%' scrolling="yes" frameborder="0" src="/backend/proxy/myMembers"></iframe>
 	        </div>
-	        <#if isAdmin == true>
-		        <div id="tab3" class="weui-tab__bd-item" style="-webkit-overflow-scrolling:touch; overflow: scroll;">
-		          <iframe style='width:100%;height:90%' scrolling="yes" frameborder="0" src="/backend/proxy/winProbability"></iframe>
-		        </div>
-	        </#if> 
-	        <div id="tab4" class="weui-tab__bd-item weui-tab__bd-item--active" style="-webkit-overflow-scrolling:touch; overflow: scroll;">
+	        <div id="tab3" class="weui-tab__bd-item" style="-webkit-overflow-scrolling:touch; overflow: scroll;">
+	          <iframe style='width:100%;height:90%' scrolling="yes" frameborder="0" src="/backend/proxy/clubManagement"></iframe>
+	        </div>
+	        <div id="tab4" class="weui-tab__bd-item" style="-webkit-overflow-scrolling:touch; overflow: scroll;">
+	          <iframe style='width:100%;height:90%' scrolling="yes" frameborder="0" src="/backend/proxy/clubMembers"></iframe>
+	        </div>
+	        <div id="tab5" class="weui-tab__bd-item weui-tab__bd-item--active" style="-webkit-overflow-scrolling:touch; overflow: scroll;">
 	          <iframe style='width:100%;height:90%' scrolling="yes" frameborder="0" src="/backend/proxy/proxyInfo"></iframe>
 	        </div>
 	      </div>
@@ -51,16 +52,19 @@
 	          </div>
 	          <p class="weui-tabbar__label">我的会员</p>
 	        </a>
-	        <#if isAdmin == true>
-	        	<a href="#tab3" class="weui-tabbar__item">
-		          <div class="weui-tabbar__icon">
-		            <img src="/resources/jquery-weui-build/demos/images/icon_nav_article.png" alt="">
-		          </div>
-		          <p class="weui-tabbar__label">概率控制</p>
-		        </a>
-			</#if>  
-	        
-	        <a href="#tab4" class="weui-tabbar__item weui-bar__item--on">
+        	<a href="#tab3" class="weui-tabbar__item">
+	          <div class="weui-tabbar__icon">
+	            <img src="/resources/jquery-weui-build/demos/images/icon_nav_article.png" alt="">
+	          </div>
+	          <p class="weui-tabbar__label">俱乐部管理</p>
+	        </a>
+	        <a href="#tab4" class="weui-tabbar__item">
+	          <div class="weui-tabbar__icon">
+	            <img src="/resources/jquery-weui-build/demos/images/icon_nav_article.png" alt="">
+	          </div>
+	          <p class="weui-tabbar__label">俱乐部会员</p>
+	        </a>
+	        <a href="#tab5" class="weui-tabbar__item weui-bar__item--on">
 	          <div class="weui-tabbar__icon">
 	            <img src="/resources/jquery-weui-build/demos/images/icon_nav_cell.png" alt="">
 	          </div>

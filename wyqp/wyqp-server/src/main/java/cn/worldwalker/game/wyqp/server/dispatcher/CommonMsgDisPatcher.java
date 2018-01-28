@@ -58,6 +58,9 @@ public class CommonMsgDisPatcher extends BaseMsgDisPatcher{
 			case notice:
 				commonGameService.notice(ctx, request, userInfo);
 				break;
+			case playBack:
+				commonGameService.playBack(ctx, request, userInfo);
+				break;
 			default:
 				break;
 			}

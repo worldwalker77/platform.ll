@@ -78,6 +78,17 @@
 		</trim>
 		where player_id = #{playerId}
 	</update>
+	
+	<select id="getUserByCondition"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.UserModel" resultMap="userResultMap">
+	    select player_id from t_user 
+	    where  1 = 1
+	    <if test="extensionCode != null">
+			and extension_code = #{extensionCode},
+		</if>
+		<if test="playerId != null">
+			and player_id = #{playerId},
+		</if>
+	</select>
 
 </mapper>
 

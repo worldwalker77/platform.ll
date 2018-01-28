@@ -32,6 +32,7 @@ import cn.worldwalker.game.wyqp.common.result.Result;
 import cn.worldwalker.game.wyqp.common.service.BaseGameService;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
+import cn.worldwalker.game.wyqp.common.utils.log.ThreadPoolMgr;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardResource;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardRule;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardTypeCalculation;
@@ -123,10 +124,13 @@ public class MjGameService extends BaseGameService{
 			data.put("curGame", roomInfo.getCurGame());
 			List<Integer> dices = new ArrayList<Integer>();
 			boolean isKaiBao = MjCardRule.playDices(dices);
+			roomInfo.setDices(dices);
 			data.put("dices", dices);
 			if (isKaiBao) {
 				roomInfo.setIsCurGameKaiBao(1);
 			}
+			List<Integer> handCardListBeforeAddFlower = null;
+			String handCardAddFlower = null;
 			/**为每个玩家设置牌*/
 			for(int i = 0; i < size; i++ ){
 				MjPlayerInfo player = playerList.get(i);
@@ -134,7 +138,7 @@ public class MjGameService extends BaseGameService{
 				/**如果是庄家则发14张牌*/
 				if (player.getPlayerId().equals(roomInfo.getRoomBankerId())) {
 					/**当前说话玩家的手牌缓存，由于没有补花之前的牌需要返回给客户端*/
-					List<Integer> handCardListBeforeAddFlower = new ArrayList<Integer>();
+					handCardListBeforeAddFlower = new ArrayList<Integer>();
 					if (Constant.isTest == 1) {
 						player.setHandCardList(MjCardRule.getHandCardListByIndex(i, true));//测试用
 					}else{
@@ -144,7 +148,7 @@ public class MjGameService extends BaseGameService{
 					/**补花之前的牌缓存*/
 					handCardListBeforeAddFlower.addAll(player.getHandCardList());
 					/**校验手牌补花*/
-					String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+					handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
 					/**如果手牌中有补花牌，则将补花后的正常牌替换玩家手牌中的花牌*/
 					if (StringUtils.isNotBlank(handCardAddFlower)) {
 						handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
@@ -187,6 +191,8 @@ public class MjGameService extends BaseGameService{
 			roomInfo.setStatus(MjRoomStatusEnum.inGame.status);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.initHandCards.msgType, (MjMsg)request.getMsg(), roomInfo, null, handCardAddFlower, null, handCardListBeforeAddFlower);
 			return;
 		}
 		roomInfo.setUpdateTime(new Date());
@@ -296,7 +302,8 @@ public class MjGameService extends BaseGameService{
 			}
 			/**给所有玩家返回桌面剩余牌张数*/
 			noticeAllPlayerRemaindCardNum(roomInfo);
-			
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.moPai.msgType, null, roomInfo, null, handCardAddFlower, moPaiAddFlower, null);
 		}else{
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
@@ -327,6 +334,8 @@ public class MjGameService extends BaseGameService{
 			}
 			
 		}
+		/**记录回放操作日志*/
+		addOperationLog(MsgTypeEnum.chuPai.msgType, (MjMsg)request.getMsg(), roomInfo, null, null, null, null);
 		
 	}
 	/**
@@ -403,6 +412,9 @@ public class MjGameService extends BaseGameService{
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
 		}
 		
+		/**记录回放操作日志*/
+		addOperationLog(MsgTypeEnum.chi.msgType, (MjMsg)request.getMsg(), roomInfo, null, null, null, null);
+		
 	}
 	
 	public void peng(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
@@ -466,6 +478,8 @@ public class MjGameService extends BaseGameService{
 			result.setMsgType(MsgTypeEnum.addFlowerNotice.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, playerId));
 		}
+		/**记录回放操作日志*/
+		addOperationLog(MsgTypeEnum.peng.msgType, (MjMsg)request.getMsg(), roomInfo, null, handCardAddFlower, null, null);
 	}
 	
 	public void mingGang(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
@@ -513,7 +527,9 @@ public class MjGameService extends BaseGameService{
 			/***给抢杠的玩家返回可操作权限*/
 			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
 			channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
-		}else{
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.mingGang.msgType, (MjMsg)request.getMsg(), roomInfo, player, null, null, null);
+		}else{/**如果没有其他玩家可以抢杠*/
 			/**将玩家当前轮补花数设置为0*/
 			player.setCurAddFlowerNum(0);
 			String moPaiAddFlower = null;
@@ -545,7 +561,8 @@ public class MjGameService extends BaseGameService{
 			data.put("mingGangCardList", mingGangCardList);
 			result.setMsgType(MsgTypeEnum.mingGang.msgType);
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArr(playerList));
-			
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.mingGang.msgType, (MjMsg)request.getMsg(), roomInfo, player, null, null, null);
 			/**给杠的玩家返回摸牌*/
 			data.clear();
 			data.put("curPlayerId", playerId);
@@ -574,6 +591,8 @@ public class MjGameService extends BaseGameService{
 			
 			/**给所有玩家返回桌面剩余牌张数*/
 			noticeAllPlayerRemaindCardNum(roomInfo);
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.moPai.msgType, null, roomInfo, player, handCardAddFlower, moPaiAddFlower, null);
 		}
 	}
 	
@@ -629,6 +648,8 @@ public class MjGameService extends BaseGameService{
 		data.put("anGangCardList", anGangCardList);
 		result.setMsgType(MsgTypeEnum.anGang.msgType);
 		channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArr(playerList));
+		/**记录回放操作日志*/
+		addOperationLog(MsgTypeEnum.anGang.msgType, (MjMsg)request.getMsg(), roomInfo, player, null, null, null);
 		
 		/**给当前玩家返回摸牌信息*/
 		data.clear();
@@ -657,6 +678,9 @@ public class MjGameService extends BaseGameService{
 		
 		/**给所有玩家返回桌面剩余牌张数*/
 		noticeAllPlayerRemaindCardNum(roomInfo);
+		
+		/**记录回放操作日志*/
+		addOperationLog(MsgTypeEnum.moPai.msgType, null, roomInfo, player, null, moPaiAddFlower, null);
 	}
 	
 	public void tingPai(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
@@ -751,6 +775,9 @@ public class MjGameService extends BaseGameService{
 			
 			/**给所有玩家返回桌面剩余牌张数*/
 			noticeAllPlayerRemaindCardNum(roomInfo);
+			
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.moPai.msgType, null, roomInfo, null, handCardAddFlower, moPaiAddFlower, null);
 		}else{
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
@@ -763,6 +790,9 @@ public class MjGameService extends BaseGameService{
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArrWithOutSelf(playerList, curPlayerId));
 			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId));
 			channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+			
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.tingPai.msgType, (MjMsg)request.getMsg(), roomInfo, null, null, null, null);
 		}
 	}
 	
@@ -863,6 +893,9 @@ public class MjGameService extends BaseGameService{
 				/**给所有玩家返回桌面剩余牌张数*/
 				noticeAllPlayerRemaindCardNum(roomInfo);
 				
+				/**记录回放操作日志*/
+				addOperationLog(MsgTypeEnum.moPai.msgType, null, roomInfo, null, handCardAddFlower, moPaiAddFlower, null);
+				
 			}else{
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
@@ -961,12 +994,14 @@ public class MjGameService extends BaseGameService{
 					newPlayer.put("ziMoCount", temp.getZiMoCount());
 					newPlayer.put("zhuaChongCount", temp.getZhuaChongCount());
 					newPlayer.put("dianPaoCount", temp.getDianPaoCount());
+					newPlayer.put("totalScore", temp.getTotalScore());
 				}
 				newPlayerList.add(newPlayer);
 			}
 			data.put("playerList", newPlayerList);
 			channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArr(playerList));
-			
+			/**记录回放操作日志*/
+			addOperationLog(result.getMsgType(), null, roomInfo, player, null, null, null);
 		}else{
 			TreeMap<Integer, String> curPlayerOperations = MjCardRule.getPlayerHighestPriority(roomInfo, curPlayerId);
 			/**如果没有其他玩家可以胡牌，则本局结束，开始结算*/
@@ -976,7 +1011,6 @@ public class MjGameService extends BaseGameService{
 					Integer feiCangYingCardIndex = feiCangYing(player, roomInfo.getTableRemainderCardList());
 					data.put("feiCangYingCardIndex", feiCangYingCardIndex);
 				}
-				
 				curPlayerId = playerId;
 				calculateScore(roomInfo);
 				roomInfo.setCurPlayerId(curPlayerId);
@@ -1017,18 +1051,20 @@ public class MjGameService extends BaseGameService{
 					newPlayer.put("isHu", temp.getIsHu());
 					newPlayer.put("mjCardTypeList", temp.getMjCardTypeList());
 					newPlayer.put("huType", temp.getHuType());
-					newPlayer.put("buttomAndFlowerScore", 0);
+					newPlayer.put("buttomAndFlowerScore", temp.getButtomAndFlowerScore());
 					newPlayer.put("multiple", temp.getMultiple());
 					if (roomInfo.getStatus().equals(MjRoomStatusEnum.totalGameOver.status)) {
 						newPlayer.put("ziMoCount", temp.getZiMoCount());
 						newPlayer.put("zhuaChongCount", temp.getZhuaChongCount());
 						newPlayer.put("dianPaoCount", temp.getDianPaoCount());
+						newPlayer.put("totalScore", temp.getTotalScore());
 					}
 					newPlayerList.add(newPlayer);
 				}
 				data.put("playerList", newPlayerList);
 				channelContainer.sendTextMsgByPlayerIds(result, GameUtil.getPlayerIdArr(playerList));
-				
+				/**记录回放操作日志*/
+				addOperationLog(result.getMsgType(), null, roomInfo, player, null, null, null);
 			}else{/**如果有其他玩家可以胡牌，则需要通知其他玩家胡牌*/
 				if (roomInfo.getIsFeiCangyin() > 0) {
 					Integer feiCangYingCardIndex = feiCangYing(player, roomInfo.getTableRemainderCardList());
@@ -1065,6 +1101,9 @@ public class MjGameService extends BaseGameService{
 				data.put("operations", operations);
 				/**给下一个可胡牌玩家返回信息*/
 				channelContainer.sendTextMsgByPlayerIds(result, curPlayerId);
+				
+				/**记录回放操作日志*/
+				addOperationLog(MsgTypeEnum.huPai.msgType, null, roomInfo, player, null, null, null);
 			}
 		}
 	}
@@ -1312,6 +1351,8 @@ public class MjGameService extends BaseGameService{
 		newRoomInfo.setLastCardIndex(roomInfo.getLastCardIndex());
 		newRoomInfo.setIsCurGameHuangZhuang(roomInfo.getIsCurGameHuangZhuang());
 		newRoomInfo.setIsCurGameKaiBao(roomInfo.getIsCurGameKaiBao());
+		newRoomInfo.setDices(roomInfo.getDices());
+		newRoomInfo.setTotalWinnerId(roomInfo.getTotalWinnerId());
 		for(MjPlayerInfo player : playerList){
 			MjPlayerInfo newPlayer = new MjPlayerInfo();
 			newRoomInfo.getPlayerList().add(newPlayer);
@@ -1383,5 +1424,152 @@ public class MjGameService extends BaseGameService{
 		return roomInfo;
 	}
 
-
+	public void addOperationLog(Integer msgType, MjMsg msg, MjRoomInfo roomInfo, MjPlayerInfo oPlayer,
+			String handCardAddFlower, String moPaiAddFlower, List<Integer> beforeAddFlowerHandCardList){
+		try {
+			List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
+			Result result = new Result();
+			Map<String, Object> data = new HashMap<String, Object>();
+			result.setData(data);
+			result.setGameType(GameTypeEnum.mj.gameType);
+			result.setMsgType(msgType);
+			result.setTimeStamp(System.currentTimeMillis());
+			result.setUuid(roomInfo.getCurGameUuid());
+			MsgTypeEnum msgTypeEnum = MsgTypeEnum.getMsgTypeEnumByType(msgType);
+			switch (msgTypeEnum) {
+			case initHandCards:
+				data.put("dices", roomInfo.getDices());
+				data.put("isCurGameKaiBao", roomInfo.getIsCurGameKaiBao());
+				data.put("huangFanNum", roomInfo.getHuangFanNum());
+				data.put("curPlayerId", roomInfo.getRoomBankerId());
+				List<Map<String, Object>> playerMapList = new ArrayList<Map<String,Object>>();
+				data.put("playerList", playerMapList);
+				for(MjPlayerInfo player : playerList){
+					Map<String, Object> playerMap = new HashMap<String, Object>();
+					playerMap.put("playerId", player.getPlayerId());
+					if (player.getPlayerId().equals(roomInfo.getRoomBankerId())) {
+						playerMap.put("handCardList", beforeAddFlowerHandCardList);
+						playerMap.put("handCardAddFlower", handCardAddFlower);
+					}else{
+						playerMap.put("handCardList", player.getHandCardList());
+					}
+					playerMapList.add(playerMap);
+				}
+				break;
+			case chuPai:
+				data.put("playerId", msg.getPlayerId());
+				data.put("cardIndex", msg.getCardIndex());
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				break;
+			case moPai:
+				data.put("playerId", roomInfo.getCurPlayerId());
+				data.put("moPaiAddFlower", moPaiAddFlower);
+				data.put("handCardAddFlower", handCardAddFlower);
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				break;
+			case chi:
+				data.put("playerId", roomInfo.getLastPlayerId());
+				data.put("cardIndex", roomInfo.getLastCardIndex());
+				data.put("chiCardList", msg.getChiCards().split(","));
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				data.put("handCardAddFlower", handCardAddFlower);
+				break;
+			case peng:
+				data.put("playerId", roomInfo.getLastPlayerId());
+				data.put("cardIndex", roomInfo.getLastCardIndex());
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				data.put("handCardAddFlower", handCardAddFlower);
+				break;
+			case mingGang:
+				/**如果是摸牌后的明杠*/
+				if (MjCardRule.isHandCard3n2(oPlayer)) {
+					data.put("playerId", oPlayer.getPlayerId());
+				}else{
+					data.put("playerId", roomInfo.getLastPlayerId());
+				}
+				data.put("cardIndex", msg.getGangCards());
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				data.put("handCardAddFlower", handCardAddFlower);
+				break;
+			case anGang:
+				data.put("cardIndex", msg.getGangCards());
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				data.put("handCardAddFlower", handCardAddFlower);
+				break;
+			case tingPai:
+				data.put("playerId", msg.getPlayerId());
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				break;
+			case huPai:/**一炮多响才通过胡牌接口返回，非一炮多响则通过结算接口*/
+				data.put("huType", oPlayer.getHuType());
+				data.put("playerId", oPlayer.getPlayerId());
+				if (MjHuTypeEnum.zhuaChong.type.equals(oPlayer.getHuType()) || MjHuTypeEnum.qiangGang.type.equals(oPlayer.getHuType())) {
+					data.put("cardIndex", roomInfo.getLastCardIndex());
+					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
+				}else if(MjHuTypeEnum.ziMo.type.equals(oPlayer.getHuType()) || MjHuTypeEnum.gangKai.type.equals(oPlayer.getHuType())){
+					data.put("cardIndex", oPlayer.getCurMoPaiCardIndex());
+				}
+				data.put("feiCangYingCardIndex", oPlayer.getFeiCangYingCardIndex());
+				data.put("curPlayerId", roomInfo.getCurPlayerId());
+				break;
+			case curSettlement:
+				data.put("curPlayerId", oPlayer.getPlayerId());
+				data.put("huType", oPlayer.getHuType());
+				if (MjHuTypeEnum.zhuaChong.type.equals(oPlayer.getHuType()) || MjHuTypeEnum.qiangGang.type.equals(oPlayer.getHuType())) {
+					data.put("cardIndex", roomInfo.getLastCardIndex());
+					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
+				}else if(MjHuTypeEnum.ziMo.type.equals(oPlayer.getHuType()) || MjHuTypeEnum.gangKai.type.equals(oPlayer.getHuType())){
+					data.put("cardIndex", oPlayer.getCurMoPaiCardIndex());
+				}
+				data.put("feiCangYingCardIndex", oPlayer.getFeiCangYingCardIndex());
+				List<Map<String, Object>> csPlayerList = new ArrayList<Map<String,Object>>();
+				data.put("playerList", csPlayerList);
+				for(MjPlayerInfo player : playerList){
+					Map<String, Object> newPlayer = new HashMap<String, Object>();
+					newPlayer.put("curScore", player.getCurScore());
+					newPlayer.put("isHu", player.getIsHu());
+					newPlayer.put("mjCardTypeList", player.getMjCardTypeList());
+					newPlayer.put("huType", player.getHuType());
+					newPlayer.put("buttomAndFlowerScore", player.getButtomAndFlowerScore());
+					newPlayer.put("multiple", player.getMultiple());
+					newPlayer.put("totalScore", player.getTotalScore());
+					csPlayerList.add(newPlayer);
+				}
+				break;
+			case totalSettlement:
+				data.put("curPlayerId", oPlayer.getPlayerId());
+				data.put("huType", oPlayer.getHuType());
+				if (MjHuTypeEnum.zhuaChong.type.equals(oPlayer.getHuType()) || MjHuTypeEnum.qiangGang.type.equals(oPlayer.getHuType())) {
+					data.put("cardIndex", roomInfo.getLastCardIndex());
+					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
+				}else if(MjHuTypeEnum.ziMo.type.equals(oPlayer.getHuType()) || MjHuTypeEnum.gangKai.type.equals(oPlayer.getHuType())){
+					data.put("cardIndex", oPlayer.getCurMoPaiCardIndex());
+				}
+				data.put("feiCangYingCardIndex", oPlayer.getFeiCangYingCardIndex());
+				List<Map<String, Object>> newPlayerList = new ArrayList<Map<String,Object>>();
+				data.put("playerList", newPlayerList);
+				data.put("totalWinnerId", roomInfo.getTotalWinnerId());
+				for(MjPlayerInfo player : playerList){
+					Map<String, Object> newPlayer = new HashMap<String, Object>();
+					newPlayer.put("curScore", player.getCurScore());
+					newPlayer.put("isHu", player.getIsHu());
+					newPlayer.put("mjCardTypeList", player.getMjCardTypeList());
+					newPlayer.put("huType", player.getHuType());
+					newPlayer.put("buttomAndFlowerScore", player.getButtomAndFlowerScore());
+					newPlayer.put("multiple", player.getMultiple());
+					newPlayer.put("ziMoCount", player.getZiMoCount());
+					newPlayer.put("zhuaChongCount", player.getZhuaChongCount());
+					newPlayer.put("dianPaoCount", player.getDianPaoCount());
+					newPlayer.put("totalScore", player.getTotalScore());
+					newPlayerList.add(newPlayer);
+				}
+				break;
+			default:
+				break;
+			}
+			ThreadPoolMgr.getLogDataInsertProcessor().processAwait(result);
+		} catch (Exception e) {
+			log.error("记录回放日志异常, msgType:" + msgType + ",msg:" + JsonUtil.toJson(msg) + ",oPlayer:" + JsonUtil.toJson(oPlayer) + ",roomInf:" + JsonUtil.toJson(roomInfo), e);
+		}
+	}
 }

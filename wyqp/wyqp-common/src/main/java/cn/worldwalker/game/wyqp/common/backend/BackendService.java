@@ -30,4 +30,13 @@ public interface BackendService {
 	
 	public Result doModifyPassword(GameQuery gameQuery);
 	
+	public Result getProxyClubs(GameQuery gameQuery);
+	public Result modifyProxyClub(GameQuery gameQuery);
+	
+	public Result insertClubUser(GameQuery gameQuery);
+	public Result getClubUsers(GameQuery gameQuery);
+	public Result modifyClubUser(GameQuery gameQuery);
+	public Result auditClubUser(GameQuery gameQuery);
+	public Result delClubUser(GameQuery gameQuery);
+	
 }

@@ -38,6 +38,46 @@ public class GameModel {
 	/**概率控制*/
 	private Integer winProbability;
 	
+	private Integer clubId;
+	
+	private Integer status;
+	
+	private Integer type;
+	
+	private String clubName;
+	
+	private String clubOwnerWord;
+	
+	public String getClubName() {
+		return clubName;
+	}
+	public void setClubName(String clubName) {
+		this.clubName = clubName;
+	}
+	public String getClubOwnerWord() {
+		return clubOwnerWord;
+	}
+	public void setClubOwnerWord(String clubOwnerWord) {
+		this.clubOwnerWord = clubOwnerWord;
+	}
+	public Integer getStatus() {
+		return status;
+	}
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	public Integer getType() {
+		return type;
+	}
+	public void setType(Integer type) {
+		this.type = type;
+	}
+	public Integer getClubId() {
+		return clubId;
+	}
+	public void setClubId(Integer clubId) {
+		this.clubId = clubId;
+	}
 	public Integer getWinProbability() {
 		return winProbability;
 	}

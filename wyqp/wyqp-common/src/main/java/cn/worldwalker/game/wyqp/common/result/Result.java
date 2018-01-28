@@ -2,9 +2,11 @@ package cn.worldwalker.game.wyqp.common.result;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import cn.worldwalker.game.wyqp.common.exception.ExceptionEnum;
 
-
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Result implements Serializable{
 	
 	private static final long serialVersionUID = 1188275509308264519L;
@@ -14,7 +16,8 @@ public class Result implements Serializable{
 	private int msgType;
 	private int gameType;
 	private Object data;
-	private long msgId;
+	private Long timeStamp;
+	private Long uuid;
 	
 	public Result(int code, String desc, int msgType){
 		this.code = code;
@@ -76,12 +79,20 @@ public class Result implements Serializable{
 		this.gameType = gameType;
 	}
 
-	public long getMsgId() {
-		return msgId;
+	public Long getTimeStamp() {
+		return timeStamp;
 	}
 
-	public void setMsgId(long msgId) {
-		this.msgId = msgId;
+	public void setTimeStamp(Long timeStamp) {
+		this.timeStamp = timeStamp;
 	}
-	
+
+	public Long getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(Long uuid) {
+		this.uuid = uuid;
+	}
+
 }

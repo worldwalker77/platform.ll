@@ -13,7 +13,9 @@ public class LoginInterceptor  extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
 		if (!RequestUtil.isUserSessionExist()) {
-			
+			String uri = httpServletRequest.getRequestURI();
+			String queryString = httpServletRequest.getQueryString();
+			httpServletResponse.sendRedirect("/login/index?redirectUrl=" + uri + "?" + queryString);
 			return false;
 		}
 		return true;

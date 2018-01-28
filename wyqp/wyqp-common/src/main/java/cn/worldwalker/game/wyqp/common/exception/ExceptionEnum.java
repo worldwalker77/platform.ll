@@ -30,6 +30,9 @@ public enum ExceptionEnum {
     ROOM_STATUS_CAN_NOT_READY(24, "当前房间状态不能准备"),
     SEND_SMS_ERROR(25, "发送短信验证码异常"),
     SMS_CODE_ERROR(26, "短信验证码错误或过期"),
+    EXTENSION_CODE_ERROR(27, "激活码错误"),
+    HAS_BIND_EXTENSINO_CODE(28, "您已经绑定过激活码"),
+    
     /**斗牛100-199*/
     
     /**麻将200-299*/

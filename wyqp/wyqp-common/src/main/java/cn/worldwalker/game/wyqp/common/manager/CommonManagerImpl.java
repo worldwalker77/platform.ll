@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import cn.worldwalker.game.wyqp.common.dao.ExtensionCodeBindDao;
 import cn.worldwalker.game.wyqp.common.dao.OrderDao;
 import cn.worldwalker.game.wyqp.common.dao.ProductDao;
 import cn.worldwalker.game.wyqp.common.dao.ProxyDao;
+import cn.worldwalker.game.wyqp.common.dao.RecordPlayBackDao;
 import cn.worldwalker.game.wyqp.common.dao.RoomCardLogDao;
 import cn.worldwalker.game.wyqp.common.dao.UserDao;
 import cn.worldwalker.game.wyqp.common.dao.UserFeedbackDao;
@@ -24,7 +26,9 @@ import cn.worldwalker.game.wyqp.common.dao.UserRecordDetailDao;
 import cn.worldwalker.game.wyqp.common.dao.VersionDao;
 import cn.worldwalker.game.wyqp.common.domain.base.BasePlayerInfo;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
+import cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel;
 import cn.worldwalker.game.wyqp.common.domain.base.OrderModel;
+import cn.worldwalker.game.wyqp.common.domain.base.PlayBackModel;
 import cn.worldwalker.game.wyqp.common.domain.base.ProductModel;
 import cn.worldwalker.game.wyqp.common.domain.base.ProxyModel;
 import cn.worldwalker.game.wyqp.common.domain.base.RecordModel;
@@ -61,6 +65,10 @@ public class CommonManagerImpl implements CommonManager{
 	private ProxyDao proxyDao;
 	@Autowired
 	private VersionDao versionDao;
+	@Autowired
+	private RecordPlayBackDao recordPlayBackDao;
+	@Autowired
+	private ExtensionCodeBindDao extensionCodeBindDao;
 	
 	@Override
 	public UserModel getUserByWxOpenId(String openId){
@@ -205,7 +213,12 @@ public class CommonManagerImpl implements CommonManager{
 			model.setPlayerId(player.getPlayerId());
 			model.setScore(player.getTotalScore());
 			model.setRecordInfo(recordInfo);
-			model.setRemark(RoomCardConsumeEnum.getRoomCardConsumeEnum(roomInfo.getGameType(), roomInfo.getPayType(), roomInfo.getTotalGames()).desc);
+			try {
+				model.setRemark(RoomCardConsumeEnum.getRoomCardConsumeEnum(roomInfo.getGameType(), roomInfo.getPayType(), roomInfo.getTotalGames()).desc);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			model.setCreateTime(createTime);
 			modelList.add(model);
 		}
@@ -367,5 +380,45 @@ public class CommonManagerImpl implements CommonManager{
 	@Override
 	public Integer updateUserByPlayerId(UserModel userModel) {
 		return userDao.updateUserByPlayerId(userModel);
+	}
+	@Override
+	public long batchInsertPlayBack(List<PlayBackModel> modelList) {
+		return recordPlayBackDao.batchInsertPlayBack(modelList);
+	}
+	@Override
+	public List<String> getPlayBack(Long recordDetailUuid) {
+		PlayBackModel model = new PlayBackModel();
+		model.setRecordDetailUuid(recordDetailUuid);
+		return recordPlayBackDao.getPlayBack(model);
+	}
+	@Override
+	public UserModel getUserByExtensionCode(Integer extensionCode){
+		UserModel model = new UserModel();
+		model.setExtensionCode(extensionCode);
+		List<UserModel> list = userDao.getUserByCondition(model);
+		if (CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+	@Override
+	public ExtensionCodeBindModel getExtensionCodeBindLogByPlayerId(
+			Integer playerId) {
+		ExtensionCodeBindModel model = new ExtensionCodeBindModel();
+		model.setPlayerId(playerId);
+		List<ExtensionCodeBindModel> list = extensionCodeBindDao.getExtensionCodeBindLogByCondition(model);
+		if (CollectionUtils.isEmpty(list)) {
+			return null;
+		}
+		return list.get(0);
+	}
+	@Override
+	public void insertExtensionCodeBindLog(Integer extensionCode,
+			Integer playerId, String nickName) {
+		ExtensionCodeBindModel model = new ExtensionCodeBindModel();
+		model.setExtensionCode(extensionCode);
+		model.setPlayerId(playerId);
+		model.setNickName(nickName);
+		extensionCodeBindDao.insertExtensionCodeBindLog(model);
 	}
 }

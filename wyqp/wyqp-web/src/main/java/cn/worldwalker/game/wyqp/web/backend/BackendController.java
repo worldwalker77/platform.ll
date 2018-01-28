@@ -203,4 +203,55 @@ public class BackendController {
 		return backendService.doModifyPassword(gameQuery);
 	}
 	
+	/**俱乐部管理*******/
+	@RequestMapping("proxy/clubManagement")
+	public ModelAndView clubManagement(){
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("backend/proxy/clubManagement");
+		return mv;
+	}
+	
+	@RequestMapping("proxy/getProxyClubs")
+	@ResponseBody
+	public Result getProxyClubs(@RequestBody GameQuery gameQuery){
+		return backendService.getProxyClubs(gameQuery);
+	}
+	
+	@RequestMapping("proxy/modifyProxyClub")
+	@ResponseBody
+	public Result modifyProxyClub(@RequestBody GameQuery gameQuery){
+		return backendService.modifyProxyClub(gameQuery);
+	}
+	
+	/**俱乐部玩家*******/
+	@RequestMapping("proxy/clubMembers")
+	public ModelAndView clubMembers(){
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("backend/proxy/clubMembers");
+		return mv;
+	}
+	
+	@RequestMapping("proxy/getClubMembers")
+	@ResponseBody
+	public Result getClubMembers(@RequestBody GameQuery gameQuery){
+		return backendService.getClubUsers(gameQuery);
+	}
+	
+	@RequestMapping("proxy/modifyClubMember")
+	@ResponseBody
+	public Result modifyClubMember(@RequestBody GameQuery gameQuery){
+		return backendService.modifyClubUser(gameQuery);
+	}
+	@RequestMapping("proxy/auditClubMember")
+	@ResponseBody
+	public Result auditClubMember(@RequestBody GameQuery gameQuery){
+		return backendService.auditClubUser(gameQuery);
+	}
+	
+	@RequestMapping("proxy/delClubMember")
+	@ResponseBody
+	public Result delClubMember(@RequestBody GameQuery gameQuery){
+		return backendService.delClubUser(gameQuery);
+	}
+	
 }

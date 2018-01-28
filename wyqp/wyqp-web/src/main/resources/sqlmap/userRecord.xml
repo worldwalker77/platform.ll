@@ -70,7 +70,7 @@
     </insert>  
      
     <select id="getUserRecord"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel" resultMap="userRecordResultMap">
-	    SELECT record_uuid,player_id,score,record_info,remark
+	    SELECT record_uuid,game_type,detail_type,room_id,player_id,score,record_info,remark,create_time
 		from t_user_record
 		where player_id = #{playerId}
 		order by create_time DESC

@@ -1,7 +1,9 @@
 package cn.worldwalker.game.wyqp.common.domain.mj;
 
-import cn.worldwalker.game.wyqp.common.domain.base.BaseMsg;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import cn.worldwalker.game.wyqp.common.domain.base.BaseMsg;
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class MjMsg extends BaseMsg{
 	/**麻将类型 1上海敲麻 2上海百搭 3上海拉西胡 4 上海清混碰*/
 	private Integer mjType;

@@ -57,6 +57,21 @@ public class RequestUtil {
 		}
 		return us.getProxyId();
 	}
+	public static Integer getPlayerId(){
+		UserSession us = sessionThreadLocal.get();
+		if (us == null) {
+			return null;
+		}
+		return us.getPlayerId();
+	}
+	
+	public static String getNickName(){
+		UserSession us = sessionThreadLocal.get();
+		if (us == null) {
+			return null;
+		}
+		return us.getNickName();
+	}
 	
 	/**
 	 * 获取请求id，每个请求都会有一个id与之对应，再跨多个系统的复杂应用时，可以很方便的定位问题

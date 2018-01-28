@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRequest;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
+import cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel;
 import cn.worldwalker.game.wyqp.common.domain.base.RedisRelaModel;
 import cn.worldwalker.game.wyqp.common.domain.base.SmsResModel;
 import cn.worldwalker.game.wyqp.common.domain.base.UserInfo;
@@ -228,6 +229,16 @@ public class CommonGameService extends BaseGameService{
 		userModel.setMobile(mobile);
 		userModel.setUpdateTime(new Date());
 		commonManager.updateUserByPlayerId(userModel);
+		/**绑定代理后送15张房卡*/
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("addNum", 1);
+		param.put("playerId", userInfo.getPlayerId());
+		commonManager.addRoomCard(param);
+		userModel = commonManager.getUserById(userInfo.getPlayerId());
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("roomCardNum", userModel.getRoomCardNum());
+		data.put("mobile", mobile);
+		result.setData(data);
 		return result;
 	}
 	
@@ -248,6 +259,42 @@ public class CommonGameService extends BaseGameService{
 		userModel.setIdNo(idNo);
 		userModel.setUpdateTime(new Date());
 		commonManager.updateUserByPlayerId(userModel);
+		return result;
+	}
+	
+	public Result obtainRoomCardByExtensionCode(Integer extensionCode, String token){
+		if (StringUtils.isBlank(token) || extensionCode == null) {
+			throw new BusinessException(ExceptionEnum.PARAMS_ERROR);
+		}
+		Result result = new Result();
+		UserInfo userInfo = redisOperationService.getUserInfo(token);
+		if (userInfo == null) {
+			throw new BusinessException(ExceptionEnum.NEED_LOGIN);
+		}
+		/**校验激活码是否正确*/
+		UserModel model = commonManager.getUserByExtensionCode(extensionCode);
+		if (model == null) {
+			throw new BusinessException(ExceptionEnum.EXTENSION_CODE_ERROR);
+		}
+		/**校验当前玩家是否已经绑定了激活码*/
+		ExtensionCodeBindModel bindModel = commonManager.getExtensionCodeBindLogByPlayerId(userInfo.getPlayerId());
+		if (bindModel != null) {
+			throw new BusinessException(ExceptionEnum.HAS_BIND_EXTENSINO_CODE);
+		}
+		/**插入绑定激活码日志*/
+		commonManager.insertExtensionCodeBindLog(extensionCode, userInfo.getPlayerId(), userInfo.getNickName());
+		/**绑定激活码的玩家领取房卡*/
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("addNum", 1);
+		param.put("playerId", userInfo.getPlayerId());
+		commonManager.addRoomCard(param);
+		/**推广的玩家获取房卡*/
+		param.put("playerId", model.getPlayerId());
+		commonManager.addRoomCard(param);
+		
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("roomCardNum", userInfo.getRoomCardNum() + 1);
+		result.setData(data);
 		return result;
 	}
 	

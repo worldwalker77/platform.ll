@@ -17,7 +17,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.domain.base.UserInfo;
-import cn.worldwalker.game.wyqp.common.enums.MsgTypeEnum;
 import cn.worldwalker.game.wyqp.common.exception.BusinessException;
 import cn.worldwalker.game.wyqp.common.manager.CommonManager;
 import cn.worldwalker.game.wyqp.common.result.Result;
@@ -130,11 +129,11 @@ public class GameController {
 	
 	@RequestMapping("obtainRoomCardByExtensionCode")
 	@ResponseBody
-	public Result obtainRoomCardByExtensionCode(String extensionCode, String token, HttpServletResponse response){
+	public Result obtainRoomCardByExtensionCode(Integer extensionCode, String token, HttpServletResponse response){
 		response.addHeader("Access-Control-Allow-Origin", "*");
 		Result result = null;
 		try {
-//			result = commonGameService.bindRealNameAndIdNo(token, realName, idNo);
+			commonGameService.obtainRoomCardByExtensionCode(extensionCode, token);
 		}catch (BusinessException e) {
 			log.error("extensionCode:" + extensionCode  + ", token:" + token, e);
 			result = new Result();

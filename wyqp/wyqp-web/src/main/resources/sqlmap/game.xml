@@ -22,6 +22,11 @@
 		<result column="create_time" property="createTime"/>
 		<result column="room_card_num" property="roomCardNum"/>
 		<result column="win_probability" property="winProbability"/>
+		<result column="club_id" property="clubId"/>
+		<result column="status" property="status"/>
+		<result column="type" property="type"/>
+		<result column="club_name" property="clubName"/>
+		<result column="club_owner_word" property="clubOwnerWord"/>
 	</resultMap>
 	
 	
@@ -42,6 +47,58 @@
 		     					#{mobilePhone},
 		     					#{password},
 		     					#{wechatNum},
+		     					now(),
+		     					now()
+		     				)    
+    </insert>
+    
+    <insert id="insertProxyClub" parameterType="gameQuery">  
+	     <selectKey keyProperty="clubId" resultType="Integer">  
+	         select LAST_INSERT_ID()  
+	     </selectKey>  
+	     insert into t_proxy_club( 
+	     						club_name,
+	     						club_owner_word,
+		     					proxy_id, 
+		     					player_id,
+		     					nick_name,
+		     					type,
+		     					status,
+		     					create_time,
+		     					update_time
+	     					) 
+	     			values(  
+	     						#{clubName},
+	     						#{clubOwnerWord},
+		     					#{proxyId},
+		     					#{playerId},
+		     					#{nickName},
+		     					#{type},
+		     					#{status},
+		     					now(),
+		     					now()
+		     				)    
+    </insert>
+    
+    <insert id="insertClubUser" parameterType="gameQuery">  
+	     <selectKey keyProperty="id" resultType="Long">  
+	         select LAST_INSERT_ID()  
+	     </selectKey>  
+	     insert into t_club_user( 
+	     						proxy_id,
+		     					club_id, 
+		     					player_id,
+		     					nick_name,
+		     					status,
+		     					create_time,
+		     					update_time
+	     					) 
+	     			values(  
+	     						#{proxyId},
+		     					#{clubId},
+		     					#{playerId},
+		     					#{nickName},
+		     					#{status},
 		     					now(),
 		     					now()
 		     				)    
@@ -210,7 +267,97 @@
 	    </if>
 	     and <![CDATA[ create_time >= #{startDate} and create_time <= #{endDate} ]]>
 	</select>
-
+	
+	
+	<select id="getProxyClubs"  parameterType = "gameQuery" resultMap="gameModelResultMap">
+	    select club_id,club_name,club_owner_word, proxy_id,player_id,nick_name,status,create_time
+	    from t_proxy_club
+	    where  1=1
+	    <if test="proxyId !=null ">  
+	       and proxy_id = #{proxyId}
+	    </if>
+	    <if test="playerId !=null ">  
+	       and player_id = #{playerId}
+	    </if>
+	    <if test="clubId !=null ">  
+	       and club_id = #{clubId}
+	    </if>
+	    <if test="status !=null ">  
+	       and status = #{status}
+	    </if>
+	    order by create_time desc
+	    limit #{offset}, #{limit}
+	</select>
+	<select id="getProxyClubsCount"  parameterType = "gameQuery" resultType="Long">
+	    select count(1)
+	    from t_proxy_club
+	    where  1=1
+	    <if test="proxyId !=null ">  
+	       and proxy_id = #{proxyId}
+	    </if>
+	    <if test="playerId !=null ">  
+	       and player_id = #{playerId}
+	    </if>
+	    <if test="clubId !=null ">  
+	       and club_id = #{clubId}
+	    </if>
+	    <if test="status !=null ">  
+	       and status = #{status}
+	    </if>
+	</select>
+	<update id="updateProxyClub"  parameterType = "gameQuery">
+	    update t_proxy_club
+	    set status = #{status},club_name=#{clubName},club_owner_word=#{clubOwnerWord}
+	    where club_id = #{clubId} and proxy_id = #{proxyId}
+	</update>
+	
+	<select id="getClubUsers"  parameterType = "gameQuery" resultMap="gameModelResultMap">
+	    select proxy_id,club_id,player_id,nick_name,status,create_time
+	    from t_club_user
+	    where  1=1
+	    <if test="proxyId !=null ">  
+	       and proxy_id = #{proxyId}
+	    </if>
+	    <if test="playerId !=null ">  
+	       and player_id = #{playerId}
+	    </if>
+	    <if test="clubId !=null ">  
+	       and club_id = #{clubId}
+	    </if>
+	    <if test="status !=null ">  
+	       and status = #{status}
+	    </if>
+	    order by create_time desc
+	    limit #{offset}, #{limit}
+	</select>
+	<select id="getClubUsersCount"  parameterType = "gameQuery" resultType="Long">
+	    select count(1)
+	    from t_club_user
+	    where  1=1
+	    <if test="proxyId !=null ">  
+	       and proxy_id = #{proxyId}
+	    </if>
+	    <if test="playerId !=null ">  
+	       and player_id = #{playerId}
+	    </if>
+	    <if test="clubId !=null ">  
+	       and club_id = #{clubId}
+	    </if>
+	    <if test="status !=null ">  
+	       and status = #{status}
+	    </if>
+	</select>
+	<update id="updateClubUser"  parameterType = "gameQuery">
+	    update t_club_user
+	    set status = #{status}
+	    where proxy_id = #{proxyId} and club_id = #{clubId} and player_id = #{playerId}
+	</update>
+	
+	<delete id="delClubUser"  parameterType = "gameQuery">
+	    delete from  t_club_user
+	    where proxy_id = #{proxyId} and club_id = #{clubId} and player_id = #{playerId}
+	</delete>
+	
 </mapper>
 
 

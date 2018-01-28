@@ -259,9 +259,13 @@ public abstract class BaseGameService {
 		
 		
 		BaseRoomInfo roomInfo = doEntryRoom(ctx, request, userInfo);
-		
+		List playerList = roomInfo.getPlayerList();
+		int size = playerList.size();
 		/**如果是麻将（金花和牛牛除外），那么游戏已经开始，则不允许再加入 add by liujinfengnew*/
 		if (roomInfo.getGameType().equals(GameTypeEnum.mj.gameType)) {
+			if (size >= 5) {
+				throw new BusinessException(ExceptionEnum.EXCEED_MAX_PLAYER_NUM);
+			}
 			if (roomInfo.getStatus() > RoomStatusEnum.justBegin.status) {
 				throw new BusinessException(ExceptionEnum.NOT_IN_READY_STATUS);
 			}
@@ -272,10 +276,8 @@ public abstract class BaseGameService {
 				commonManager.roomCardCheck(userInfo.getPlayerId(), request.getGameType(), roomInfo.getPayType(), roomInfo.getTotalGames());
 			}
 		}
-		List playerList = roomInfo.getPlayerList();
-		int size = playerList.size();
 		/**最多12个玩家*/
-		if (size >= roomInfo.getPlayerNumLimit()) {
+		if (size >= 12) {
 			throw new BusinessException(ExceptionEnum.EXCEED_MAX_PLAYER_NUM);
 		}
 		userInfo.setRoomId(roomId);
@@ -435,7 +437,7 @@ public abstract class BaseGameService {
 			/**将用户缓存信息里面的roomId设置为null*/
 			userInfo.setRoomId(null);
 			redisOperationService.setUserInfo(request.getToken(), userInfo);
-			result.setMsgType(MsgTypeEnum.entryHall.msgType);
+			result.setMsgType(MsgTypeEnum.successDissolveRoom.msgType);
 			/**当前玩家返回大厅*/
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);
 			/**其他玩家通知刷新*/
@@ -564,7 +566,7 @@ public abstract class BaseGameService {
 		}
 		/**通知玩家返回大厅*/
 		result.setMsgType(MsgTypeEnum.delRoomConfirmBeforeReturnHall.msgType);
-//		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
+		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
 		/**将roomId从用户信息中去除*/
 		userInfo.setRoomId(null);
 		redisOperationService.setUserInfo(request.getToken(), userInfo);
@@ -692,6 +694,18 @@ public abstract class BaseGameService {
 		qmodel.setRecordUuid(request.getMsg().getRecordUuid());
 		List<UserRecordModel> list = commonManager.getUserRecordDetail(qmodel);
 		result.setMsgType(MsgTypeEnum.userRecordDetail.msgType);
+		result.setData(list);
+		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
+	}
+	
+	public void playBack(ChannelHandlerContext ctx, BaseRequest request, UserInfo userInfo) {
+		Result result = new Result();
+		Map<String, Object> data = new HashMap<String, Object>();
+		result.setData(data);
+		result.setGameType(request.getGameType());
+		BaseMsg msg = request.getMsg();
+		List<String> list = commonManager.getPlayBack(request.getMsg().getRecordDetailUuid());
+		result.setMsgType(MsgTypeEnum.playBack.msgType);
 		result.setData(list);
 		channelContainer.sendTextMsgByPlayerIds(result, msg.getPlayerId());
 	}
