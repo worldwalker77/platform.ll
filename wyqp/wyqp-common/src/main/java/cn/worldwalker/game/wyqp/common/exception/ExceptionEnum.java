@@ -32,7 +32,8 @@ public enum ExceptionEnum {
     SMS_CODE_ERROR(26, "短信验证码错误或过期"),
     EXTENSION_CODE_ERROR(27, "激活码错误"),
     HAS_BIND_EXTENSINO_CODE(28, "您已经绑定过激活码"),
-    
+    CLUB_ID_NOT_EXIST(29, "俱乐部不存在"),
+    USER_NOT_IN_CLUB(30, "玩家不在俱乐部中"),
     /**斗牛100-199*/
     
     /**麻将200-299*/

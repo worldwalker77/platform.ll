@@ -26,20 +26,27 @@ public class BaseMsg {
 	private Integer proxyId;
 	private Integer productId;
 	private Integer playerNumLimit;
-	private Long recordUuid;
-	private Long recordDetailUuid;
+	private String recordUuid;
+	private String recordDetailUuid;
+	private Integer clubId;
 	
-	public Long getRecordDetailUuid() {
-		return recordDetailUuid;
+	public Integer getClubId() {
+		return clubId;
 	}
-	public void setRecordDetailUuid(Long recordDetailUuid) {
-		this.recordDetailUuid = recordDetailUuid;
+	public void setClubId(Integer clubId) {
+		this.clubId = clubId;
 	}
-	public Long getRecordUuid() {
+	public String getRecordUuid() {
 		return recordUuid;
 	}
-	public void setRecordUuid(Long recordUuid) {
+	public void setRecordUuid(String recordUuid) {
 		this.recordUuid = recordUuid;
+	}
+	public String getRecordDetailUuid() {
+		return recordDetailUuid;
+	}
+	public void setRecordDetailUuid(String recordDetailUuid) {
+		this.recordDetailUuid = recordDetailUuid;
 	}
 	public Integer getPlayerNumLimit() {
 		return playerNumLimit;

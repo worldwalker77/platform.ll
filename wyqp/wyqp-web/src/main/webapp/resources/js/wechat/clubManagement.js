@@ -39,7 +39,7 @@
 			title : '老板留言'
 		},{
 			field : 'status',
-			title : '开启审核(1:开启 0:不开启)'
+			title : '开启审核'
 		},
 	     {
 			field : 'proxyId',
@@ -51,8 +51,9 @@
 			field : '',
 			title : '操作',
 			formatter:function(value,row,index){  
-	            var e = "<a href='#' onclick='clubManagementUtil.edit(" + JSON.stringify(row) + ")'>编辑</a>";  
-                return e;  
+	            var edit = "<a href='#' onclick='clubManagementUtil.edit(" + JSON.stringify(row) + ")'>编辑</a>";  
+	            var del = "<a href='#' onclick='clubManagementUtil.delProxyClub(" + JSON.stringify(row) + ")'>删除</a>";  
+                return edit + "&nbsp;|&nbsp;" + del;  
              } 
 		}]
 	});
@@ -116,6 +117,47 @@ var clubManagementUtil = {
 		        		BootstrapDialog.show({
 		                    title: '成功提示',
 		                    message: '俱乐部操作成功',
+		                    buttons: [{
+		                        label: '确定',
+		                        action: function(dialog) {
+		                            dialog.close();
+		                            $('.table.table-striped:eq(0)').bootstrapTable('refresh');
+		                        }
+		                    }]
+		                });
+					}else{
+						BootstrapDialog.show({
+				            title: '错误提示',
+				            message: res.desc
+				        });
+					}
+		        },
+		        complete: function () {
+		            
+		        },
+		        error: function (data) {
+		        	alert("异常");
+		        }
+		    });
+		},
+		delProxyClub:function(row){
+			var data = {
+					clubId:row.clubId
+			}
+			$.ajax({
+		        type: "post",
+		        url: '/backend/proxy/delProxyClub',
+		        dataType: "json",
+		        contentType: "application/json",
+		        data:JSON.stringify(data),
+		        beforeSend: function () {
+		        	
+		        },
+		        success: function (res) {
+		        	if (res.code == 0) {
+		        		BootstrapDialog.show({
+		                    title: '成功提示',
+		                    message: '删除俱乐部操作成功',
 		                    buttons: [{
 		                        label: '确定',
 		                        action: function(dialog) {

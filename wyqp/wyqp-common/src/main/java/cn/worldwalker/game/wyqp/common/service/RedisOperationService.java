@@ -3,10 +3,14 @@ package cn.worldwalker.game.wyqp.common.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -494,7 +498,87 @@ public class RedisOperationService {
 		}
 		return JsonUtil.toObject(failInfoStr, RoomCardOperationFailInfo.class);
 	}
+	/**playerId->teaHouseNum 映射*/
+	public void setPlayerIdClubId(Integer playerId, Integer clubId){
+		if (gameInfoStorageType == 0 ) {
+			jedisTemplate.hset(Constant.playerIdClubIdMap, String.valueOf(playerId), String.valueOf(clubId));
+		}else{
+			GameInfoMemoryContainer.playerIdClubIdMap.put(String.valueOf(playerId), String.valueOf(clubId));
+		}
+		
+	}
 	
+	public Integer getClubIdByPlayerId(Integer playerId){
+		String str = null;
+		if (gameInfoStorageType == 0 ) {
+			str = jedisTemplate.hget(Constant.playerIdClubIdMap, String.valueOf(playerId));
+		}else{
+			str = GameInfoMemoryContainer.playerIdClubIdMap.get(String.valueOf(playerId));
+		}
+		if (StringUtils.isBlank(str)) {
+			return null;
+		}
+		return Integer.valueOf(str);
+	}
+	
+	public void hdelPlayerIdClubId(Integer playerId){
+		if (gameInfoStorageType == 0 ) {
+			jedisTemplate.hdel(Constant.playerIdClubIdMap, String.valueOf(playerId));
+		}else{
+			GameInfoMemoryContainer.playerIdClubIdMap.remove(String.valueOf(playerId));
+		}
+		
+	}
+	public static Lock lock = new ReentrantLock();
+	/**俱乐部与房间号列表关系*/
+	public void setClubIdRoomId(Integer clubId, Integer roomId){
+		if (gameInfoStorageType == 0 ) {
+			jedisTemplate.sadd(Constant.clubIdRoomIdSet + clubId, String.valueOf(roomId));
+		}else{
+			Vector<Integer> ve = GameInfoMemoryContainer.clubIdRoomIdVectorMap.get(clubId);
+			if (ve == null) {
+				lock.lock();
+				try {
+					ve = new Vector<Integer>();
+					GameInfoMemoryContainer.clubIdRoomIdVectorMap.put(clubId, ve);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}finally{
+					lock.unlock();
+				}
+			}
+			ve.add(roomId);
+		}
+	}
+	
+	public List<Integer> getRoomIdsByClubId(Integer clubId){
+		List<Integer> list = new ArrayList<Integer>();
+		if (gameInfoStorageType == 0 ) {
+			Set<String> set = jedisTemplate.smembers(Constant.clubIdRoomIdSet + clubId);
+			if (!CollectionUtils.isEmpty(set)) {
+				for(String temp : set){
+					list.add(Integer.valueOf(temp));
+				}
+			}
+		}else{
+			Vector<Integer> vec = GameInfoMemoryContainer.clubIdRoomIdVectorMap.get(clubId);
+			if (!CollectionUtils.isEmpty(vec)) {
+				list.addAll(vec);
+			}
+		}
+		return list;
+	}
+	
+	public void delClubIdRoomId(Integer clubId, Integer roomId){
+		if (gameInfoStorageType == 0 ) {
+			jedisTemplate.srem(Constant.clubIdRoomIdSet + clubId, String.valueOf(roomId));
+		}else{
+			Vector<Integer> vec = GameInfoMemoryContainer.clubIdRoomIdVectorMap.get(clubId);
+			if (!CollectionUtils.isEmpty(vec)) {
+				vec.remove(roomId);
+			}
+		}
+	}
 	
 	public boolean isLogFuseOpen(){
 		String logInfoFuseValue = "0";

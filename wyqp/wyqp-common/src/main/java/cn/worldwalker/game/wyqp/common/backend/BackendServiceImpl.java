@@ -509,5 +509,28 @@ public class BackendServiceImpl implements BackendService{
 		gameDao.delClubUser(gameQuery);
 		return result;
 	}
+	@Override
+	public Result delProxyClub(GameQuery gameQuery) {
+		Result result = new Result();
+		if (gameQuery.getClubId() == null) {
+			result.setCode(1);
+			result.setDesc("参数不能为空");
+			return result;
+		}
+		Integer proxyId = RequestUtil.getProxyId();
+		/**判断俱乐部是否属于此代理*/
+		GameQuery tempQuery  = new GameQuery();
+		tempQuery.setClubId(gameQuery.getClubId());
+		tempQuery.setProxyId(proxyId);
+		List<GameModel> modelist = gameDao.getProxyClubs(tempQuery);
+		if (CollectionUtils.isEmpty(modelist)) {
+			result.setCode(1);
+			result.setDesc("无权限删除此俱乐部");
+			return result;
+		}
+		gameQuery.setProxyId(proxyId);
+		gameDao.delProxyClub(gameQuery);
+		return result;
+	}
 
 }

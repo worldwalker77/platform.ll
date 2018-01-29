@@ -109,6 +109,7 @@ public class MjCardTypeCalculation {
 		}
 	}
 	public static void calButtomAndFlowerScore(MjPlayerInfo player, MjRoomInfo roomInfo){
+		/**补花数量*/
 		Integer flowerNum = player.getFlowerCardList().size();
 		/**风向碰、风暗刻*/
 		List<Integer> pengCardList = player.getPengCardList();

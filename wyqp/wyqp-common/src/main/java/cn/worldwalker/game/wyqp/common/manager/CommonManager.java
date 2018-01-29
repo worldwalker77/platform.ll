@@ -3,6 +3,7 @@ package cn.worldwalker.game.wyqp.common.manager;
 import java.util.List;
 import java.util.Map;
 
+import cn.worldwalker.game.wyqp.common.backend.GameModel;
 import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
 import cn.worldwalker.game.wyqp.common.domain.base.ExtensionCodeBindModel;
 import cn.worldwalker.game.wyqp.common.domain.base.OrderModel;

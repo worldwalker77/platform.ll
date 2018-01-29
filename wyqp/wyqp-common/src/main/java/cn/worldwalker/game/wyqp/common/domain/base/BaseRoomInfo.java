@@ -39,13 +39,23 @@ public class BaseRoomInfo {
 	
 	private Integer gameType;
 	
-	private Integer detailType = 0;
+	private Integer detailType = 1;
 	
 	private Integer playerNumLimit;
 	/**当前房间随机uuid*/
 	private Long roomUuid;
 	/**当前局随机uuid*/
 	private Long curGameUuid;
+	
+	private Integer clubId;
+	
+	public Integer getClubId() {
+		return clubId;
+	}
+
+	public void setClubId(Integer clubId) {
+		this.clubId = clubId;
+	}
 
 	public Integer getDetailType() {
 		return detailType;

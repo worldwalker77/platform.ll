@@ -4,13 +4,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.ser.std.ToStringSerializer;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class UserRecordModel {
 	
 	private Long id;
 	
 	private Integer playerId;
-	
+	@JsonSerialize(using= ToStringSerializer.class)
 	private Long recordUuid;
 	
 	private Integer gameType;
@@ -28,7 +29,7 @@ public class UserRecordModel {
 	private String recordInfo;
 	
 	private String remark; 
-	
+	@JsonSerialize(using= ToStringSerializer.class)
 	private Long recordDetailUuid;
 	
 	private Integer curGame;

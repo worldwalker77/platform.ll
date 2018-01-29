@@ -61,6 +61,21 @@ public class CommonMsgDisPatcher extends BaseMsgDisPatcher{
 			case playBack:
 				commonGameService.playBack(ctx, request, userInfo);
 				break;
+			case joinClub:
+				commonGameService.joinClub(ctx, request, userInfo);
+				break;
+			case entryClub:
+				commonGameService.entryClub(ctx, request, userInfo);
+				break;
+			case exitClub:
+				commonGameService.exitClub(ctx, request, userInfo);
+				break;
+			case getClubMembers:
+				commonGameService.getClubMembers(ctx, request, userInfo);
+				break;
+			case getClubRooms:
+				commonGameService.getClubRooms(ctx, request, userInfo);
+				break;
 			default:
 				break;
 			}

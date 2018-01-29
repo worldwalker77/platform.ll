@@ -311,6 +311,11 @@
 	    where club_id = #{clubId} and proxy_id = #{proxyId}
 	</update>
 	
+	<delete id="delProxyClub"  parameterType = "gameQuery">
+	    delete from  t_proxy_club
+	    where proxy_id = #{proxyId} and club_id = #{clubId}
+	</delete>
+	
 	<select id="getClubUsers"  parameterType = "gameQuery" resultMap="gameModelResultMap">
 	    select proxy_id,club_id,player_id,nick_name,status,create_time
 	    from t_club_user

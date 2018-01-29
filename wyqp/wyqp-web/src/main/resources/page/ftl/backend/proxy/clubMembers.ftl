@@ -62,7 +62,7 @@
 					
 					<div class="row" style="margin-top:5px"> 
 						<div class="col-xs-4">
-							<button id='addClubMember' type="button">新增俱乐部玩家</button>
+							<button id='addClubMember' type="button">新增玩家</button>
 						</div>
 					</div>
 				</div>

@@ -40,7 +40,7 @@
 			title : '玩家昵称'
 		},{
 			field : 'status',
-			title : '审核状态(1:已审核 0:未审核))'
+			title : '审核状态'
 		},{
 			field : 'proxyId',
 			title : '代理ID'

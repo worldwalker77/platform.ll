@@ -34,6 +34,36 @@ public class UserInfo {
 	private Integer winProbability = 0;
 	
 	private Integer extensionCode;
+	
+	private Integer hasClub;
+	
+	private Integer isBindPhone;
+	
+	private Integer isRealNameCert;
+	
+	public Integer getHasClub() {
+		return hasClub;
+	}
+
+	public void setHasClub(Integer hasClub) {
+		this.hasClub = hasClub;
+	}
+
+	public Integer getIsBindPhone() {
+		return isBindPhone;
+	}
+
+	public void setIsBindPhone(Integer isBindPhone) {
+		this.isBindPhone = isBindPhone;
+	}
+
+	public Integer getIsRealNameCert() {
+		return isRealNameCert;
+	}
+
+	public void setIsRealNameCert(Integer isRealNameCert) {
+		this.isRealNameCert = isRealNameCert;
+	}
 
 	public Integer getExtensionCode() {
 		return extensionCode;

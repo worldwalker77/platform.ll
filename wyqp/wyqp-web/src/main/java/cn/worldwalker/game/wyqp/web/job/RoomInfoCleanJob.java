@@ -46,6 +46,9 @@ public class RoomInfoCleanJob /**extends SingleServerJobByRedis*/ {
 				}
 				List playerList = roomInfo.getPlayerList();
 				redisOperationService.cleanPlayerAndRoomInfo(model.getRoomId(), GameUtil.getPlayerIdStrArr(playerList));
+				if (roomInfo.getClubId() != null) {
+					redisOperationService.delClubIdRoomId(roomInfo.getClubId(), roomInfo.getRoomId());
+				}
 				try {
 					commonManager.addUserRecord(roomInfo);
 				} catch (Exception e) {

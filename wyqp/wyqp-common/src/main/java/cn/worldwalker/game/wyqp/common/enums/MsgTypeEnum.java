@@ -35,6 +35,11 @@ public enum MsgTypeEnum {
 //	notReadyTimer(30, "未准备玩家计时器"),
 	userRecordDetail(31, "玩家战绩详情"),
 	playBack(32, "回放"),
+	joinClub(33, "申请加入俱乐部"),
+	entryClub(34, "进入俱乐部"),
+	exitClub(35, "退出进入的俱乐部"),
+	getClubMembers(36, "查询俱乐部玩家列表"),
+	getClubRooms(37, "查询俱乐部房间列表"),
 	
 	
 	/**斗牛特有100-199*/

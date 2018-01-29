@@ -988,7 +988,7 @@ public class MjGameService extends BaseGameService{
 				newPlayer.put("isHu", temp.getIsHu());
 				newPlayer.put("mjCardTypeList", temp.getMjCardTypeList());
 				newPlayer.put("huType", temp.getHuType());
-				newPlayer.put("buttomAndFlowerScore", 0);
+				newPlayer.put("buttomAndFlowerScore", temp.getButtomAndFlowerScore());
 				newPlayer.put("multiple", temp.getMultiple());
 				if (roomInfo.getStatus().equals(MjRoomStatusEnum.totalGameOver.status)) {
 					newPlayer.put("ziMoCount", temp.getZiMoCount());

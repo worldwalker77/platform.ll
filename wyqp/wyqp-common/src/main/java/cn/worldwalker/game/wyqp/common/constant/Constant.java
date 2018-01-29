@@ -114,4 +114,9 @@ public class Constant {
 	
 	public static final String smsContent = "您的验证码是：CODE。请不要把验证码泄露给其他人。";
 	
+	/**playerId与clubId的映射*/
+	public final static String playerIdClubIdMap = curCompany + "_player_id_club_id_map";
+	/**clubId与roomId关系映射*/
+	public final static String clubIdRoomIdSet = curCompany + "_club_id_room_id_set_";
+	
 }

@@ -1,12 +1,13 @@
 package cn.worldwalker.game.wyqp.common.domain.base;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.ser.std.ToStringSerializer;
 
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class PlayBackModel {
 	
 	private Long id;
-	
+	@JsonSerialize(using= ToStringSerializer.class)
 	private Long recordDetailUuid;
 	
 	private String msg;

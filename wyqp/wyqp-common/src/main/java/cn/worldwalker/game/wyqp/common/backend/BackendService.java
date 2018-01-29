@@ -32,6 +32,7 @@ public interface BackendService {
 	
 	public Result getProxyClubs(GameQuery gameQuery);
 	public Result modifyProxyClub(GameQuery gameQuery);
+	public Result delProxyClub(GameQuery gameQuery);
 	
 	public Result insertClubUser(GameQuery gameQuery);
 	public Result getClubUsers(GameQuery gameQuery);

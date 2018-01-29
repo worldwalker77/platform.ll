@@ -38,6 +38,7 @@ public interface GameDao {
 	public List<GameModel> getProxyClubs(GameQuery gameQuery);
 	public Long getProxyClubsCount(GameQuery gameQuery);
 	public Integer updateProxyClub(GameQuery gameQuery);
+	public Integer delProxyClub(GameQuery gameQuery);
 	
 	public Integer insertClubUser(GameQuery gameQuery);
 	public List<GameModel> getClubUsers(GameQuery gameQuery);

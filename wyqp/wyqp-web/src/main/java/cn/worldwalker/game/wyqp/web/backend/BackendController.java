@@ -223,6 +223,12 @@ public class BackendController {
 		return backendService.modifyProxyClub(gameQuery);
 	}
 	
+	@RequestMapping("proxy/delProxyClub")
+	@ResponseBody
+	public Result delProxyClub(@RequestBody GameQuery gameQuery){
+		return backendService.delProxyClub(gameQuery);
+	}
+	
 	/**俱乐部玩家*******/
 	@RequestMapping("proxy/clubMembers")
 	public ModelAndView clubMembers(){
