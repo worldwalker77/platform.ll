@@ -1245,7 +1245,8 @@ public abstract class BaseGameService {
 				playerInfo = (BasePlayerInfo)playerList.get(i);
 				newPlayer.put("playerId", playerInfo.getPlayerId());
 				newPlayer.put("nickName", playerInfo.getNickName());
-				newPlayer.put("headImgUrl", playerInfo.getHeadImgUrl());
+				newPlayer.put("headIgUrl", playerInfo.getHeadImgUrl());
+				newPlayer.put("onlineStatus", playerInfo.getOnlineStatus());
 				newPlayerList.add(newPlayer);
 			}
 			newRoomList.add(newRoomInfo);
