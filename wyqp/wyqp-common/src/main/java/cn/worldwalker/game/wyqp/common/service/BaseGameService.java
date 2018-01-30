@@ -1083,7 +1083,7 @@ public abstract class BaseGameService {
 		BaseMsg msg = request.getMsg();
 		Integer playerId = msg.getPlayerId();
 		Integer clubId = msg.getClubId();
-		/**设置俱乐部信息*/
+		/**俱乐部是否存在*/
 		GameQuery gameQuery = new GameQuery();
 		gameQuery.setClubId(clubId);
 		List<GameModel> list = gameDao.getProxyClubs(gameQuery);
@@ -1091,22 +1091,24 @@ public abstract class BaseGameService {
 			throw new BusinessException(ExceptionEnum.CLUB_ID_NOT_EXIST);
 		}
 		GameModel gameModel = list.get(0);
-		gameQuery.setPlayerId(playerId);
-		list = gameDao.getClubUsers(gameQuery);
-		/**如果当前玩家已经在俱乐部中,则直接进入俱乐部*/
-		if (CollectionUtils.isEmpty(list)) {
-			throw new BusinessException(ExceptionEnum.USER_NOT_IN_CLUB);
-			
+		if (!playerId.equals(gameModel.getPlayerId())) {
+			gameQuery.setPlayerId(playerId);
+			list = gameDao.getClubUsers(gameQuery);
+			/**玩家是否在俱乐部中*/
+			if (CollectionUtils.isEmpty(list)) {
+				throw new BusinessException(ExceptionEnum.USER_NOT_IN_CLUB);
+			}
 		}
+		
 		result.setMsgType(MsgTypeEnum.entryClub.msgType);
 		Map<String, Object> data = new HashMap<String, Object>();
 		result.setData(data);
 		data.put("clubId", clubId);
 		data.put("clubName", gameModel.getClubName());
 		data.put("clubOwnerWord", gameModel.getClubOwnerWord());
+		channelContainer.sendTextMsgByPlayerIds(result, playerId);
 		/**设置玩家id与俱乐部id的关系，记忆下次直接进入俱乐部*/
 		redisOperationService.setPlayerIdClubId(playerId, clubId);
-		channelContainer.sendTextMsgByPlayerIds(result, playerId);
 	}
 	/**
 	 * 从大厅输入茶楼号加入茶楼
@@ -1130,6 +1132,23 @@ public abstract class BaseGameService {
 			throw new BusinessException(ExceptionEnum.CLUB_ID_NOT_EXIST);
 		}
 		GameModel gameModel = list.get(0);
+		GameQuery tempQuery = new GameQuery();
+		tempQuery.setPlayerId(gameModel.getPlayerId());
+		list = gameDao.getUserByCondition(tempQuery);
+		if (!CollectionUtils.isEmpty(list)) {
+			data.put("roomCardNum", list.get(0).getRoomCardNum());
+		}
+		/**如果进入俱乐部的是主人本人，则直接进入*/
+		if (playerId.equals(gameModel.getPlayerId())) {
+			result.setMsgType(MsgTypeEnum.entryClub.msgType);
+			data.put("clubId", clubId);
+			data.put("clubName", gameModel.getClubName());
+			data.put("clubOwnerWord", gameModel.getClubOwnerWord());
+			channelContainer.sendTextMsgByPlayerIds(result, playerId);
+			redisOperationService.setPlayerIdClubId(playerId, clubId);
+			return;
+		}
+		
 		gameQuery.setPlayerId(playerId);
 		list = gameDao.getClubUsers(gameQuery);
 		/**如果当前玩家已经在俱乐部中,则直接进入俱乐部*/
@@ -1139,6 +1158,7 @@ public abstract class BaseGameService {
 			data.put("clubName", gameModel.getClubName());
 			data.put("clubOwnerWord", gameModel.getClubOwnerWord());
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);
+			redisOperationService.setPlayerIdClubId(playerId, clubId);
 			return;
 		}
 		gameQuery.setProxyId(gameModel.getProxyId());
@@ -1156,6 +1176,7 @@ public abstract class BaseGameService {
 			data.put("clubName", gameModel.getClubName());
 			data.put("clubOwnerWord", gameModel.getClubOwnerWord());
 			channelContainer.sendTextMsgByPlayerIds(result, playerId);
+			redisOperationService.setPlayerIdClubId(playerId, clubId);
 		}
 	}
 	
@@ -1198,8 +1219,31 @@ public abstract class BaseGameService {
 		gameQuery.setStatus(1);
 		/**默认返回100条记录*/
 		gameQuery.setLimit(100);
+		List<GameModel> onlineList = new ArrayList<GameModel>();
+		List<GameModel> offlineList = new ArrayList<GameModel>();
 		List<GameModel> list = gameDao.getClubUsers(gameQuery);
-		result.setData(list);
+		GameModel tempModel = null;
+		int onlineNum = 0;
+		for(GameModel modle : list){
+			tempModel = new GameModel();
+			tempModel.setPlayerId(playerId);
+			tempModel.setNickName(modle.getNickName());
+			tempModel.setHeadImgUrl(modle.getHeadImgUrl() == null?userInfo.getHeadImgUrl() : modle.getHeadImgUrl());
+			if (channelContainer.isPlayIdActive(modle.getPlayerId())) {
+				modle.setOnlineStatus(1);
+				onlineList.add(tempModel);
+				onlineNum++;
+			}else{
+				modle.setOnlineStatus(0);
+				offlineList.add(tempModel);
+			}
+		}
+		onlineList.addAll(offlineList);
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("playerList", onlineList);
+		data.put("onlineNum", onlineNum);
+		data.put("totalNum", onlineList.size());
+		result.setData(data);
 		channelContainer.sendTextMsgByPlayerIds(result, playerId);
 	}
 	
@@ -1215,6 +1259,7 @@ public abstract class BaseGameService {
 		result.setMsgType(MsgTypeEnum.getClubRooms.msgType);
 		BaseMsg msg = request.getMsg();
 		Integer playerId = msg.getPlayerId();
+		Integer status = msg.getStatus();
 		Integer clubId = redisOperationService.getClubIdByPlayerId(playerId);
 		if (clubId == null) {
 			throw new BusinessException(ExceptionEnum.USER_NOT_IN_CLUB);
@@ -1229,7 +1274,13 @@ public abstract class BaseGameService {
 				redisOperationService.delClubIdRoomId(clubId, roomId);
 				continue;
 			}
-			
+			/**status位1，说明请求的是等待中的房间*/
+			if (status == 1) {
+				/**过滤掉游戏已经开始的房间*/
+				if (roomInfo.getStatus() > 1) {
+					continue;
+				}
+			}
 			List playerList = roomInfo.getPlayerList();
 			int size = playerList.size();
 			BasePlayerInfo playerInfo = null;

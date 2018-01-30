@@ -2,6 +2,8 @@ package cn.worldwalker.game.wyqp.common.backend;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class UserSession implements Serializable{
 	private static final long serialVersionUID = 7478917352637885504L;
 	private Integer proxyId;

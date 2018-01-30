@@ -52,6 +52,10 @@ public class ChannelContainer {
 		return sessionMap.get(playerId);
 	}
 	
+	public boolean isPlayIdActive(Integer playerId){
+		return sessionMap.containsKey(playerId);
+	}
+	
 	public void sendTextMsgByPlayerIds(Result result, Integer... playerIds){
 		if (redisOperationService.isLogFuseOpen() && result.getMsgType() != MsgTypeEnum.heartBeat.msgType) {
 			log.info("返回 ," + MsgTypeEnum.getMsgTypeEnumByType(result.getMsgType()).desc + ": " + JsonUtil.toJson(result));

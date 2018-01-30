@@ -1,5 +1,8 @@
 package cn.worldwalker.game.wyqp.common.backend;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class GameQuery {
 	private Long id;
 	private Integer proxyId;

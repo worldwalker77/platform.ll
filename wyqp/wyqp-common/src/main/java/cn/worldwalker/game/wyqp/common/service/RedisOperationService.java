@@ -3,12 +3,11 @@ package cn.worldwalker.game.wyqp.common.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -579,6 +578,34 @@ public class RedisOperationService {
 			}
 		}
 	}
+	
+	/**playerId->time 映射*/
+//	public void setPlayerIdTime(Integer playerId){
+//		if (gameInfoStorageType == 0 ) {
+//			jedisTemplate.hset(Constant.playerIdTimeMap, String.valueOf(playerId), String.valueOf(System.currentTimeMillis()));
+//		}else{
+//			GameInfoMemoryContainer.playerIdTimeMap.put(String.valueOf(playerId), String.valueOf(System.currentTimeMillis()));
+//		}
+//	}
+//	
+//	public Map<String, String> getAllPlayerIdTime(){
+//		Map<String, String> map = new HashMap<String, String>();
+//		if (gameInfoStorageType == 0 ) {
+//			map.putAll(jedisTemplate.hgetAll(Constant.playerIdTimeMap));
+//		}else{
+//			map.putAll(GameInfoMemoryContainer.playerIdTimeMap);
+//		}
+//		return map;
+//	}
+//	
+//	public void hdelPlayerIdTime(Integer playerId){
+//		if (gameInfoStorageType == 0 ) {
+//			jedisTemplate.hdel(Constant.playerIdTimeMap, String.valueOf(playerId));
+//		}else{
+//			GameInfoMemoryContainer.playerIdTimeMap.remove(String.valueOf(playerId));
+//		}
+//		
+//	}
 	
 	public boolean isLogFuseOpen(){
 		String logInfoFuseValue = "0";

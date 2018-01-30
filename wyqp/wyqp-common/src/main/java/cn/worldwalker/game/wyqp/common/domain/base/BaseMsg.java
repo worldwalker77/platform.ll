@@ -29,7 +29,14 @@ public class BaseMsg {
 	private String recordUuid;
 	private String recordDetailUuid;
 	private Integer clubId;
+	private Integer status;
 	
+	public Integer getStatus() {
+		return status;
+	}
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
 	public Integer getClubId() {
 		return clubId;
 	}

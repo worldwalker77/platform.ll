@@ -119,4 +119,5 @@ public class Constant {
 	/**clubId与roomId关系映射*/
 	public final static String clubIdRoomIdSet = curCompany + "_club_id_room_id_set_";
 	
+	public final static String playerIdTimeMap = curCompany + "_player_id_time_map";
 }

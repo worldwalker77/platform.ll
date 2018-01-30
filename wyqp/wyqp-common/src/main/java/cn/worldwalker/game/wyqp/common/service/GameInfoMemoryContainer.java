@@ -1,7 +1,6 @@
 package cn.worldwalker.game.wyqp.common.service;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
@@ -26,4 +25,5 @@ public class GameInfoMemoryContainer {
 	public static Map<String, String> smsValidCodeMap = new HashMap<String, String>();
 	public static Map<String, String> playerIdClubIdMap = new ConcurrentHashMap<String, String>();
 	public static Map<Integer, Vector<Integer>> clubIdRoomIdVectorMap = new ConcurrentHashMap<Integer, Vector<Integer>>();
+//	public static Map<String, String> playerIdTimeMap = new ConcurrentHashMap<String, String>();
 }

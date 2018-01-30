@@ -2,8 +2,9 @@ package cn.worldwalker.game.wyqp.common.backend;
 
 import java.math.BigDecimal;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.util.StringUtils;
-
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class GameModel {
 	/**代理id*/
 	private Integer proxyId;
@@ -48,6 +49,22 @@ public class GameModel {
 	
 	private String clubOwnerWord;
 	
+	private Integer onlineStatus;
+	
+	private String headImgUrl;
+	
+	public String getHeadImgUrl() {
+		return headImgUrl;
+	}
+	public void setHeadImgUrl(String headImgUrl) {
+		this.headImgUrl = headImgUrl;
+	}
+	public Integer getOnlineStatus() {
+		return onlineStatus;
+	}
+	public void setOnlineStatus(Integer onlineStatus) {
+		this.onlineStatus = onlineStatus;
+	}
 	public String getClubName() {
 		return clubName;
 	}

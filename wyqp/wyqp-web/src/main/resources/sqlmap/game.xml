@@ -317,22 +317,22 @@
 	</delete>
 	
 	<select id="getClubUsers"  parameterType = "gameQuery" resultMap="gameModelResultMap">
-	    select proxy_id,club_id,player_id,nick_name,status,create_time
-	    from t_club_user
+	    select a.proxy_id,a.club_id,a.player_id,a.nick_name,a.status,a.create_time,b.head_img_url
+	    from t_club_user a left join t_user b on a.player_id = b.player_id
 	    where  1=1
 	    <if test="proxyId !=null ">  
-	       and proxy_id = #{proxyId}
+	       and a.proxy_id = #{proxyId}
 	    </if>
 	    <if test="playerId !=null ">  
-	       and player_id = #{playerId}
+	       and a.player_id = #{playerId}
 	    </if>
 	    <if test="clubId !=null ">  
-	       and club_id = #{clubId}
+	       and a.club_id = #{clubId}
 	    </if>
 	    <if test="status !=null ">  
-	       and status = #{status}
+	       and a.status = #{status}
 	    </if>
-	    order by create_time desc
+	    order by a.create_time desc
 	    limit #{offset}, #{limit}
 	</select>
 	<select id="getClubUsersCount"  parameterType = "gameQuery" resultType="Long">
