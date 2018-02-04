@@ -51,6 +51,7 @@ public enum MsgTypeEnum {
 	showCard(105, "亮牌"),
 	
 	/**麻将特有200-299*/
+	initRoom(208, "初始化房间基本数据"),//回放的时候才用到
 	initHandCards(209, "游戏开始返回玩家牌列表"),
 	moPai(210, "返回摸牌"),
 	chuPai(211, "出牌"),

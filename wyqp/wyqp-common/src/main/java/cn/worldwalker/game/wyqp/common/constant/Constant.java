@@ -104,7 +104,7 @@ public class Constant {
 	
 	public static final int isTest = Integer.valueOf(CustomizedPropertyConfigurer.getContextProperty("is.test"));
 	
-	public static final String mjTablePath = (isTest == 1? "C:/Users/jinfeng.liu/Desktop/game/tables/" : CustomizedPropertyConfigurer.getContextProperty("mj.table.path"));
+	public static final String mjTablePath = (isTest == 1? "C:/Users/jinfeng.liu/Desktop/game/tables/" : CustomizedPropertyConfigurer.getContextProperty("mj.table.path"));//"C:/Users/jinfeng.liu/Desktop/game/tables/";//
 	
 	public static final String sendSmsUrl = CustomizedPropertyConfigurer.getContextProperty("send.sms.url");
 	

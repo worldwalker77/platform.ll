@@ -36,6 +36,8 @@ public class GameModel {
 	private String createTime;
 	
 	private Integer roomCardNum;
+	
+	private Integer totalRoomCardNum;
 	/**概率控制*/
 	private Integer winProbability;
 	
@@ -53,6 +55,12 @@ public class GameModel {
 	
 	private String headImgUrl;
 	
+	public Integer getTotalRoomCardNum() {
+		return totalRoomCardNum;
+	}
+	public void setTotalRoomCardNum(Integer totalRoomCardNum) {
+		this.totalRoomCardNum = totalRoomCardNum;
+	}
 	public String getHeadImgUrl() {
 		return headImgUrl;
 	}

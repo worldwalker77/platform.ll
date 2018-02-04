@@ -1,6 +1,7 @@
 package cn.worldwalker.game.wyqp.mj.cards;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
@@ -19,100 +21,58 @@ import cn.worldwalker.game.wyqp.common.enums.DissolveStatusEnum;
 import cn.worldwalker.game.wyqp.common.exception.BusinessException;
 import cn.worldwalker.game.wyqp.common.exception.ExceptionEnum;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
+import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.common.utils.SnowflakeIdGenerator;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
+import cn.worldwalker.game.wyqp.mj.huvalidate.TableMgr;
 
 
 public class MjCardRule {
 	private static Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+	private static List<Integer> tableList = Arrays.asList(
+			/**1-9万*/	0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,
+			/**1-9筒*/	9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16,17,17,17,17,
+			/**1-9条*/	18,18,18,18,19,19,19,19,20,20,20,20,21,21,21,21,22,22,22,22,23,23,23,23,24,24,24,24,25,25,25,25,26,26,26,26,
+		/**东南西北中发白*/	27,27,27,27,28,28,28,28,29,29,29,29,30,30,30,30,31,31,31,31,32,32,32,32,33,33,33,33,
+		/**春夏秋冬梅兰竹菊*/	34,35,36,37,38,39,40,41);
+	private static List<Integer> list1 = Arrays.asList(0,0,0,1,1,1,2,2,2,3,3,6,4,5);
+	private static List<Integer> list2 = Arrays.asList(5,5,5,7,7,8,8,9,9,10,15,17,19);
+	private static List<Integer> list3 = Arrays.asList(3,4,6,7,8,9,10,11,12,13,14,17,17);
+	private static List<Integer> list4 = Arrays.asList(20,21,17,30,22,34,38,26,27,24,23,25,19);
 	static{
-		List<Integer> list1 = new ArrayList<Integer>();
-		list1.add(0);
-		list1.add(0);
-		list1.add(0);
-		list1.add(1);
-		list1.add(1);
-		list1.add(1);
-		list1.add(2);
-		list1.add(2);
-		list1.add(2);
-		list1.add(3);
-		list1.add(3);
-		list1.add(6);
-		list1.add(4);
-		list1.add(5);
-		List<Integer> list2 = new ArrayList<Integer>();
-		list2.add(5);
-		list2.add(5);
-		list2.add(5);
-		list2.add(7);
-		list2.add(7);
-		list2.add(8);
-		list2.add(8);
-		list2.add(9);
-		list2.add(9);
-		list2.add(10);
-		list2.add(15);
-		list2.add(17);
-		list2.add(19);
-		List<Integer> list3 = new ArrayList<Integer>();
-		list3.add(3);
-		list3.add(4);
-		list3.add(6);
-		list3.add(7);
-		list3.add(8);
-		list3.add(9);
-		list3.add(10);
-		list3.add(11);
-		list3.add(12);
-		list3.add(13);
-		list3.add(14);
-		list3.add(17);
-		list3.add(17);
-		List<Integer> list4 = new ArrayList<Integer>();
-		list4.add(20);
-		list4.add(21);
-		list4.add(17);
-		list4.add(30);
-		list4.add(22);
-		list4.add(34);
-		list4.add(38);
-		list4.add(26);
-		list4.add(27);
-		list4.add(24);
-		list4.add(23);
-		list4.add(25);
-		list4.add(19);
-		map.put(0, list1);
-		map.put(1, list2);
-		map.put(2, list3);
-		map.put(3, list4);
+		map.put(1, list1);
+		map.put(2, list2);
+		map.put(3, list3);
+		map.put(4, list4);
 	}
-	public static List<Integer> getHandCardListByIndex(int i, boolean isBanker){
+	public static void setHEveryandCardList(Map<Integer, List<Integer>> amap){
+		map.putAll(amap);
 		
-		
-		return map.get(i);
+	}
+	public List<Integer> getHandCardList(int bankerOrder, int curOrder){
+		List<Integer> list = new ArrayList<Integer>();
+		if (bankerOrder == curOrder) {
+			list.addAll(map.get(1));
+		}else if((bankerOrder + 1)%4 == curOrder){
+			list.addAll(map.get(2));
+		}else if ((bankerOrder + 2)%4 == curOrder) {
+			list.addAll(map.get(3));
+		}else if ((bankerOrder + 3)%4 == curOrder) {
+			list.addAll(map.get(4));
+		}
+		return list;
 	}
 	public static List<Integer> getTableCardList(){
-		
-		List<Integer> list4 = new ArrayList<Integer>();
-		list4.add(12);
-		list4.add(13);
-		list4.add(14);
-		list4.add(15);
-		list4.add(16);
-		list4.add(17);
-		list4.add(18);
-		list4.add(19);
-		list4.add(20);
-		list4.add(21);
-		list4.add(22);
-		list4.add(23);
-		list4.add(24);
-		return list4;
+		List<Integer> curTableCardList = new ArrayList<Integer>();
+		curTableCardList.addAll(tableList);
+		curTableCardList.removeAll(map.get(0));
+		curTableCardList.removeAll(map.get(1));
+		curTableCardList.removeAll(map.get(2));
+		curTableCardList.removeAll(map.get(3));
+		return curTableCardList;
 	}
 	
 	public static TreeMap<Integer, String> delPlayerOperationByPlayerId(MjRoomInfo roomInfo, Integer playerId){
@@ -368,11 +328,19 @@ public class MjCardRule {
 			if (checkHu(curPlayer, null)) {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.tianHu.type));
 			}
+			/**听牌校验*/
+			if (curPlayer.getIsTingHu() == 0) {
+				Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+				if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
+					/**4_4-2,7-1;7_4-2,7-1*/
+					map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+				}
+			}
 			if (map.size() > 0) {
 				operations.put(curPlayer.getPlayerId(), map);
 			}
 			
-		}else if (type == 1) {/**如果是摸牌，则要判断摸牌的人是否可以明杠、暗杠、胡牌**/
+		}else if (type == 1) {/**如果是摸牌，则要判断摸牌的人是否可以明杠、暗杠、胡牌、听牌**/
 			TreeMap<Integer, String> map = new TreeMap<Integer, String>();
 			/**格式化手牌*/
 			int len = handCardList.size();
@@ -410,21 +378,30 @@ public class MjCardRule {
 			if (checkHu(curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.ziMo.type));
 			}
+			/**听牌校验*/
+			if (curPlayer.getIsTingHu() == 0) {
+				Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+				if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
+					/**4_4-2,7-1;7_4-2,7-1*/
+					map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+				}
+			}
+			
 			/**将摸牌索引设置到玩家信息中*/
 			curPlayer.setCurMoPaiCardIndex(cardIndex);
 			if (map.size() > 0) {
 				operations.put(curPlayer.getPlayerId(), map);
 			}
 			
-		}else if(type == 2){/**如果是出牌，则需要判断出牌人是否可以听胡，并依次判断其他的玩家是否可以吃、碰、明杠、胡**/
+		}else if(type == 2){/**如果是出牌，依次判断其他的玩家是否可以吃、碰、明杠、胡**/
 			/**听牌校验(只针对当前出牌的玩家，因为需要通知玩家听牌)*/
-			if (curPlayer.getIsTingHu() == 0) {
-				if (checkTingHu(curPlayer)) {
-					TreeMap<Integer, String> map0 = new TreeMap<Integer, String>();
-					map0.put(MjOperationEnum.tingHu.type, "1");
-					operations.put(curPlayer.getPlayerId(), map0);
-				}
-			}
+//			if (curPlayer.getIsTingHu() == 0) {
+//				if (checkTingHu(curPlayer)) {
+//					TreeMap<Integer, String> map0 = new TreeMap<Integer, String>();
+//					map0.put(MjOperationEnum.tingHu.type, "1");
+//					operations.put(curPlayer.getPlayerId(), map0);
+//				}
+//			}
 			
 			/**按顺序依次计算出剩余三个玩家可操作权限*/
 			for(int i = 1; i <= 3; i++){
@@ -460,7 +437,7 @@ public class MjCardRule {
 					map1.put(MjOperationEnum.mingGang.type, mingGangStr);
 				}
 				
-				/**以胡牌校验*/
+				/**胡牌校验*/
 				if (checkHu(nextPlayer, cardIndex)) {
 					map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.zhuaChong.type));
 				}
@@ -532,6 +509,14 @@ public class MjCardRule {
 			/**胡牌校验*/
 			if (checkHu(curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.gangKai.type));
+			}
+			/**听牌校验*/
+			if (curPlayer.getIsTingHu() == 0) {
+				Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+				if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
+					/**4_4-2,7-1;7_4-2,7-1*/
+					map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+				}
 			}
 			/**将摸牌索引设置到玩家信息中*/
 			curPlayer.setCurMoPaiCardIndex(cardIndex);
@@ -605,21 +590,6 @@ public class MjCardRule {
 		return sbt.substring(0, sbt.length()-1);
 	}
 	
-	public static void main(String[] args) {
-//		List<Integer> handCardList = new ArrayList<Integer>();
-//		handCardList.add(34);
-//		handCardList.add(34);
-//		handCardList.add(34);
-//		handCardList.add(34);
-//		String ss = "34,35,1_34,2_34,36,3_34,37,39,4";
-//		System.out.println(ss);
-//		String str = replaceFlowerCards(handCardList, ss);
-//		
-//		System.out.println(str);
-//		System.out.println(JsonUtil.toJson(handCardList));
-		String a = "0,1_2,3";
-		System.out.println(a.contains("2,3"));
-	}
 	/**
 	 * 校验摸牌补花的情况
 	 * @param player
@@ -880,6 +850,141 @@ public class MjCardRule {
 		/**将上步骤中的牌作为癞子，查表判断是否可以胡牌*/
 		boolean canHu = Hulib.getInstance().get_hu_info(handCardList, notContainIndex, notContainIndex);
 		return canHu;
+	}
+	
+	/**
+	 * 判断当前已经出牌的玩家是否可以听胡
+	 * @param handCardList
+	 * @return
+	 */
+	public static boolean checkTingHu1(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex,Map<Integer, List<String>> chuCardIndexHuCardListMap){
+		List<Integer> handCardList = player.getHandCardList();
+		/**校验手牌，如果手牌中有31-41的花牌，则不能听牌*/
+		int size = handCardList.size();
+		for(int i = 0; i < size; i++){
+			if (handCardList.get(i) >= Hulib.indexLine) {
+				return false;
+			}
+		}
+		List<Integer> tempCardList = new ArrayList<Integer>();
+		tempCardList.addAll(handCardList);
+		if (cardIndex != null) {
+			tempCardList.add(cardIndex);
+		}
+		/**从0-31牌索引中找出第一张手牌中没有的牌*/
+		int notContainIndex = 0;
+		for(int i = 0; i < Hulib.indexLine; i++){
+			if (!tempCardList.contains(i)) {
+				notContainIndex = i;
+				break;
+			}
+		}
+		Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+		for(Integer index : tempCardList){
+			List<Integer> tempList = new ArrayList<Integer>();
+			tempList.addAll(tempCardList);
+			tempList.remove(index);
+			/**将去掉的牌作为癞子，查表判断是否可以胡牌*/
+			boolean canHu = Hulib.getInstance().get_hu_info(tempList, notContainIndex, notContainIndex);
+			if (canHu) {
+				map.put(index, tempList);
+			}
+		}
+		if (map.size() == 0) {
+			return false;
+		}
+		/**计算桌面上可以看见的牌及当前玩家手上的每张牌数量*/
+		Map<Integer, Integer> cardNumMap = new HashMap<Integer, Integer>();
+		List<Integer> cardNumList = new ArrayList<Integer>();
+//		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
+//	    for(MjPlayerInfo tempPlayer : playerList){
+//	    	if (player.getPlayerId().equals(tempPlayer.getPlayerId())) {
+//	    		cardNumList.addAll(tempCardList);
+//			}
+//	    	cardNumList.addAll(tempPlayer.getChiCardList());
+//	    	cardNumList.addAll(tempPlayer.getPengCardList());
+//	    	cardNumList.addAll(tempPlayer.getMingGangCardList());
+//	    	cardNumList.addAll(tempPlayer.getAnGangCardList());
+//	    	cardNumList.addAll(tempPlayer.getDiscardCardList());
+//	    }
+//	    for(Integer tempIndex : cardNumList){
+//	    	if (cardNumMap.containsKey(tempIndex)) {
+//	    		cardNumMap.put(tempIndex, cardNumMap.get(tempIndex) + 1);
+//			}else{
+//				cardNumMap.put(tempIndex, 1);
+//			}
+//	    }
+//	    
+		Set<Entry<Integer, List<Integer>>> set = map.entrySet();
+		for(Entry<Integer, List<Integer>> entry : set){
+			Integer key = entry.getKey();
+			List<Integer> value = entry.getValue();
+			Collections.sort(value);
+			/**n%3 == 0表示此花色已经可以胡牌;n%3 > 0则表示此门牌需要支持才能胡牌*/
+			List<Integer> wanList = new ArrayList<Integer>();
+			List<Integer> tongList = new ArrayList<Integer>();
+			List<Integer> tiaoList = new ArrayList<Integer>();
+			for(Integer index : value){
+				/**万个数*/
+				if (index >=0 && index < 9) {
+					wanList.add(index);
+				}
+				/**筒个数*/
+				if (index >=9 && index < 18) {
+					tongList.add(index);
+				}
+				/**条个数*/
+				if (index >=18 && index < 27) {
+					tiaoList.add(index);
+				}
+			}
+			List<Integer> huCardList = checkHuCardList(wanList, value);
+			if (CollectionUtils.isEmpty(huCardList)) {
+				huCardList = checkHuCardList(tongList, value);
+				if (CollectionUtils.isEmpty(huCardList)) {
+					huCardList = checkHuCardList(tiaoList, value);
+				}
+			}
+			List<String> huCardAndRemaindNumList = new ArrayList<String>();
+			for(Integer huCard : huCardList){
+				Integer remainNum = cardNumMap.get(huCard);
+				if (remainNum == null) {
+					remainNum = 4;
+				}else{
+					remainNum = 4 - remainNum;
+				}
+				huCardAndRemaindNumList.add(huCard + "_" + remainNum);
+			}
+			chuCardIndexHuCardListMap.put(key, huCardAndRemaindNumList);
+		}
+		return true;
+	}
+	
+	public static void main(String[] args) {
+		TableMgr.getInstance().load();
+		MjPlayerInfo player = new MjPlayerInfo();
+		List<Integer> list = Arrays.asList(4,4,6,9,10,11,13,13,14,15);//13
+		player.setHandCardList(list);
+		Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+		checkTingHu1(null, player, 11, chuCardIndexHuCardListMap);
+		System.out.println(JsonUtil.toJson(chuCardIndexHuCardListMap));
+		
+	}
+	
+	private static List<Integer> checkHuCardList(List<Integer> cardList, List<Integer> handCardList){
+		List<Integer> huCardList = new ArrayList<Integer>();
+		int size = cardList.size();
+		if (size%3 > 0) {
+			int minIndex = cardList.get(0) > 0 ? cardList.get(0) - 1: cardList.get(0);
+			int maxIndex = cardList.get(size - 1) < 8 ? cardList.get(size - 1) + 1: cardList.get(size - 1);
+			for(int i = minIndex; i <= maxIndex; i++){
+				boolean isHu = Hulib.getInstance().get_hu_info(handCardList, i, Hulib.invalidCardInex);
+				if (isHu) {
+					huCardList.add(i);
+				}
+			}
+		}
+		return huCardList;
 	}
 	/**
 	 * 判胡

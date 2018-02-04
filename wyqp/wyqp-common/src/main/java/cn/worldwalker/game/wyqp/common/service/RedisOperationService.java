@@ -27,6 +27,8 @@ import cn.worldwalker.game.wyqp.common.utils.redis.JedisTemplate;
 
 @Component
 public class RedisOperationService {
+	
+	
 	/**游戏信息存储方式，0：redis  1：内存   2：ehcache*/
 	private int gameInfoStorageType = Constant.gameInfoStorageType;
 	
@@ -50,6 +52,7 @@ public class RedisOperationService {
 			jedisTemplate.hset(Constant.roomIdRoomInfoMap, String.valueOf(roomId), JsonUtil.toJson(roomInfo));
 			setRoomIdGameTypeUpdateTime(roomId, roomInfo.getGameType(), date);
 		}else{
+			System.out.println();
 			GameInfoMemoryContainer.roomIdRoomInfoMap.put(String.valueOf(roomId), JsonUtil.toJson(roomInfo));
 			GameInfoMemoryContainer.roomIdGameTypeUpdateTimeMap.put(String.valueOf(roomId), roomInfo.getGameType() + "_" + date.getTime());
 		}

@@ -46,8 +46,7 @@
 	</mvc:annotation-driven>
 
 	<!-- 定义无需Controller的url<->view直接映射 -->
-	<mvc:resources mapping="/resources/**" location="/resources/**" />
-	<mvc:resources mapping="/zjh/**" location="/zjh/" />
+	<mvc:resources mapping="/resources/**" location="/resources/" />
 	
   	
 	

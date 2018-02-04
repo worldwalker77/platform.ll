@@ -1103,6 +1103,8 @@ public abstract class BaseGameService {
 		result.setMsgType(MsgTypeEnum.entryClub.msgType);
 		Map<String, Object> data = new HashMap<String, Object>();
 		result.setData(data);
+		data.put("totalRoomCardNum", gameModel.getTotalRoomCardNum() == null?100:gameModel.getTotalRoomCardNum() );
+		data.put("roomCardNum", gameModel.getRoomCardNum() == null?50:gameModel.getRoomCardNum());
 		data.put("clubId", clubId);
 		data.put("clubName", gameModel.getClubName());
 		data.put("clubOwnerWord", gameModel.getClubOwnerWord());
@@ -1132,12 +1134,8 @@ public abstract class BaseGameService {
 			throw new BusinessException(ExceptionEnum.CLUB_ID_NOT_EXIST);
 		}
 		GameModel gameModel = list.get(0);
-		GameQuery tempQuery = new GameQuery();
-		tempQuery.setPlayerId(gameModel.getPlayerId());
-		list = gameDao.getUserByCondition(tempQuery);
-		if (!CollectionUtils.isEmpty(list)) {
-			data.put("roomCardNum", list.get(0).getRoomCardNum());
-		}
+		data.put("totalRoomCardNum", gameModel.getTotalRoomCardNum() == null?100:gameModel.getTotalRoomCardNum() );
+		data.put("roomCardNum", gameModel.getRoomCardNum() == null?50:gameModel.getRoomCardNum());
 		/**如果进入俱乐部的是主人本人，则直接进入*/
 		if (playerId.equals(gameModel.getPlayerId())) {
 			result.setMsgType(MsgTypeEnum.entryClub.msgType);
@@ -1230,11 +1228,11 @@ public abstract class BaseGameService {
 			tempModel.setNickName(modle.getNickName());
 			tempModel.setHeadImgUrl(modle.getHeadImgUrl() == null?userInfo.getHeadImgUrl() : modle.getHeadImgUrl());
 			if (channelContainer.isPlayIdActive(modle.getPlayerId())) {
-				modle.setOnlineStatus(1);
+				tempModel.setOnlineStatus(1);
 				onlineList.add(tempModel);
 				onlineNum++;
 			}else{
-				modle.setOnlineStatus(0);
+				tempModel.setOnlineStatus(0);
 				offlineList.add(tempModel);
 			}
 		}
@@ -1259,7 +1257,7 @@ public abstract class BaseGameService {
 		result.setMsgType(MsgTypeEnum.getClubRooms.msgType);
 		BaseMsg msg = request.getMsg();
 		Integer playerId = msg.getPlayerId();
-		Integer status = msg.getStatus();
+		Integer status = msg.getStatus() == null?0:msg.getStatus();
 		Integer clubId = redisOperationService.getClubIdByPlayerId(playerId);
 		if (clubId == null) {
 			throw new BusinessException(ExceptionEnum.USER_NOT_IN_CLUB);
@@ -1304,5 +1302,12 @@ public abstract class BaseGameService {
 		}
 		result.setData(newRoomList);
 		channelContainer.sendTextMsgByPlayerIds(result, playerId);
+	}
+	
+	public static void main(String[] args) {
+		Integer status = null;
+		if (status == 1) {
+			
+		}
 	}
 }

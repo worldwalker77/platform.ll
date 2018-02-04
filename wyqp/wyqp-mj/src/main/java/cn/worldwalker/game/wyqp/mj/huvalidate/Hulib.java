@@ -35,8 +35,6 @@ public class Hulib
 			return false;
 		}
 		boolean testFlag = check_probability(ptbl, gui_num);
-		System.out.println(JsonUtil.toJson(ptbl.m));
-		System.out.println(JsonUtil.toJson(ptbl));
 		return testFlag;
 	}
 	
