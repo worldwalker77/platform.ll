@@ -41,7 +41,7 @@ public class MjRoomInfo extends BaseRoomInfo{
 	/**每个花的分数*/
 	private Integer eachFlowerScore = 0;
 	/**封顶*/
-	private Integer huScoreLimit = 20;
+	private Integer huScoreLimit = 1000000;
 	/**色字*/
 	private List<Integer> dices ;
 	

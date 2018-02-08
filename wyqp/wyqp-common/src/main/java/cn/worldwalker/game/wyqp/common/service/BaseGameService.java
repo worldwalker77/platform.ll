@@ -136,7 +136,7 @@ public abstract class BaseGameService {
 		UserInfo userInfo = new UserInfo();
 		userInfo.setPlayerId(playerId);
 		userInfo.setRoomId(roomId);
-		userInfo.setNickName("nickName_" + playerId);
+		userInfo.setNickName(String.valueOf(playerId));
 		userInfo.setLevel(1);
 		userInfo.setServerIp(Constant.localIp);
 		userInfo.setPort(String.valueOf(Constant.websocketPort));

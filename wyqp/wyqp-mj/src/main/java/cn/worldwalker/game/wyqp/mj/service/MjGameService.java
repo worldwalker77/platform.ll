@@ -3,6 +3,7 @@ package cn.worldwalker.game.wyqp.mj.service;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import cn.worldwalker.game.wyqp.common.result.Result;
 import cn.worldwalker.game.wyqp.common.service.BaseGameService;
 import cn.worldwalker.game.wyqp.common.utils.GameUtil;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
+import cn.worldwalker.game.wyqp.common.utils.SnowflakeIdGenerator;
 import cn.worldwalker.game.wyqp.common.utils.log.ThreadPoolMgr;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardResource;
 import cn.worldwalker.game.wyqp.mj.cards.MjCardRule;
@@ -254,7 +256,7 @@ public class MjGameService extends BaseGameService{
 				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
 			/**计算摸牌后当前玩家有哪些操作权限*/
-			if (moPaiAddFlower.length() > 1) {/**补花后是否可以杠开*/
+			if (moPaiAddFlower.split(",").length > 1) {/**补花后是否可以杠开*/
 				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 4);
 			}else{
 				MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
@@ -784,7 +786,7 @@ public class MjGameService extends BaseGameService{
 					handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 				}
 				/**计算摸牌后当前玩家有哪些操作权限*/
-				if (moPaiAddFlower.length() > 1) {/**补花后是否可以杠开*/
+				if (moPaiAddFlower.split(",").length > 1) {/**补花后是否可以杠开*/
 					MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 4);
 				}else{
 					MjCardRule.calculateAllPlayerOperations(roomInfo, MjCardRule.getRealMoPai(moPaiAddFlower), curPlayerId, 1);
@@ -881,6 +883,7 @@ public class MjGameService extends BaseGameService{
 				data.put("feiCangYingCardIndex", feiCangYingCardIndex);
 			}
 			curPlayerId = playerId;
+			player.setHuType(playerHuTypeInt);
 			calculateScore(roomInfo);
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
@@ -892,7 +895,6 @@ public class MjGameService extends BaseGameService{
 			}
 			data.put("curPlayerId", curPlayerId);
 			data.put("huType", playerHuTypeInt);
-			player.setHuType(playerHuTypeInt);
 			if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
 				data.put("cardIndex", roomInfo.getLastCardIndex());
 				data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
@@ -921,6 +923,9 @@ public class MjGameService extends BaseGameService{
 				newPlayer.put("huType", temp.getHuType());
 				newPlayer.put("buttomAndFlowerScore", temp.getButtomAndFlowerScore());
 				newPlayer.put("multiple", temp.getMultiple());
+				if (temp.getFeiCangYingCardIndex() != null) {
+					newPlayer.put("feiCangYingCardIndex", temp.getFeiCangYingCardIndex());
+				}
 				if (roomInfo.getStatus().equals(MjRoomStatusEnum.totalGameOver.status)) {
 					newPlayer.put("ziMoCount", temp.getZiMoCount());
 					newPlayer.put("zhuaChongCount", temp.getZhuaChongCount());
@@ -943,6 +948,7 @@ public class MjGameService extends BaseGameService{
 					data.put("feiCangYingCardIndex", feiCangYingCardIndex);
 				}
 				curPlayerId = playerId;
+				player.setHuType(playerHuTypeInt);
 				calculateScore(roomInfo);
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
@@ -955,7 +961,7 @@ public class MjGameService extends BaseGameService{
 				}
 				data.put("curPlayerId", curPlayerId);
 				data.put("huType", playerHuTypeInt);
-				player.setHuType(playerHuTypeInt);
+				
 				if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
 					data.put("cardIndex", roomInfo.getLastCardIndex());
 					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
@@ -984,6 +990,9 @@ public class MjGameService extends BaseGameService{
 					newPlayer.put("huType", temp.getHuType());
 					newPlayer.put("buttomAndFlowerScore", temp.getButtomAndFlowerScore());
 					newPlayer.put("multiple", temp.getMultiple());
+					if (temp.getFeiCangYingCardIndex() != null) {
+						newPlayer.put("feiCangYingCardIndex", temp.getFeiCangYingCardIndex());
+					}
 					if (roomInfo.getStatus().equals(MjRoomStatusEnum.totalGameOver.status)) {
 						newPlayer.put("ziMoCount", temp.getZiMoCount());
 						newPlayer.put("zhuaChongCount", temp.getZhuaChongCount());
@@ -1002,7 +1011,7 @@ public class MjGameService extends BaseGameService{
 					data.put("feiCangYingCardIndex", feiCangYingCardIndex);
 				}
 				
-				
+				player.setHuType(playerHuTypeInt);
 				roomInfo.setCurPlayerId(curPlayerId);
 				roomInfo.setUpdateTime(new Date());
 				redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
@@ -1010,7 +1019,7 @@ public class MjGameService extends BaseGameService{
 				data.put("handCardList", player.getHandCardList());
 				data.put("playerId", playerId);
 				data.put("huType", playerHuTypeInt);
-				player.setHuType(playerHuTypeInt);
+				
 				if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
 					data.put("cardIndex", roomInfo.getLastCardIndex());
 					data.put("dianPaoPlayerId", roomInfo.getLastPlayerId());
@@ -1123,6 +1132,7 @@ public class MjGameService extends BaseGameService{
 	 * @param roomInfo
 	 */
 	private void calculateScore(MjRoomInfo roomInfo){
+//		log.info("第" + roomInfo.getCurGame() + "局结算前roomInfo:" + JsonUtil.toJson(roomInfo));
 		/**如果当前局没有荒*/
 		if (roomInfo.getIsCurGameHuangZhuang() == 0) {
 			List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
@@ -1235,19 +1245,72 @@ public class MjGameService extends BaseGameService{
 			}
 		}
 		
+		log.info("第" + roomInfo.getCurGame() + "局结算后roomInfo:" + JsonUtil.toJson(roomInfo));
 	}
 	
 
 	public static void main(String[] args) {
-		List<Integer> list = new ArrayList<Integer>();
-		list.add(1);
-		list.add(1);
-		list.add(2);
-		list.add(2);
-		list.add(3);
-		list.add(3);
-		list.remove(1);
-		System.out.println(JsonUtil.toJson(list));
+		MjRoomInfo roomInfo = new MjRoomInfo();
+		roomInfo.setHuButtomScore(2);
+		roomInfo.setEachFlowerScore(1);
+		roomInfo.setIsFeiCangyin(1);
+		roomInfo.setIsKaiBao(1);
+		roomInfo.setIsHuangFan(1);
+		roomInfo.setIsCurGameKaiBao(0);
+		roomInfo.setLastCardIndex(0);
+		roomInfo.setLastPlayerId(824613);
+		MjPlayerInfo player = new MjPlayerInfo();
+		roomInfo.getPlayerList().add(player);
+		player.setPlayerId(585234);
+		player.setIsHu(1);
+		player.setHuType(MjHuTypeEnum.zhuaChong.type);
+		player.setCurMoPaiCardIndex(null);
+		player.setFeiCangYingCardIndex(5);
+		List<Integer> handCardList = Arrays.asList(0,0,6,6);
+		List<Integer> chiCardList = Arrays.asList();
+		List<Integer> pengCardList = Arrays.asList(30,30,30,18,18,18,25,25,25);
+		List<Integer> mingGangCardList = Arrays.asList();
+		List<Integer> anGangCardList = Arrays.asList();
+		List<Integer> flowerCardList = Arrays.asList(39,32,31);
+		player.setHandCardList(handCardList);
+		player.setChiCardList(chiCardList);
+		player.setPengCardList(pengCardList);
+		player.setMingGangCardList(mingGangCardList);
+		player.setAnGangCardList(anGangCardList);
+		player.setFlowerCardList(flowerCardList);
+		
+		MjPlayerInfo player1 = new MjPlayerInfo();
+		player1.setPlayerId(824613);
+		player1.setIsHu(0);
+		player1.setCurScore(0);
+		player1.setTotalScore(0);
+		player1.setDianPaoCount(0);
+		player1.setZhuaChongCount(0);
+		player1.setZiMoCount(0);
+		MjPlayerInfo player2 = new MjPlayerInfo();
+		player2.setPlayerId(714638);
+		player2.setIsHu(0);
+		player2.setCurScore(0);
+		player2.setTotalScore(0);
+		player2.setDianPaoCount(0);
+		player2.setZhuaChongCount(0);
+		player2.setZiMoCount(0);
+		MjPlayerInfo player3 = new MjPlayerInfo();
+		player3.setPlayerId(393774);
+		player3.setIsHu(0);
+		player3.setCurScore(0);
+		player3.setTotalScore(0);
+		player3.setDianPaoCount(0);
+		player3.setZhuaChongCount(0);
+		player3.setZiMoCount(0);
+		roomInfo.getPlayerList().add(player1);
+		roomInfo.getPlayerList().add(player2);
+		roomInfo.getPlayerList().add(player3);
+//		calculateScore(roomInfo);
+		System.out.println(JsonUtil.toJson(player.getMjCardTypeList()));
+		System.out.println(JsonUtil.toJson(roomInfo));
+		System.out.println("底花分：" + player.getButtomAndFlowerScore());
+		System.out.println("倍数：" + player.getMultiple());
 	}
 	
 	@Override
@@ -1364,7 +1427,7 @@ public class MjGameService extends BaseGameService{
 			result.setData(data);
 			result.setGameType(GameTypeEnum.mj.gameType);
 			result.setMsgType(msgType);
-			result.setTimeStamp(System.currentTimeMillis());
+			result.setTimeStamp(SnowflakeIdGenerator.idWorker.nextId());
 			result.setUuid(roomInfo.getCurGameUuid());
 			MsgTypeEnum msgTypeEnum = MsgTypeEnum.getMsgTypeEnumByType(msgType);
 			switch (msgTypeEnum) {
@@ -1373,6 +1436,7 @@ public class MjGameService extends BaseGameService{
 				data.put("isCurGameKaiBao", roomInfo.getIsCurGameKaiBao());
 				data.put("huangFanNum", roomInfo.getHuangFanNum());
 				data.put("roomBankerId", roomInfo.getRoomBankerId());
+				data.put("roomOwnerId", roomInfo.getRoomOwnerId());
 				List<Map<String, Object>> playerMapList0 = new ArrayList<Map<String,Object>>();
 				data.put("playerList", playerMapList0);
 				for(MjPlayerInfo player : playerList){

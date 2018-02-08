@@ -46,7 +46,7 @@
     </insert>  
      
     <select id="getUserRecordDetail"  parameterType = "cn.worldwalker.game.wyqp.common.domain.base.UserRecordModel" resultMap="userRecorDetailResultMap">
-	    SELECT record_detail_uuid,cur_game,record_info
+	    SELECT record_detail_uuid,cur_game,record_info,create_time
 		from t_user_record_detail
 		where record_uuid = #{recordUuid}
 	</select>

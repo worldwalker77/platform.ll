@@ -243,6 +243,12 @@ public class MjCardRule {
 			/**如果是摸牌后的明杠*/
 			if (isHandCard3n2(player)) {
 				handCardList.remove(mingGangCardIndex);
+				player.getPengCardList().remove(mingGangCardIndex);
+				player.getPengCardList().remove(mingGangCardIndex);
+				player.getPengCardList().remove(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
+				mingGangCardList.add(mingGangCardIndex);
 				mingGangCardList.add(mingGangCardIndex);
 				Collections.sort(mingGangCardList);
 			}else{/**如果是别人打的牌的明杠*/
@@ -963,10 +969,10 @@ public class MjCardRule {
 	public static void main(String[] args) {
 		TableMgr.getInstance().load();
 		MjPlayerInfo player = new MjPlayerInfo();
-		List<Integer> list = Arrays.asList(4,4,6,9,10,11,13,13,14,15);//13
+		List<Integer> list = Arrays.asList(9,10,11,13,21,21,22,22,23,23,26,26,26);
 		player.setHandCardList(list);
 		Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
-		checkTingHu1(null, player, 11, chuCardIndexHuCardListMap);
+		checkTingHu1(null, player, 14, chuCardIndexHuCardListMap);
 		System.out.println(JsonUtil.toJson(chuCardIndexHuCardListMap));
 		
 	}
@@ -975,8 +981,8 @@ public class MjCardRule {
 		List<Integer> huCardList = new ArrayList<Integer>();
 		int size = cardList.size();
 		if (size%3 > 0) {
-			int minIndex = cardList.get(0) > 0 ? cardList.get(0) - 1: cardList.get(0);
-			int maxIndex = cardList.get(size - 1) < 8 ? cardList.get(size - 1) + 1: cardList.get(size - 1);
+			int minIndex = cardList.get(0)%9 > 0 ? cardList.get(0) - 1: cardList.get(0);
+			int maxIndex = cardList.get(size - 1)%9 < 8 ? cardList.get(size - 1) + 1: cardList.get(size - 1);
 			for(int i = minIndex; i <= maxIndex; i++){
 				boolean isHu = Hulib.getInstance().get_hu_info(handCardList, i, Hulib.invalidCardInex);
 				if (isHu) {

@@ -16,19 +16,27 @@ public class MjCardTypeCalculation {
 	public static void main(String[] args) {
 		
 		MjRoomInfo roomInfo = new MjRoomInfo();
-		roomInfo.setHuButtomScore(1);
-		roomInfo.setEachFlowerScore(1);
-		roomInfo.setLastCardIndex(3);
+		roomInfo.setHuButtomScore(5);
+		roomInfo.setEachFlowerScore(5);
+		roomInfo.setIsFeiCangyin(1);
+		roomInfo.setIsKaiBao(1);
+		roomInfo.setIsHuangFan(1);
+		roomInfo.setIsCurGameKaiBao(1);
 		MjPlayerInfo player = new MjPlayerInfo();
-		player.setHuType(MjHuTypeEnum.zhuaChong.type);
-		List<Integer> handCardList = Arrays.asList(3);
-		List<Integer> chiCardList = Arrays.asList(1,2);
-		List<Integer> pengCardList = Arrays.asList(0,0,0,1,1,1,4,4,4,30,30,30);
-		List<Integer> mingGangCardList = Arrays.asList(1,2);
-		List<Integer> anGangCardList = Arrays.asList(1,2);
-		List<Integer> flowerCardList = Arrays.asList(33,33,34,34);
+		player.setHuType(MjHuTypeEnum.gangKai.type);
+		player.setCurMoPaiCardIndex(4);
+		player.setFeiCangYingCardIndex(4);
+		List<Integer> handCardList = Arrays.asList(4,4,16,16);
+		List<Integer> chiCardList = Arrays.asList();
+		List<Integer> pengCardList = Arrays.asList(19,19,19,24,24,24);
+		List<Integer> mingGangCardList = Arrays.asList(7,7,7,7);
+		List<Integer> anGangCardList = Arrays.asList();
+		List<Integer> flowerCardList = Arrays.asList(31,31,31,31,33);
 		player.setHandCardList(handCardList);
+		player.setChiCardList(chiCardList);
 		player.setPengCardList(pengCardList);
+		player.setMingGangCardList(mingGangCardList);
+		player.setAnGangCardList(anGangCardList);
 		player.setFlowerCardList(flowerCardList);
 		calButtomFlowerScoreAndCardTypeAndMultiple(player, roomInfo);
 		System.out.println(JsonUtil.toJson(player.getMjCardTypeList()));
@@ -219,7 +227,7 @@ public class MjCardTypeCalculation {
 			}
 		}
 		
-		List<Integer> pengCardList = player.getChiCardList();
+		List<Integer> pengCardList = player.getPengCardList();
 		if (pengCardList.size() > 0) {
 			for(Integer cardIndex : pengCardList){
 				if (cardIndex > maxCardIndex) {

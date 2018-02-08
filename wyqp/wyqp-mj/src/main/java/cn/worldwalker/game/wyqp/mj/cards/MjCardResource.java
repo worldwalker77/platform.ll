@@ -32,7 +32,7 @@ public class MjCardResource {
 	}
 	
 	public static List<Integer> sortCardList(List<Integer> cardList){
-		Collections.shuffle(cardList);
+		Collections.sort(cardList);
 		return cardList;
 	}
 	/**
