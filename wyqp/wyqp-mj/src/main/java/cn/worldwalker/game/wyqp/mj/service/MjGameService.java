@@ -306,11 +306,15 @@ public class MjGameService extends BaseGameService{
 			/**给所有玩家返回桌面剩余牌张数*/
 			noticeAllPlayerRemaindCardNum(roomInfo);
 			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.chuPai.msgType, (MjMsg)request.getMsg(), roomInfo, null, null, null, null);
+			/**记录回放操作日志*/
 			addOperationLog(MsgTypeEnum.moPai.msgType, null, roomInfo, null, handCardAddFlower, moPaiAddFlower, null);
 		}else{
 			roomInfo.setCurPlayerId(curPlayerId);
 			roomInfo.setUpdateTime(new Date());
 			redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
+			/**记录回放操作日志*/
+			addOperationLog(MsgTypeEnum.chuPai.msgType, (MjMsg)request.getMsg(), roomInfo, null, null, null, null);
 			/**给其他玩家返回出牌消息及当前说话玩家*/
 			Map<String, Object> data = new HashMap<String, Object>();
 			result.setData(data);
@@ -337,8 +341,6 @@ public class MjGameService extends BaseGameService{
 			}
 			
 		}
-		/**记录回放操作日志*/
-		addOperationLog(MsgTypeEnum.chuPai.msgType, (MjMsg)request.getMsg(), roomInfo, null, null, null, null);
 		
 	}
 	/**

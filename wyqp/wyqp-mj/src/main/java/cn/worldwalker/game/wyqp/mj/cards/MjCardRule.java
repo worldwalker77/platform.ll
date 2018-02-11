@@ -944,13 +944,13 @@ public class MjCardRule {
 					tiaoList.add(index);
 				}
 			}
-			List<Integer> huCardList = checkHuCardList(wanList, value);
-			if (CollectionUtils.isEmpty(huCardList)) {
-				huCardList = checkHuCardList(tongList, value);
-				if (CollectionUtils.isEmpty(huCardList)) {
-					huCardList = checkHuCardList(tiaoList, value);
-				}
-			}
+			List<Integer> huCardList = new ArrayList<Integer>();
+			List<Integer> wanHuCardList = checkHuCardList(wanList, value);
+			List<Integer> tongHuCardList = checkHuCardList(tongList, value);
+			List<Integer> tiaoHuCardList = checkHuCardList(tiaoList, value);
+			huCardList.addAll(wanHuCardList);
+			huCardList.addAll(tongHuCardList);
+			huCardList.addAll(tiaoHuCardList);
 			List<String> huCardAndRemaindNumList = new ArrayList<String>();
 			for(Integer huCard : huCardList){
 				Integer remainNum = cardNumMap.get(huCard);
@@ -969,10 +969,10 @@ public class MjCardRule {
 	public static void main(String[] args) {
 		TableMgr.getInstance().load();
 		MjPlayerInfo player = new MjPlayerInfo();
-		List<Integer> list = Arrays.asList(9,10,11,13,21,21,22,22,23,23,26,26,26);
+		List<Integer> list = Arrays.asList(4,5,5,15,15,15,24,25,25,25);
 		player.setHandCardList(list);
 		Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
-		checkTingHu1(null, player, 14, chuCardIndexHuCardListMap);
+		checkTingHu1(null, player, 24, chuCardIndexHuCardListMap);
 		System.out.println(JsonUtil.toJson(chuCardIndexHuCardListMap));
 		
 	}

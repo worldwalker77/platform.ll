@@ -239,7 +239,7 @@ public class CommonManagerImpl implements CommonManager{
 //			recordModel.setHeadImgUrl(player.getHeadImgUrl());
 			recordModel.setNickName(player.getNickName());
 			recordModel.setPlayerId(player.getPlayerId());
-			recordModel.setScore(player.getTotalScore());
+			recordModel.setScore(player.getCurScore());
 			recordModelList.add(recordModel);
 		}
 		String recordInfo = JsonUtil.toJson(recordModelList);
