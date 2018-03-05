@@ -11,8 +11,6 @@ import cn.worldwalker.game.wyqp.common.domain.base.BaseRoomInfo;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class MjRoomInfo extends BaseRoomInfo{
 	
-	private Integer mjType = 1;
-	
 	private List<MjPlayerInfo> playerList = new ArrayList<MjPlayerInfo>();
 	/**剩余的牌列表*/
 	private List<Integer> tableRemainderCardList;
@@ -44,7 +42,32 @@ public class MjRoomInfo extends BaseRoomInfo{
 	private Integer huScoreLimit = 1000000;
 	/**色字*/
 	private List<Integer> dices ;
+	/**百搭牌索引*/
+	private Integer baiDaCardIndex;
 	
+	/**无百搭可抓冲*/
+	private Integer noBaiDaCanZhuaChong;
+	/**无百搭可抢杠*/
+	private Integer noBaiDaCanQiangGang;
+	
+	public Integer getNoBaiDaCanZhuaChong() {
+		return noBaiDaCanZhuaChong;
+	}
+	public void setNoBaiDaCanZhuaChong(Integer noBaiDaCanZhuaChong) {
+		this.noBaiDaCanZhuaChong = noBaiDaCanZhuaChong;
+	}
+	public Integer getNoBaiDaCanQiangGang() {
+		return noBaiDaCanQiangGang;
+	}
+	public void setNoBaiDaCanQiangGang(Integer noBaiDaCanQiangGang) {
+		this.noBaiDaCanQiangGang = noBaiDaCanQiangGang;
+	}
+	public Integer getBaiDaCardIndex() {
+		return baiDaCardIndex;
+	}
+	public void setBaiDaCardIndex(Integer baiDaCardIndex) {
+		this.baiDaCardIndex = baiDaCardIndex;
+	}
 	public List<Integer> getDices() {
 		return dices;
 	}
@@ -123,12 +146,6 @@ public class MjRoomInfo extends BaseRoomInfo{
 	public void setPlayerOperationMap(
 			LinkedHashMap<Integer, TreeMap<Integer, String>> playerOperationMap) {
 		this.playerOperationMap = playerOperationMap;
-	}
-	public Integer getMjType() {
-		return mjType;
-	}
-	public void setMjType(Integer mjType) {
-		this.mjType = mjType;
 	}
 	public Integer getIsCurGameKaiBao() {
 		return isCurGameKaiBao;

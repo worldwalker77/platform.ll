@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import cn.worldwalker.game.wyqp.common.domain.mj.MjPlayerInfo;
@@ -26,6 +25,7 @@ import cn.worldwalker.game.wyqp.common.utils.SnowflakeIdGenerator;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
+import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 import cn.worldwalker.game.wyqp.mj.huvalidate.TableMgr;
 
@@ -331,7 +331,7 @@ public class MjCardRule {
 			/**暗杠校验**/
 			TreeMap<Integer, String> map = checkHandCardGang(cards, curPlayer.getPengCardList());
 			/**胡牌校验*/
-			if (checkHu(curPlayer, null)) {
+			if (checkHu(roomInfo, curPlayer, null)) {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.tianHu.type));
 			}
 			/**听牌校验*/
@@ -381,7 +381,7 @@ public class MjCardRule {
 			}
 			
 			/**胡牌校验*/
-			if (checkHu(curPlayer, cardIndex)) {
+			if (checkHu(roomInfo, curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.ziMo.type));
 			}
 			/**听牌校验*/
@@ -400,14 +400,6 @@ public class MjCardRule {
 			}
 			
 		}else if(type == 2){/**如果是出牌，依次判断其他的玩家是否可以吃、碰、明杠、胡**/
-			/**听牌校验(只针对当前出牌的玩家，因为需要通知玩家听牌)*/
-//			if (curPlayer.getIsTingHu() == 0) {
-//				if (checkTingHu(curPlayer)) {
-//					TreeMap<Integer, String> map0 = new TreeMap<Integer, String>();
-//					map0.put(MjOperationEnum.tingHu.type, "1");
-//					operations.put(curPlayer.getPlayerId(), map0);
-//				}
-//			}
 			
 			/**按顺序依次计算出剩余三个玩家可操作权限*/
 			for(int i = 1; i <= 3; i++){
@@ -444,14 +436,35 @@ public class MjCardRule {
 				}
 				
 				/**胡牌校验*/
-				if (checkHu(nextPlayer, cardIndex)) {
-					map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.zhuaChong.type));
+				/**百搭牌校验无百搭是否可以抓冲*/
+				if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
+					/**如果房间类型为无百搭可以抓冲*/
+					if (roomInfo.getNoBaiDaCanZhuaChong() > 0) {
+						/**如果手牌无百搭*/
+						if (!nextPlayer.getHandCardList().contains(roomInfo.getBaiDaCardIndex())) {
+							if (checkHu(roomInfo, nextPlayer, cardIndex)) {
+								map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.zhuaChong.type));
+							}
+						}
+					}
+					
+				}else{
+					if (checkHu(roomInfo, nextPlayer, cardIndex)) {
+						map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.zhuaChong.type));
+					}
 				}
+				
 				if (map1.size() > 0) {
 					operations.put(nextPlayer.getPlayerId(), map1);
 				}
 			}
 		}else if(type == 3){/**判断是否可以抢杠*/
+			if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
+				/**如果无百搭不能抢杠，则直接返回*/
+				if (roomInfo.getNoBaiDaCanQiangGang() < 1) {
+					return operations;
+				}
+			}
 			/**按顺序依次计算出剩余三个玩家可操作权限*/
 			for(int i = 1; i <= 3; i++){
 				MjPlayerInfo nextPlayer = list.get((curPlayerIndex + i)%4);
@@ -467,7 +480,11 @@ public class MjCardRule {
 				}
 				
 				/**以胡牌校验*/
-				if (checkHu(nextPlayer, cardIndex)) {
+				/**如果手牌中有百搭牌，则continue*/
+				if (nextPlayer.getHandCardList().contains(roomInfo.getBaiDaCardIndex())) {
+					continue;
+				}
+				if (checkHu(roomInfo, nextPlayer, cardIndex)) {
 					map1.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.qiangGang.type));
 					roomInfo.setLastCardIndex(cardIndex);
 					roomInfo.setLastPlayerId(playerId);
@@ -513,7 +530,7 @@ public class MjCardRule {
 			}
 			
 			/**胡牌校验*/
-			if (checkHu(curPlayer, cardIndex)) {
+			if (checkHu(roomInfo, curPlayer, cardIndex)) {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.gangKai.type));
 			}
 			/**听牌校验*/
@@ -836,33 +853,6 @@ public class MjCardRule {
 	 * @param handCardList
 	 * @return
 	 */
-	public static boolean checkTingHu(MjPlayerInfo player){
-		List<Integer> handCardList = player.getHandCardList();
-		/**校验手牌，如果手牌中有31-41的花牌，则不能听牌*/
-		int size = handCardList.size();
-		for(int i = 0; i < size; i++){
-			if (handCardList.get(i) >= Hulib.indexLine) {
-				return false;
-			}
-		}
-		/**从0-31牌索引中找出第一张手牌中没有的牌*/
-		int notContainIndex = 0;
-		for(int i = 0; i < Hulib.indexLine; i++){
-			if (!handCardList.contains(i)) {
-				notContainIndex = i;
-				break;
-			}
-		}
-		/**将上步骤中的牌作为癞子，查表判断是否可以胡牌*/
-		boolean canHu = Hulib.getInstance().get_hu_info(handCardList, notContainIndex, notContainIndex);
-		return canHu;
-	}
-	
-	/**
-	 * 判断当前已经出牌的玩家是否可以听胡
-	 * @param handCardList
-	 * @return
-	 */
 	public static boolean checkTingHu1(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex,Map<Integer, List<String>> chuCardIndexHuCardListMap){
 		List<Integer> handCardList = player.getHandCardList();
 		/**校验手牌，如果手牌中有31-41的花牌，则不能听牌*/
@@ -998,17 +988,21 @@ public class MjCardRule {
 	 * @param cardIndex
 	 * @return
 	 */
-	public static boolean checkHu(MjPlayerInfo player, Integer cardIndex){
+	public static boolean checkHu(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
 		boolean isHu = false;
 		if (player.getIsTingHu() == 0) {
 			return isHu;
 		}
 		
 		List<Integer> handCardList = player.getHandCardList();
+		Integer gui_index = Hulib.invalidCardInex;
+		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
+			gui_index = roomInfo.getBaiDaCardIndex();
+		}
 		if (handCardList.size() == 14) {
-			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, Hulib.invalidCardInex);
+			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, gui_index);
 		}else{
-			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, Hulib.invalidCardInex);
+			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index);
 		}
 		return isHu;
 	}

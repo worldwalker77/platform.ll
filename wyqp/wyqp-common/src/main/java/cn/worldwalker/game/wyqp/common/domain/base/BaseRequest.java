@@ -11,8 +11,16 @@ public class BaseRequest {
 	
 	private Integer gameType;
 	
+	private Integer detailType;
+	
 	private BaseMsg msg;
 	
+	public Integer getDetailType() {
+		return detailType;
+	}
+	public void setDetailType(Integer detailType) {
+		this.detailType = detailType;
+	}
 	public Integer getMsgType() {
 		return msgType;
 	}

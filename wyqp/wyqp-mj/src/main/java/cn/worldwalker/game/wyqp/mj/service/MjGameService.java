@@ -1247,7 +1247,7 @@ public class MjGameService extends BaseGameService{
 			}
 		}
 		
-		log.info("第" + roomInfo.getCurGame() + "局结算后roomInfo:" + JsonUtil.toJson(roomInfo));
+//		log.info("第" + roomInfo.getCurGame() + "局结算后roomInfo:" + JsonUtil.toJson(roomInfo));
 	}
 	
 

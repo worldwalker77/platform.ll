@@ -23,11 +23,27 @@ public class MjMsg extends BaseMsg{
 	private Integer eachFlowerScore = 1;
 	/**胡牌封顶分数*/
 	private Integer huScoreLimit = 20;
+	/**无百搭可抓冲*/
+	private Integer noBaiDaCanZhuaChong;
+	/**无百搭可抢杠*/
+	private Integer noBaiDaCanQiangGang;
 	
 	private String chiCards;
 	private String pengCards;
 	private String gangCards;
 	
+	public Integer getNoBaiDaCanZhuaChong() {
+		return noBaiDaCanZhuaChong;
+	}
+	public void setNoBaiDaCanZhuaChong(Integer noBaiDaCanZhuaChong) {
+		this.noBaiDaCanZhuaChong = noBaiDaCanZhuaChong;
+	}
+	public Integer getNoBaiDaCanQiangGang() {
+		return noBaiDaCanQiangGang;
+	}
+	public void setNoBaiDaCanQiangGang(Integer noBaiDaCanQiangGang) {
+		this.noBaiDaCanQiangGang = noBaiDaCanQiangGang;
+	}
 	public Integer getIsChiPai() {
 		return isChiPai;
 	}

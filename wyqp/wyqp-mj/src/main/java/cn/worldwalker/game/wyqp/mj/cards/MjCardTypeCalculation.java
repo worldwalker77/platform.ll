@@ -1,5 +1,6 @@
 package cn.worldwalker.game.wyqp.mj.cards;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class MjCardTypeCalculation {
 	 */
 	public static Integer calButtomFlowerScoreAndCardTypeAndMultiple(MjPlayerInfo player, MjRoomInfo roomInfo){
 		int[] handCards = getHandCards(player, roomInfo);
-		MjTypeEnum mjTypeEnum = MjTypeEnum.getMjTypeEnum(roomInfo.getMjType());
+		MjTypeEnum mjTypeEnum = MjTypeEnum.getMjTypeEnum(roomInfo.getDetailType());
 		switch (mjTypeEnum) {
 			case shangHaiQiaoMa:
 				calButtomAndFlowerScore(player, roomInfo);
@@ -86,7 +87,7 @@ public class MjCardTypeCalculation {
 		/**门清校验*/
 		checkMenQing(player, mjTypeEnum, handCards);
 		/**清一色校验*/
-		checkQingYiSe(player, mjTypeEnum, handCards);
+		checkQingYiSe(roomInfo, player, mjTypeEnum, handCards);
 		/**混一色校验*/
 		checkHunYiSe(player, mjTypeEnum, handCards);
 		/**大吊车校验*/
@@ -202,11 +203,17 @@ public class MjCardTypeCalculation {
 		}
 	}
 	
-	public static void checkQingYiSe(MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
+	public static void checkQingYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, int[] handCards){
 		List<Integer> handCardList = player.getHandCardList();
-		Integer maxCardIndex = handCardList.get(0);
-		Integer minCardIndex = handCardList.get(0);
-		for(Integer cardIndex : handCardList){
+		List<Integer> newHandCardList = new ArrayList<Integer>();
+		newHandCardList.addAll(handCardList);
+		/**如果是百搭麻将，则去掉百搭后在看是否清一色*/
+		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
+			newHandCardList.remove(roomInfo.getBaiDaCardIndex());
+		}
+		Integer maxCardIndex = newHandCardList.get(0);
+		Integer minCardIndex = newHandCardList.get(0);
+		for(Integer cardIndex : newHandCardList){
 			if (cardIndex > maxCardIndex) {
 				maxCardIndex = cardIndex;
 			}
@@ -265,10 +272,11 @@ public class MjCardTypeCalculation {
 		if (maxCardIndex - minCardIndex > 8) {
 			return;
 		}
-		if (maxCardIndex/9 != minCardIndex/9) {
-			return;
+		if (minCardIndex < 27) {
+			if (maxCardIndex/9 != minCardIndex/9) {
+				return;
+			}
 		}
-		
 		switch (mjTypeEnum) {
 			case shangHaiQiaoMa:
 				player.getMjCardTypeList().add(QmCardTypeEnum.qingYiSe.type);
