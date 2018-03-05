@@ -8,8 +8,11 @@ public enum ShbdCardTypeEnum {
 	hunYiSe(4, 2, "混一色"),
 	qingYiSe(5, 4, "清一色"),
 	menQing(6, 2, "门清"),
-	paoBaiDa(7, 2, "跑百搭"),
-	wuBaiDa(8, 2, "无百搭");
+	luanFengXiang(7, 4, "乱风向"),
+	ziYiSe(8, 8, "字一色"),
+	siBaiDa(9, 4, "四百搭"),
+	paoBaiDa(10, 2, "跑百搭"),
+	wuBaiDa(11, 2, "无百搭");
 	
 	public Integer type;
 	public Integer multiple;
@@ -21,7 +24,7 @@ public enum ShbdCardTypeEnum {
 		this.desc = desc;
 	}
 	
-	public static ShbdCardTypeEnum getCardSuitBySuit(Integer type){
+	public static ShbdCardTypeEnum getCardType(Integer type){
 		for(ShbdCardTypeEnum cardType : ShbdCardTypeEnum.values()){
 			if (cardType.type.equals(type)) {
 				return cardType;

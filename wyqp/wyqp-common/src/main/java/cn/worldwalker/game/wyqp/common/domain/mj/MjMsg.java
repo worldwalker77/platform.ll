@@ -27,11 +27,19 @@ public class MjMsg extends BaseMsg{
 	private Integer noBaiDaCanZhuaChong;
 	/**无百搭可抢杠*/
 	private Integer noBaiDaCanQiangGang;
+	/**模式*/
+	private Integer model;
 	
 	private String chiCards;
 	private String pengCards;
 	private String gangCards;
 	
+	public Integer getModel() {
+		return model;
+	}
+	public void setModel(Integer model) {
+		this.model = model;
+	}
 	public Integer getNoBaiDaCanZhuaChong() {
 		return noBaiDaCanZhuaChong;
 	}

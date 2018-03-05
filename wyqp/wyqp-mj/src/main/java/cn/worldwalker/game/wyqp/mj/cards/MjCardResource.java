@@ -56,6 +56,34 @@ public class MjCardResource {
 		return tableRemainderCardList.remove(0);
 	}
 	
+	public static Integer genPiZiCardInex(List<Integer> tableRemainderCardList){
+		int beginIndex = 53;
+		Integer piZiCardIndex = 0;
+		while(true){
+			piZiCardIndex = tableRemainderCardList.get(beginIndex);
+			if (piZiCardIndex < 31) {
+				tableRemainderCardList.remove(beginIndex);
+				break;
+			}
+			beginIndex++;
+		}
+		return piZiCardIndex;
+	}
+	
+	public static Integer genBaiDaCardIndex(Integer piziCardIndex){
+		Integer baiDaCardIndex = piziCardIndex + 1;
+		if (piziCardIndex == 8) {
+			baiDaCardIndex = 0;
+		}else if(piziCardIndex == 17){
+			baiDaCardIndex = 9;
+		}else if(piziCardIndex == 26){
+			baiDaCardIndex = 18;
+		}else if(piziCardIndex == 30){
+			baiDaCardIndex = 27;
+		}
+		return baiDaCardIndex;
+	}
+	
 	public static void main(String[] args) {
 		List<Integer> cardList = genTableOutOrderCardList();
 		System.out.println(JsonUtil.toJson(genHandCardList(cardList, 13)));

@@ -58,6 +58,9 @@ public class MjGameService extends BaseGameService{
 		roomInfo.setEachFlowerScore(msg.getEachFlowerScore());
 		roomInfo.setHuScoreLimit(msg.getHuScoreLimit());
 		roomInfo.setIsChiPai(msg.getIsChiPai());
+		roomInfo.setModel(msg.getModel());
+		roomInfo.setNoBaiDaCanQiangGang(msg.getNoBaiDaCanQiangGang());
+		roomInfo.setNoBaiDaCanZhuaChong(msg.getNoBaiDaCanZhuaChong());
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		MjPlayerInfo player = new MjPlayerInfo();
 		playerList.add(player);
@@ -133,6 +136,11 @@ public class MjGameService extends BaseGameService{
 			}
 			List<Integer> handCardListBeforeAddFlower = null;
 			String handCardAddFlower = null;
+			/**第54张牌是痞子，用于翻癞子*/
+			Integer piZiCardIndex = MjCardResource.genPiZiCardInex(tableRemainderCardList);
+			Integer baiDaCardIndex = MjCardResource.genBaiDaCardIndex(piZiCardIndex);
+			roomInfo.setPiZiCardIndex(piZiCardIndex);
+			roomInfo.setBaiDaCardIndex(baiDaCardIndex);
 			/**为每个玩家设置牌*/
 			for(int i = 0; i < size; i++ ){
 				MjPlayerInfo player = playerList.get(i);
@@ -164,6 +172,8 @@ public class MjGameService extends BaseGameService{
 					if (MjCardRule.getPlayerHighestPriority(roomInfo, player.getPlayerId()) != null) {
 						data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, player.getPlayerId()));
 					}
+					data.put("piZiCardIndex", piZiCardIndex);
+					data.put("baiDaCardIndex", baiDaCardIndex);
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}else{/**闲家发13张牌*/
 					if (Constant.isTest == 1) {
@@ -176,6 +186,8 @@ public class MjGameService extends BaseGameService{
 					data.put("handCardList", player.getHandCardList());
 					data.remove("handCardAddFlower");
 					data.remove("operations");
+					data.put("piZiCardIndex", piZiCardIndex);
+					data.put("baiDaCardIndex", baiDaCardIndex);
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}
 			}

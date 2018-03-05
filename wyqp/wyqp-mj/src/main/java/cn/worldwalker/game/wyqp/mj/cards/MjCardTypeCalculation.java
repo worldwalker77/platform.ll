@@ -55,15 +55,8 @@ public class MjCardTypeCalculation {
 	 */
 	public static Integer calButtomFlowerScoreAndCardTypeAndMultiple(MjPlayerInfo player, MjRoomInfo roomInfo){
 		MjTypeEnum mjTypeEnum = MjTypeEnum.getMjTypeEnum(roomInfo.getDetailType());
-		switch (mjTypeEnum) {
-			case shangHaiQiaoMa:
-				calButtomAndFlowerScore(player, roomInfo);
-				calShangHaiQiaoMaCardTypeAndMultiple(roomInfo, player, mjTypeEnum);
-				break;
-	
-			default:
-				break;
-		}
+		calButtomAndFlowerScore(player, roomInfo);
+		calCardTypeAndMultiple(roomInfo, player, mjTypeEnum);
 		return null;
 	}
 	
@@ -82,7 +75,7 @@ public class MjCardTypeCalculation {
 		return handCards;
 	} 
 	
-	public static void calShangHaiQiaoMaCardTypeAndMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void calCardTypeAndMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
 		
 		/****************牌型计算*****************************/
 		/**门清校验*/
@@ -100,6 +93,10 @@ public class MjCardTypeCalculation {
 		if (mjCardTypeList.size() == 0) {
 			mjCardTypeList.add(QmCardTypeEnum.pingHu.type);
 		}
+		/**如果是百搭类型，则要计算跑百搭和无百搭*/
+		if (mjTypeEnum.equals(MjTypeEnum.shangHaiBaiDa)) {
+			
+		}
 		
 		/********************倍数计算*********************/
 		/**胡牌类型倍数*/
@@ -114,9 +111,21 @@ public class MjCardTypeCalculation {
 			player.setMultiple(player.getMultiple() * 2);
 		}
 		/**牌型组合倍数*/
-		for(Integer cardType : mjCardTypeList){
-			player.setMultiple(player.getMultiple() * QmCardTypeEnum.getCardSuitBySuit(cardType).multiple);
+		switch (mjTypeEnum) {
+		case shangHaiQiaoMa:
+			for(Integer cardType : mjCardTypeList){
+				player.setMultiple(player.getMultiple() * QmCardTypeEnum.getCardType(cardType).multiple);
+			}
+			break;
+		case shangHaiBaiDa:
+			for(Integer cardType : mjCardTypeList){
+				player.setMultiple(player.getMultiple() * ShbdCardTypeEnum.getCardType(cardType).multiple);
+			}
+			break;	
+		default:
+			break;
 		}
+		
 	}
 	public static void calButtomAndFlowerScore(MjPlayerInfo player, MjRoomInfo roomInfo){
 		/**补花数量*/
@@ -160,6 +169,16 @@ public class MjCardTypeCalculation {
 				}
 			}
 		}
+		/**如果是百搭类型则手牌中的百搭牌也算花*/
+		if (roomInfo.getDetailType().equals(MjTypeEnum.shangHaiBaiDa.type)) {
+			for(Integer temp : handCardList){
+				if (temp.equals(roomInfo.getBaiDaCardIndex())) {
+					flowerNum++;
+				}
+			}
+		}
+		
+		
 		/**无花果*/
 		if (flowerNum == 0) {
 			flowerNum = 10;

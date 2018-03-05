@@ -19,7 +19,7 @@ public enum QmCardTypeEnum {
 		this.desc = desc;
 	}
 	
-	public static QmCardTypeEnum getCardSuitBySuit(Integer type){
+	public static QmCardTypeEnum getCardType(Integer type){
 		for(QmCardTypeEnum cardType : QmCardTypeEnum.values()){
 			if (cardType.type.equals(type)) {
 				return cardType;

@@ -44,12 +44,28 @@ public class MjRoomInfo extends BaseRoomInfo{
 	private List<Integer> dices ;
 	/**百搭牌索引*/
 	private Integer baiDaCardIndex;
+	/**痞子牌索引*/
+	private Integer piZiCardIndex;
 	
 	/**无百搭可抓冲*/
 	private Integer noBaiDaCanZhuaChong;
 	/**无百搭可抢杠*/
 	private Integer noBaiDaCanQiangGang;
+	/**模式*/
+	private Integer model;
 	
+	public Integer getModel() {
+		return model;
+	}
+	public void setModel(Integer model) {
+		this.model = model;
+	}
+	public Integer getPiZiCardIndex() {
+		return piZiCardIndex;
+	}
+	public void setPiZiCardIndex(Integer piZiCardIndex) {
+		this.piZiCardIndex = piZiCardIndex;
+	}
 	public Integer getNoBaiDaCanZhuaChong() {
 		return noBaiDaCanZhuaChong;
 	}
