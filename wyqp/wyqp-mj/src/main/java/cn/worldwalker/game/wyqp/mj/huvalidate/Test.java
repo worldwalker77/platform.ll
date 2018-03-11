@@ -37,17 +37,17 @@ public class Test //extends TestCase
 		list.add(3);
 		list.add(4);
 		list.add(5);
-		list.add(9);
-		list.add(10);
-		list.add(11);
-		list.add(18);
-		list.add(18);
-		list.add(18);
-		list.add(27);
-		list.add(27);
-		list.add(27);
-		list.add(32);
-		list.add(32);
-		System.out.println(Hulib.getInstance().get_hu_info(list, 100, guiIndex));
+//		list.add(9);
+//		list.add(10);
+//		list.add(11);
+//		list.add(18);
+//		list.add(18);
+//		list.add(18);
+//		list.add(27);
+//		list.add(27);
+//		list.add(27);
+//		list.add(32);
+//		list.add(32);
+		System.out.println(Hulib.getInstance().get_hu_info(list, 100, 100,34));
 	}
 }

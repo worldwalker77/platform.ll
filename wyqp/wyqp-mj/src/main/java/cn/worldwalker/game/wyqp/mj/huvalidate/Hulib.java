@@ -2,14 +2,12 @@ package cn.worldwalker.game.wyqp.mj.huvalidate;
 
 import java.util.List;
 
-import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
-
 public class Hulib
 {
 	static Hulib m_hulib = new Hulib();
-	public static int indexLine = 31;//31-41表示中发白春夏秋冬梅兰竹菊（花牌），如果要胡牌，必须得牌索引都小于31
+//	public static int indexLine = 33;//31-41表示中发白春夏秋冬梅兰竹菊（花牌），如果要胡牌，必须得牌索引都小于31
 	public static int invalidCardInex = 100;
-	public boolean get_hu_info(List<Integer> handCardsList, int curCard, int gui_index)
+	public boolean get_hu_info(List<Integer> handCardsList, int curCard, int gui_index, int indexLine)
 	{	
 		int size = handCardsList.size();
 		int[] hand_cards_tmp = new int[indexLine];
@@ -30,7 +28,7 @@ public class Hulib
 		}
 
 		ProbabilityItemTable ptbl = new ProbabilityItemTable();
-		if (!split(hand_cards_tmp, gui_num, ptbl))
+		if (!split(hand_cards_tmp, gui_num, ptbl,indexLine))
 		{
 			return false;
 		}
@@ -43,7 +41,7 @@ public class Hulib
 		return m_hulib;
 	}
 	
-	boolean split(int[] cards, int gui_num, ProbabilityItemTable ptbl)
+	boolean split(int[] cards, int gui_num, ProbabilityItemTable ptbl, int indexLine)
 	{
 		if (!_split(cards, gui_num, 0, 0, 8, true, ptbl))
 			return false;
@@ -169,7 +167,7 @@ public class Hulib
 		return false;
 	}
 
-	public static boolean check_7dui(List<Integer> handCardsList, int curCard)
+	public static boolean check_7dui(List<Integer> handCardsList, int curCard, int indexLine)
 	{
 		int size = handCardsList.size();
 		/**如果手牌数量小于13则说明吃过牌，不能胡七对*/

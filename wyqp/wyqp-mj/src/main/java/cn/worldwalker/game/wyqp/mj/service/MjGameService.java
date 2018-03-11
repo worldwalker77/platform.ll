@@ -42,6 +42,7 @@ import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjRoomStatusEnum;
+import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 @Service(value="mjGameService")
 public class MjGameService extends BaseGameService{
 
@@ -58,9 +59,16 @@ public class MjGameService extends BaseGameService{
 		roomInfo.setEachFlowerScore(msg.getEachFlowerScore());
 		roomInfo.setHuScoreLimit(msg.getHuScoreLimit());
 		roomInfo.setIsChiPai(msg.getIsChiPai());
-		roomInfo.setModel(msg.getModel());
-		roomInfo.setNoBaiDaCanQiangGang(msg.getNoBaiDaCanQiangGang());
-		roomInfo.setNoBaiDaCanZhuaChong(msg.getNoBaiDaCanZhuaChong());
+		if (MjTypeEnum.shangHaiBaiDa.type.equals(request.getDetailType())) {
+			roomInfo.setModel(msg.getModel());
+			if (msg.getModel()  == 8) {
+				roomInfo.setIndexLine(31);
+			}else{
+				roomInfo.setIndexLine(34);
+			}
+			roomInfo.setNoBaiDaCanQiangGang(msg.getNoBaiDaCanQiangGang());
+			roomInfo.setNoBaiDaCanZhuaChong(msg.getNoBaiDaCanZhuaChong());
+		}
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		MjPlayerInfo player = new MjPlayerInfo();
 		playerList.add(player);
@@ -137,7 +145,7 @@ public class MjGameService extends BaseGameService{
 			List<Integer> handCardListBeforeAddFlower = null;
 			String handCardAddFlower = null;
 			/**第54张牌是痞子，用于翻癞子*/
-			Integer piZiCardIndex = MjCardResource.genPiZiCardInex(tableRemainderCardList);
+			Integer piZiCardIndex = MjCardResource.genPiZiCardInex(tableRemainderCardList,roomInfo.getIndexLine());
 			Integer baiDaCardIndex = MjCardResource.genBaiDaCardIndex(piZiCardIndex);
 			roomInfo.setPiZiCardIndex(piZiCardIndex);
 			roomInfo.setBaiDaCardIndex(baiDaCardIndex);
@@ -158,7 +166,7 @@ public class MjGameService extends BaseGameService{
 					/**补花之前的牌缓存*/
 					handCardListBeforeAddFlower.addAll(player.getHandCardList());
 					/**校验手牌补花*/
-					handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+					handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo, player);
 					/**如果手牌中有补花牌，则将补花后的正常牌替换玩家手牌中的花牌*/
 					if (StringUtils.isNotBlank(handCardAddFlower)) {
 						handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
@@ -258,12 +266,12 @@ public class MjGameService extends BaseGameService{
 			curPlayer.setCurAddFlowerNum(0);
 			String moPaiAddFlower = null;
 			try {
-				moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+				moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo, curPlayer);
 			} catch (BusinessException e) {
 				huangZhuang(roomInfo, roomId);
 				return;
 			}
-			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo, curPlayer);
 			if (StringUtils.isNotBlank(handCardAddFlower)) {
 				handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 			}
@@ -394,7 +402,7 @@ public class MjGameService extends BaseGameService{
 		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
 		List<Integer> chiCardList = MjCardRule.moveOperationCards(roomInfo, player, MjOperationEnum.chi, msg.getChiCards());
 		/**计算剩余手牌列表补花情况*/
-		String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+		String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo, player);
 		if (StringUtils.isNotBlank(handCardAddFlower)) {
 			handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
 		}
@@ -461,7 +469,7 @@ public class MjGameService extends BaseGameService{
 		/**将玩家当前轮补花数设置为0*/
 		player.setCurAddFlowerNum(0);
 		/**计算剩余手牌列表补花情况*/
-		String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+		String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo, player);
 		if (StringUtils.isNotBlank(handCardAddFlower)) {
 			handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
 		}
@@ -551,12 +559,12 @@ public class MjGameService extends BaseGameService{
 			player.setCurAddFlowerNum(0);
 			String moPaiAddFlower = null;
 			try {
-				moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), player);
+				moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo, player);
 			} catch (BusinessException e) {
 				huangZhuang(roomInfo, roomId);
 				return;
 			}
-			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), player);
+			String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo, player);
 			if (StringUtils.isNotBlank(handCardAddFlower)) {
 				/**将手牌中的花牌全部替换为补花后的正常牌*/
 				handCardAddFlower = MjCardRule.replaceFlowerCards(player.getHandCardList(), handCardAddFlower);
@@ -641,7 +649,7 @@ public class MjGameService extends BaseGameService{
 		player.setCurAddFlowerNum(0);
 		String moPaiAddFlower = null;
 		try {
-			moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), player);
+			moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo, player);
 		} catch (BusinessException e) {
 			huangZhuang(roomInfo, roomId);
 			return;
@@ -790,12 +798,12 @@ public class MjGameService extends BaseGameService{
 				curPlayer.setCurAddFlowerNum(0);
 				String moPaiAddFlower = null;
 				try {
-					moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+					moPaiAddFlower = MjCardRule.checkMoPaiAddFlower(roomInfo, curPlayer);
 				} catch (BusinessException e) {
 					huangZhuang(roomInfo, roomId);
 					return;
 				}
-				String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo.getTableRemainderCardList(), curPlayer);
+				String handCardAddFlower = MjCardRule.checkHandCardsAddFlower(roomInfo, curPlayer);
 				if (StringUtils.isNotBlank(handCardAddFlower)) {
 					handCardAddFlower = MjCardRule.replaceFlowerCards(curPlayer.getHandCardList(), handCardAddFlower);
 				}

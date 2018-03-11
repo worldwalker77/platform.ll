@@ -62,7 +62,7 @@ public class MjCardTypeCalculation {
 	
 	public static int[] getHandCards(MjPlayerInfo player, MjRoomInfo roomInfo){
 		List<Integer> handCardList = player.getHandCardList();
-		int[] handCards = new int[Hulib.indexLine];
+		int[] handCards = new int[roomInfo.getIndexLine()];
 		for(Integer cardIndex : handCardList){
 			handCards[cardIndex]++;
 		}
@@ -430,7 +430,7 @@ public class MjCardTypeCalculation {
 		int cardNum2 = 0;
 		int cardNum3 = 0;
 		int cardNum4 = 0;
-		for(int i = 0; i < Hulib.indexLine; i++){
+		for(int i = 0; i < roomInfo.getIndexLine(); i++){
 			if (handCards[i] == 1) {
 				cardNum1++;
 			}else if (handCards[i] == 2) {
