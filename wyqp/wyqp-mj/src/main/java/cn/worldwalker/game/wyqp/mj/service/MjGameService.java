@@ -68,6 +68,8 @@ public class MjGameService extends BaseGameService{
 			}
 			roomInfo.setNoBaiDaCanQiangGang(msg.getNoBaiDaCanQiangGang());
 			roomInfo.setNoBaiDaCanZhuaChong(msg.getNoBaiDaCanZhuaChong());
+		}else{
+			roomInfo.setIndexLine(31);
 		}
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		MjPlayerInfo player = new MjPlayerInfo();
