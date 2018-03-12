@@ -1030,17 +1030,27 @@ public class MjCardRule {
 		Set<Entry<Integer, List<Integer>>> set = map.entrySet();
 		for(Entry<Integer, List<Integer>> entry : set){
 			List<Integer> huCardList = new ArrayList<Integer>();
+			List<String> huCardAndRemaindNumList = new ArrayList<String>();
 			Integer key = entry.getKey();
 			List<Integer> value = entry.getValue();
 			Collections.sort(value);
 			/**检查是否可以跑百搭*/
-			
+			boolean canPaoBaiDa = checkPaoBaiDa(roomInfo, value);
+			if (canPaoBaiDa) {
+				huCardAndRemaindNumList.add("-1_-1");
+				chuCardIndexHuCardListMap.put(key, huCardAndRemaindNumList);
+				continue;
+			}
 			
 			/**n%3 == 0表示此花色已经可以胡牌;n%3 > 0则表示此门牌需要支持才能胡牌*/
 			List<Integer> wanList = new ArrayList<Integer>();
 			List<Integer> tongList = new ArrayList<Integer>();
 			List<Integer> tiaoList = new ArrayList<Integer>();
 			for(Integer index : value){
+				/**百搭不加入*/
+				if (index.equals(roomInfo.getBaiDaCardIndex())) {
+					continue;
+				}
 				/**万个数*/
 				if (index >=0 && index < 9) {
 					wanList.add(index);
@@ -1060,7 +1070,7 @@ public class MjCardRule {
 			huCardList.addAll(wanHuCardList);
 			huCardList.addAll(tongHuCardList);
 			huCardList.addAll(tiaoHuCardList);
-			List<String> huCardAndRemaindNumList = new ArrayList<String>();
+			huCardList.add(roomInfo.getBaiDaCardIndex());
 			for(Integer huCard : huCardList){
 				Integer remainNum = cardNumMap.get(huCard);
 				if (remainNum == null) {
@@ -1088,9 +1098,17 @@ public class MjCardRule {
 		boolean canPaoBaiDa = false;
 		/**如果找到没有的风牌*/
 		if (notContainIndex > 0) {
-			Hulib.getInstance().get_hu_info(handCardList, notContainIndex, roomInfo.getBaiDaCardIndex(), roomInfo.getIndexLine());
+			canPaoBaiDa = Hulib.getInstance().get_hu_info(handCardList, notContainIndex, roomInfo.getBaiDaCardIndex(), roomInfo.getIndexLine());
+		}else{/**如果没有找到，则找一张没有的风牌之外的牌*/
+			for(int i = 0; i < 27; i++){
+				if (!handCardList.contains(i)) {
+					notContainIndex = i;
+					break;
+				}
+			}
+			canPaoBaiDa = Hulib.getInstance().get_hu_info(handCardList, notContainIndex, roomInfo.getBaiDaCardIndex(), roomInfo.getIndexLine());
 		}
-		return false;
+		return canPaoBaiDa;
 		
 	}
 	public static void main(String[] args) {
@@ -1099,6 +1117,9 @@ public class MjCardRule {
 		List<Integer> list = Arrays.asList(4,5,5,15,15,15,24,25,25,25);
 		player.setHandCardList(list);
 		Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+		MjRoomInfo roomInfo = new MjRoomInfo();
+		roomInfo.setIndexLine(34);
+		roomInfo.setBaiDaCardIndex(4);
 		checkTingHu1(null, player, 24, chuCardIndexHuCardListMap);
 		System.out.println(JsonUtil.toJson(chuCardIndexHuCardListMap));
 		
@@ -1126,14 +1147,39 @@ public class MjCardRule {
 	
 	private static List<Integer> checkHuCardListWithBaiDa(MjRoomInfo roomInfo, List<Integer> cardList, List<Integer> handCardList){
 		List<Integer> huCardList = new ArrayList<Integer>();
-		if (cardList.size() == 0) {
+		int size = cardList.size();
+		if (size == 0) {
 			return huCardList;
 		}
-		int size = cardList.size();
-		int minIndex = cardList.get(0)%9 > 0 ? cardList.get(0) - 1: cardList.get(0);
-		int maxIndex = cardList.get(size - 1)%9 < 8 ? cardList.get(size - 1) + 1: cardList.get(size - 1);
+		boolean isHu = false;
+		/**单一花色去掉百搭后如果可以胡牌（牌型为3n,n > 0），则说明不可能胡这个花色的牌，可以不用校验*/
+		if (size%3 == 0) {
+			isHu = Hulib.getInstance().get_hu_info(cardList, Hulib.invalidCardInex, Hulib.invalidCardInex,roomInfo.getIndexLine());
+			if (isHu) {
+				return huCardList;
+			}
+		}
+		int indexStart = cardList.get(0);
+		int indexEnd = cardList.get(size - 1);
+		int multiple = indexStart/9;
+		int minIndex = indexStart%9;
+		int maxIndex = indexEnd%9;
+		if (minIndex >= 2) {
+			minIndex = indexStart - 2;
+		}else{
+			minIndex = multiple*9;
+		}
+		
+		if (maxIndex <= 6) {
+			maxIndex = indexEnd + 2;
+		}else{
+			maxIndex = multiple*9 + 8;
+		}
 		for(int i = minIndex; i <= maxIndex; i++){
-			boolean isHu = Hulib.getInstance().get_hu_info(handCardList, i, Hulib.invalidCardInex,roomInfo.getIndexLine());
+			if (roomInfo.getBaiDaCardIndex().equals(i)) {
+				continue;
+			}
+			isHu = Hulib.getInstance().get_hu_info(handCardList, i, roomInfo.getBaiDaCardIndex(),roomInfo.getIndexLine());
 			if (isHu) {
 				huCardList.add(i);
 			}
