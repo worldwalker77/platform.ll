@@ -322,9 +322,9 @@ public class MjCardRule {
 		if (type == 0) {/**手牌列表校验*/
 			/**格式化手牌*/
 			int len = handCardList.size();
-			int[] cards = new int[Hulib.indexLine];
+			int[] cards = new int[roomInfo.getIndexLine()];
 			for(int j = 0; j < len; j++){
-				if (handCardList.get(j) < Hulib.indexLine) {
+				if (handCardList.get(j) < roomInfo.getIndexLine()) {
 					cards[handCardList.get(j)]++;
 				}
 			}
@@ -350,9 +350,9 @@ public class MjCardRule {
 			TreeMap<Integer, String> map = new TreeMap<Integer, String>();
 			/**格式化手牌*/
 			int len = handCardList.size();
-			int[] cards = new int[Hulib.indexLine];
+			int[] cards = new int[roomInfo.getIndexLine()];
 			for(int j = 0; j < len; j++){
-				if (handCardList.get(j) < Hulib.indexLine) {
+				if (handCardList.get(j) < roomInfo.getIndexLine()) {
 					cards[handCardList.get(j)]++;
 				}
 			}
@@ -408,9 +408,9 @@ public class MjCardRule {
 				TreeMap<Integer, String> map1 = new TreeMap<Integer, String>();
 				/**格式化手牌*/
 				int len = handCardList.size();
-				int[] cards = new int[Hulib.indexLine];
+				int[] cards = new int[roomInfo.getIndexLine()];
 				for(int j = 0; j < len; j++){
-					if (handCardList.get(j) < Hulib.indexLine) {
+					if (handCardList.get(j) < roomInfo.getIndexLine()) {
 						cards[handCardList.get(j)]++;
 					}
 				}
@@ -472,9 +472,9 @@ public class MjCardRule {
 				TreeMap<Integer, String> map1 = new TreeMap<Integer, String>();
 				/**格式化手牌*/
 				int len = handCardList.size();
-				int[] cards = new int[Hulib.indexLine];
+				int[] cards = new int[roomInfo.getIndexLine()];
 				for(int j = 0; j < len; j++){
-					if (handCardList.get(j) < Hulib.indexLine) {
+					if (handCardList.get(j) < roomInfo.getIndexLine()) {
 						cards[handCardList.get(j)]++;
 					}
 				}
@@ -499,9 +499,9 @@ public class MjCardRule {
 			TreeMap<Integer, String> map = new TreeMap<Integer, String>();
 			/**格式化手牌*/
 			int len = handCardList.size();
-			int[] cards = new int[Hulib.indexLine];
+			int[] cards = new int[roomInfo.getIndexLine()];
 			for(int j = 0; j < len; j++){
-				if (handCardList.get(j) < Hulib.indexLine) {
+				if (handCardList.get(j) < roomInfo.getIndexLine()) {
 					cards[handCardList.get(j)]++;
 				}
 			}
@@ -556,17 +556,17 @@ public class MjCardRule {
 	 * @param tableRemainderCardList
 	 * @return
 	 */
-	public static String checkHandCardsAddFlower(List<Integer> tableRemainderCardList, MjPlayerInfo player){
+	public static String checkHandCardsAddFlower(MjRoomInfo roomInfo, MjPlayerInfo player){
 		List<Integer> handCardList = player.getHandCardList();
 		int size = handCardList.size();
 		Stack<Integer> handCardflowerCardStack = new Stack<Integer>();
 		/**将手牌中已经有的花牌入栈*/
 		for(int i = 0; i < size; i++){
-			if (handCardList.get(i) >= Hulib.indexLine) {
+			if (handCardList.get(i) >= roomInfo.getIndexLine()) {
 				handCardflowerCardStack.push(handCardList.get(i));
 			}
 		}
-		String addFlowerPath = addFlowerOperation(handCardflowerCardStack, player, tableRemainderCardList);
+		String addFlowerPath = addFlowerOperation(handCardflowerCardStack, player, roomInfo);
 		return addFlowerPath;
 	}
 	
@@ -619,20 +619,21 @@ public class MjCardRule {
 	 * @param tableRemainderCardList
 	 * @return
 	 */
-	public static String checkMoPaiAddFlower(List<Integer> tableRemainderCardList, MjPlayerInfo player){
+	public static String checkMoPaiAddFlower(MjRoomInfo roomInfo,  MjPlayerInfo player){
+		List<Integer> tableRemainderCardList = roomInfo.getTableRemainderCardList();
 		/**如果桌牌数为0，则结束*/
 		if (tableRemainderCardList.size() == 0) {
 			throw new BusinessException(ExceptionEnum.NO_MORE_CARD_ERROR);
 		}
 		Integer tempCard = MjCardResource.mopai(tableRemainderCardList);
 		/**如果摸的是非花牌，则直接返回这张牌*/
-		if (tempCard  < Hulib.indexLine) {
+		if (tempCard  < roomInfo.getIndexLine()) {
 			return String.valueOf(tempCard);
 		}
 		/**如果摸到的是花牌，则补花，直到补到非花牌为止*/
 		Stack<Integer> moPaiflowerCardStack = new Stack<Integer>();
 		moPaiflowerCardStack.push(tempCard);
-		String addFlowerPath = addFlowerOperation(moPaiflowerCardStack, player, tableRemainderCardList);
+		String addFlowerPath = addFlowerOperation(moPaiflowerCardStack, player, roomInfo);
 		return addFlowerPath;
 	}
 	
@@ -653,7 +654,7 @@ public class MjCardRule {
 	 * @param tableRemainderCardList
 	 * @return 补花路径
 	 */
-	public static String addFlowerOperation(Stack<Integer> flowerCardStack, MjPlayerInfo player, List<Integer> tableRemainderCardList){
+	public static String addFlowerOperation(Stack<Integer> flowerCardStack, MjPlayerInfo player, MjRoomInfo roomInfo){
 		StringBuffer addFlowerSb = new StringBuffer("");
 		/**如果有花牌，则不需要补花，直接返回*/
 		if (flowerCardStack.isEmpty()) {
@@ -661,7 +662,7 @@ public class MjCardRule {
 		}
 		/**如果有花牌，则一直补到没有花牌为止*/
 		while(true){
-			if (flowerCardStack.isEmpty() || tableRemainderCardList.size() == 0) {
+			if (flowerCardStack.isEmpty() || roomInfo.getTableRemainderCardList().size() == 0) {
 				break;
 			}
 			Integer tempFlower = flowerCardStack.pop();
@@ -669,9 +670,9 @@ public class MjCardRule {
 			/**补花的牌加入玩家补花牌列表里面*/
 			player.getFlowerCardList().add(tempFlower);
 			player.setCurAddFlowerNum(player.getCurAddFlowerNum() + 1);
-			Integer tempCard = MjCardResource.mopai(tableRemainderCardList);
+			Integer tempCard = MjCardResource.mopai(roomInfo.getTableRemainderCardList());
 			/**如果摸到的牌是花牌，则入栈*/
-			if (tempCard  >= Hulib.indexLine) {
+			if (tempCard  >= roomInfo.getIndexLine()) {
 				flowerCardStack.push(tempCard);
 			}else{/**如果不是花牌*/
 				/**拼接补花链路*/
@@ -847,18 +848,30 @@ public class MjCardRule {
 		
 		return map;
 	}
-	
+	public static boolean checkTingHu1(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex,Map<Integer, List<String>> chuCardIndexHuCardListMap){
+		if (roomInfo.getBaiDaCardIndex() == null) {/**麻将没有百搭玩法*/
+			return checkTingHuWithOutBaiDa(roomInfo, player, cardIndex, chuCardIndexHuCardListMap);
+		}else{/**麻将有百搭玩法*/
+			/**手牌中有百搭或者摸的牌是百搭*/
+			if (player.getHandCardList().contains(roomInfo.getBaiDaCardIndex()) || roomInfo.getBaiDaCardIndex().equals(cardIndex)) {
+				return checkTingHuWithBaiDa(roomInfo, player, cardIndex, chuCardIndexHuCardListMap);
+			}else{/**手牌中没有百搭*/
+				return checkTingHuWithOutBaiDa(roomInfo, player, cardIndex, chuCardIndexHuCardListMap);
+			}
+		}
+		
+	}
 	/**
-	 * 判断当前已经出牌的玩家是否可以听胡
+	 * 判断是否可以听胡
 	 * @param handCardList
 	 * @return
 	 */
-	public static boolean checkTingHu1(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex,Map<Integer, List<String>> chuCardIndexHuCardListMap){
+	public static boolean checkTingHuWithOutBaiDa(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex,Map<Integer, List<String>> chuCardIndexHuCardListMap){
 		List<Integer> handCardList = player.getHandCardList();
 		/**校验手牌，如果手牌中有31-41的花牌，则不能听牌*/
 		int size = handCardList.size();
 		for(int i = 0; i < size; i++){
-			if (handCardList.get(i) >= Hulib.indexLine) {
+			if (handCardList.get(i) >= roomInfo.getIndexLine()) {
 				return false;
 			}
 		}
@@ -869,7 +882,7 @@ public class MjCardRule {
 		}
 		/**从0-31牌索引中找出第一张手牌中没有的牌*/
 		int notContainIndex = 0;
-		for(int i = 0; i < Hulib.indexLine; i++){
+		for(int i = 0; i < roomInfo.getIndexLine(); i++){
 			if (!tempCardList.contains(i)) {
 				notContainIndex = i;
 				break;
@@ -881,7 +894,7 @@ public class MjCardRule {
 			tempList.addAll(tempCardList);
 			tempList.remove(index);
 			/**将去掉的牌作为癞子，查表判断是否可以胡牌*/
-			boolean canHu = Hulib.getInstance().get_hu_info(tempList, notContainIndex, notContainIndex);
+			boolean canHu = Hulib.getInstance().get_hu_info(tempList, notContainIndex, notContainIndex,roomInfo.getIndexLine());
 			if (canHu) {
 				map.put(index, tempList);
 			}
@@ -935,9 +948,115 @@ public class MjCardRule {
 				}
 			}
 			List<Integer> huCardList = new ArrayList<Integer>();
-			List<Integer> wanHuCardList = checkHuCardList(wanList, value);
-			List<Integer> tongHuCardList = checkHuCardList(tongList, value);
-			List<Integer> tiaoHuCardList = checkHuCardList(tiaoList, value);
+			List<Integer> wanHuCardList = checkHuCardList(roomInfo, wanList, value);
+			List<Integer> tongHuCardList = checkHuCardList(roomInfo, tongList, value);
+			List<Integer> tiaoHuCardList = checkHuCardList(roomInfo, tiaoList, value);
+			huCardList.addAll(wanHuCardList);
+			huCardList.addAll(tongHuCardList);
+			huCardList.addAll(tiaoHuCardList);
+			List<String> huCardAndRemaindNumList = new ArrayList<String>();
+			for(Integer huCard : huCardList){
+				Integer remainNum = cardNumMap.get(huCard);
+				if (remainNum == null) {
+					remainNum = 4;
+				}else{
+					remainNum = 4 - remainNum;
+				}
+				huCardAndRemaindNumList.add(huCard + "_" + remainNum);
+			}
+			chuCardIndexHuCardListMap.put(key, huCardAndRemaindNumList);
+		}
+		return true;
+	}
+	/**
+	 * 判断是否可以听胡
+	 * @param handCardList
+	 * @return
+	 */
+	public static boolean checkTingHuWithBaiDa(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex,Map<Integer, List<String>> chuCardIndexHuCardListMap){
+		List<Integer> handCardList = player.getHandCardList();
+		/**校验手牌，如果手牌中有31-41的花牌，则不能听牌*/
+		int size = handCardList.size();
+		for(int i = 0; i < size; i++){
+			if (handCardList.get(i) >= roomInfo.getIndexLine()) {
+				return false;
+			}
+		}
+		List<Integer> tempCardList = new ArrayList<Integer>();
+		tempCardList.addAll(handCardList);
+		if (cardIndex != null) {
+			tempCardList.add(cardIndex);
+		}
+		int baiDaCardIndex = roomInfo.getBaiDaCardIndex();
+		Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+		for(Integer index : tempCardList){
+			if (map.containsKey(index)) {
+				continue;
+			}
+			List<Integer> tempList = new ArrayList<Integer>();
+			tempList.addAll(tempCardList);
+			tempList.remove(index);
+			/**去掉一张牌，补充一张百搭和剩余的牌组合后看是否能胡牌*/
+			boolean canHu = Hulib.getInstance().get_hu_info(tempList, baiDaCardIndex, baiDaCardIndex,roomInfo.getIndexLine());
+			if (canHu) {
+				map.put(index, tempList);
+			}
+		}
+		if (map.size() == 0) {
+			return false;
+		}
+		/**计算桌面上可以看见的牌及当前玩家手上的每张牌数量*/
+		Map<Integer, Integer> cardNumMap = new HashMap<Integer, Integer>();
+		List<Integer> cardNumList = new ArrayList<Integer>();
+//		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
+//	    for(MjPlayerInfo tempPlayer : playerList){
+//	    	if (player.getPlayerId().equals(tempPlayer.getPlayerId())) {
+//	    		cardNumList.addAll(tempCardList);
+//			}
+//	    	cardNumList.addAll(tempPlayer.getChiCardList());
+//	    	cardNumList.addAll(tempPlayer.getPengCardList());
+//	    	cardNumList.addAll(tempPlayer.getMingGangCardList());
+//	    	cardNumList.addAll(tempPlayer.getAnGangCardList());
+//	    	cardNumList.addAll(tempPlayer.getDiscardCardList());
+//	    }
+//	    for(Integer tempIndex : cardNumList){
+//	    	if (cardNumMap.containsKey(tempIndex)) {
+//	    		cardNumMap.put(tempIndex, cardNumMap.get(tempIndex) + 1);
+//			}else{
+//				cardNumMap.put(tempIndex, 1);
+//			}
+//	    }
+//	    
+		Set<Entry<Integer, List<Integer>>> set = map.entrySet();
+		for(Entry<Integer, List<Integer>> entry : set){
+			List<Integer> huCardList = new ArrayList<Integer>();
+			Integer key = entry.getKey();
+			List<Integer> value = entry.getValue();
+			Collections.sort(value);
+			/**检查是否可以跑百搭*/
+			
+			
+			/**n%3 == 0表示此花色已经可以胡牌;n%3 > 0则表示此门牌需要支持才能胡牌*/
+			List<Integer> wanList = new ArrayList<Integer>();
+			List<Integer> tongList = new ArrayList<Integer>();
+			List<Integer> tiaoList = new ArrayList<Integer>();
+			for(Integer index : value){
+				/**万个数*/
+				if (index >=0 && index < 9) {
+					wanList.add(index);
+				}
+				/**筒个数*/
+				if (index >=9 && index < 18) {
+					tongList.add(index);
+				}
+				/**条个数*/
+				if (index >=18 && index < 27) {
+					tiaoList.add(index);
+				}
+			}
+			List<Integer> wanHuCardList = checkHuCardListWithBaiDa(roomInfo, wanList, value);
+			List<Integer> tongHuCardList = checkHuCardListWithBaiDa(roomInfo, tongList, value);
+			List<Integer> tiaoHuCardList = checkHuCardListWithBaiDa(roomInfo, tiaoList, value);
 			huCardList.addAll(wanHuCardList);
 			huCardList.addAll(tongHuCardList);
 			huCardList.addAll(tiaoHuCardList);
@@ -956,6 +1075,24 @@ public class MjCardRule {
 		return true;
 	}
 	
+	public static boolean checkPaoBaiDa(MjRoomInfo roomInfo, List<Integer> handCardList){
+		
+		/**从27-34的风牌索引中找出第一张手牌中没有的牌*/
+		int notContainIndex = 0;
+		for(int i = 27; i < 34; i++){
+			if (!handCardList.contains(i)) {
+				notContainIndex = i;
+				break;
+			}
+		}
+		boolean canPaoBaiDa = false;
+		/**如果找到没有的风牌*/
+		if (notContainIndex > 0) {
+			Hulib.getInstance().get_hu_info(handCardList, notContainIndex, roomInfo.getBaiDaCardIndex(), roomInfo.getIndexLine());
+		}
+		return false;
+		
+	}
 	public static void main(String[] args) {
 		TableMgr.getInstance().load();
 		MjPlayerInfo player = new MjPlayerInfo();
@@ -967,17 +1104,38 @@ public class MjCardRule {
 		
 	}
 	
-	private static List<Integer> checkHuCardList(List<Integer> cardList, List<Integer> handCardList){
+	private static List<Integer> checkHuCardList(MjRoomInfo roomInfo, List<Integer> cardList, List<Integer> handCardList){
+		
 		List<Integer> huCardList = new ArrayList<Integer>();
+		if (cardList.size() == 0) {
+			return huCardList;
+		}
 		int size = cardList.size();
 		if (size%3 > 0) {
 			int minIndex = cardList.get(0)%9 > 0 ? cardList.get(0) - 1: cardList.get(0);
 			int maxIndex = cardList.get(size - 1)%9 < 8 ? cardList.get(size - 1) + 1: cardList.get(size - 1);
 			for(int i = minIndex; i <= maxIndex; i++){
-				boolean isHu = Hulib.getInstance().get_hu_info(handCardList, i, Hulib.invalidCardInex);
+				boolean isHu = Hulib.getInstance().get_hu_info(handCardList, i, Hulib.invalidCardInex,roomInfo.getIndexLine());
 				if (isHu) {
 					huCardList.add(i);
 				}
+			}
+		}
+		return huCardList;
+	}
+	
+	private static List<Integer> checkHuCardListWithBaiDa(MjRoomInfo roomInfo, List<Integer> cardList, List<Integer> handCardList){
+		List<Integer> huCardList = new ArrayList<Integer>();
+		if (cardList.size() == 0) {
+			return huCardList;
+		}
+		int size = cardList.size();
+		int minIndex = cardList.get(0)%9 > 0 ? cardList.get(0) - 1: cardList.get(0);
+		int maxIndex = cardList.get(size - 1)%9 < 8 ? cardList.get(size - 1) + 1: cardList.get(size - 1);
+		for(int i = minIndex; i <= maxIndex; i++){
+			boolean isHu = Hulib.getInstance().get_hu_info(handCardList, i, Hulib.invalidCardInex,roomInfo.getIndexLine());
+			if (isHu) {
+				huCardList.add(i);
 			}
 		}
 		return huCardList;
@@ -1000,9 +1158,9 @@ public class MjCardRule {
 			gui_index = roomInfo.getBaiDaCardIndex();
 		}
 		if (handCardList.size() == 14) {
-			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, gui_index);
+			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, gui_index,roomInfo.getIndexLine());
 		}else{
-			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index);
+			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index,roomInfo.getIndexLine());
 		}
 		return isHu;
 	}

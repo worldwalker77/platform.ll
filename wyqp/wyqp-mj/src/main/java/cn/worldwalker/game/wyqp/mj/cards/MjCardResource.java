@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
+import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 public class MjCardResource {
 	
@@ -56,12 +57,12 @@ public class MjCardResource {
 		return tableRemainderCardList.remove(0);
 	}
 	
-	public static Integer genPiZiCardInex(List<Integer> tableRemainderCardList){
+	public static Integer genPiZiCardInex(List<Integer> tableRemainderCardList, Integer indexLine){
 		int beginIndex = 53;
 		Integer piZiCardIndex = 0;
 		while(true){
 			piZiCardIndex = tableRemainderCardList.get(beginIndex);
-			if (piZiCardIndex < 31) {
+			if (piZiCardIndex < indexLine) {
 				tableRemainderCardList.remove(beginIndex);
 				break;
 			}
@@ -78,8 +79,10 @@ public class MjCardResource {
 			baiDaCardIndex = 9;
 		}else if(piziCardIndex == 26){
 			baiDaCardIndex = 18;
-		}else if(piziCardIndex == 30){
+		}else if(piziCardIndex == 30){/**如果痞子是北风，则百搭是东风*/
 			baiDaCardIndex = 27;
+		}else if(piziCardIndex == 33){/**如果痞子是白，则百搭是中*/
+			baiDaCardIndex = 31;
 		}
 		return baiDaCardIndex;
 	}

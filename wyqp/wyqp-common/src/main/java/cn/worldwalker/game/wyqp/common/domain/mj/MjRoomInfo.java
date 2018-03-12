@@ -54,6 +54,14 @@ public class MjRoomInfo extends BaseRoomInfo{
 	/**模式*/
 	private Integer model;
 	
+	private Integer indexLine;
+	
+	public Integer getIndexLine() {
+		return indexLine;
+	}
+	public void setIndexLine(Integer indexLine) {
+		this.indexLine = indexLine;
+	}
 	public Integer getModel() {
 		return model;
 	}
