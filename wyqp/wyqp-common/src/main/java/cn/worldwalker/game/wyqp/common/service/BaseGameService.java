@@ -213,7 +213,7 @@ public abstract class BaseGameService {
 		Date date = new Date();
 		roomInfo.setCreateTime(date);
 		roomInfo.setUpdateTime(date);
-		
+		roomInfo.setDetailType(request.getDetailType());
 		Integer clubId = redisOperationService.getClubIdByPlayerId(msg.getPlayerId());
 		/**如果玩家是从俱乐部创建的房间，则设置俱乐部id与房间id对应关系*/
 		if (clubId != null) {
