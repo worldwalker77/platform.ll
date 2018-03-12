@@ -892,25 +892,25 @@ public class MjCardRule {
 		/**计算桌面上可以看见的牌及当前玩家手上的每张牌数量*/
 		Map<Integer, Integer> cardNumMap = new HashMap<Integer, Integer>();
 		List<Integer> cardNumList = new ArrayList<Integer>();
-//		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
-//	    for(MjPlayerInfo tempPlayer : playerList){
-//	    	if (player.getPlayerId().equals(tempPlayer.getPlayerId())) {
-//	    		cardNumList.addAll(tempCardList);
-//			}
-//	    	cardNumList.addAll(tempPlayer.getChiCardList());
-//	    	cardNumList.addAll(tempPlayer.getPengCardList());
-//	    	cardNumList.addAll(tempPlayer.getMingGangCardList());
-//	    	cardNumList.addAll(tempPlayer.getAnGangCardList());
-//	    	cardNumList.addAll(tempPlayer.getDiscardCardList());
-//	    }
-//	    for(Integer tempIndex : cardNumList){
-//	    	if (cardNumMap.containsKey(tempIndex)) {
-//	    		cardNumMap.put(tempIndex, cardNumMap.get(tempIndex) + 1);
-//			}else{
-//				cardNumMap.put(tempIndex, 1);
-//			}
-//	    }
-//	    
+		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
+	    for(MjPlayerInfo tempPlayer : playerList){
+	    	if (player.getPlayerId().equals(tempPlayer.getPlayerId())) {
+	    		cardNumList.addAll(tempCardList);
+			}
+	    	cardNumList.addAll(tempPlayer.getChiCardList());
+	    	cardNumList.addAll(tempPlayer.getPengCardList());
+	    	cardNumList.addAll(tempPlayer.getMingGangCardList());
+	    	cardNumList.addAll(tempPlayer.getAnGangCardList());
+	    	cardNumList.addAll(tempPlayer.getDiscardCardList());
+	    }
+	    for(Integer tempIndex : cardNumList){
+	    	if (cardNumMap.containsKey(tempIndex)) {
+	    		cardNumMap.put(tempIndex, cardNumMap.get(tempIndex) + 1);
+			}else{
+				cardNumMap.put(tempIndex, 1);
+			}
+	    }
+	    
 		Set<Entry<Integer, List<Integer>>> set = map.entrySet();
 		for(Entry<Integer, List<Integer>> entry : set){
 			Integer key = entry.getKey();
