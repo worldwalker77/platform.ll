@@ -3,9 +3,10 @@ package cn.worldwalker.game.wyqp.mj.enums;
 public enum MjTypeEnum {
 	
 	shangHaiQiaoMa(1, "上海敲麻"),
-	shangHaiLaXiHu(2, "上海拉西胡"),
+	shangHaiBaiDa(2, "上海百搭"),
 	shangHaiQingHunPeng(3, "上海清混碰"),
-	shangHaiBaiDa(4, "上海百搭");
+	shangHaiLaXiHu(4, "上海拉西胡");
+	
 	public Integer type;
 	public String desc;
 	private MjTypeEnum(Integer type, String desc){

@@ -68,6 +68,8 @@ public class MjGameService extends BaseGameService{
 			}
 			roomInfo.setNoBaiDaCanQiangGang(msg.getNoBaiDaCanQiangGang());
 			roomInfo.setNoBaiDaCanZhuaChong(msg.getNoBaiDaCanZhuaChong());
+			/**百搭不需要听牌*/
+			roomInfo.setIsTingPai(0);
 		}else{
 			roomInfo.setIndexLine(31);
 		}

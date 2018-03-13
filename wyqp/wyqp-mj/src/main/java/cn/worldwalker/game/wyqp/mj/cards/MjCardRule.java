@@ -331,15 +331,17 @@ public class MjCardRule {
 			/**暗杠校验**/
 			TreeMap<Integer, String> map = checkHandCardGang(cards, curPlayer.getPengCardList());
 			/**胡牌校验*/
-			if (checkHu(roomInfo, curPlayer, null)) {
-				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.tianHu.type));
-			}
+//			if (checkHu(roomInfo, curPlayer, null)) {
+//				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.tianHu.type));
+//			}
 			/**听牌校验*/
-			if (curPlayer.getIsTingHu() == 0) {
-				Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
-				if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
-					/**4_4-2,7-1;7_4-2,7-1*/
-					map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+			if (roomInfo.getIsTingPai() > 0) {
+				if (curPlayer.getIsTingHu() == 0) {
+					Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+					if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
+						/**4_4-2,7-1;7_4-2,7-1*/
+						map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+					}
 				}
 			}
 			if (map.size() > 0) {
@@ -385,11 +387,13 @@ public class MjCardRule {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.ziMo.type));
 			}
 			/**听牌校验*/
-			if (curPlayer.getIsTingHu() == 0) {
-				Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
-				if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
-					/**4_4-2,7-1;7_4-2,7-1*/
-					map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+			if (roomInfo.getIsTingPai() > 0) {
+				if (curPlayer.getIsTingHu() == 0) {
+					Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+					if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
+						/**4_4-2,7-1;7_4-2,7-1*/
+						map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+					}
 				}
 			}
 			
@@ -417,17 +421,26 @@ public class MjCardRule {
 				/**吃牌校验（只对出牌玩家的下家计算,只有没听胡的玩家才可以吃牌）*/
 				if (i == 1) {
 					if (roomInfo.getIsChiPai() > 0) {
-						String chiStr = checkChiPai(nextPlayer, cardIndex);
+						String chiStr = checkChiPai(roomInfo, nextPlayer, cardIndex);
 						if (StringUtils.isNotBlank(chiStr)) {
 							map1.put(MjOperationEnum.chi.type, chiStr);
 						}
 					}
 				}
 				/**碰牌校验*/
-				String pengStr = checkPeng(cards, cardIndex, nextPlayer.getIsTingHu());
-				if (StringUtils.isNotBlank(pengStr)) {
-					map1.put(MjOperationEnum.peng.type, pengStr);
+				if (roomInfo.getIsTingPai() > 0) {
+					/**听牌之后不允许碰*/
+					String pengStr = checkPeng(cards, cardIndex, nextPlayer.getIsTingHu());
+					if (StringUtils.isNotBlank(pengStr)) {
+						map1.put(MjOperationEnum.peng.type, pengStr);
+					}
+				}else{
+					String pengStr = checkPeng(cards, cardIndex, 1);
+					if (StringUtils.isNotBlank(pengStr)) {
+						map1.put(MjOperationEnum.peng.type, pengStr);
+					}
 				}
+				
 				
 				/**明杠牌校验*/
 				String mingGangStr = checkGang(cards, cardIndex);
@@ -688,85 +701,89 @@ public class MjCardRule {
 	 * @param cardIndex
 	 * @return
 	 */
-	public static String checkChiPai(MjPlayerInfo player, Integer cardIndex){
+	public static String checkChiPai(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
 		StringBuffer chiSb = new StringBuffer("");
+		/**风牌不能吃*/
 		if (cardIndex >= 27) {
 			return chiSb.toString();
 		}
-		if (player.getIsTingHu() == 0) {
-			List<Integer> handCardList = player.getHandCardList();
-			/**获取当前牌索引的前两张牌索引和后两张牌索引*/
-			int pre2 = 0;
-			int pre1 = 0;
-			int after1 = 0;
-			int after2 = 0;
-			int cardType = cardIndex/9;
-			int cardValue = cardIndex%9;
-			if (cardValue == 0) {
-				after1 = cardType*9 + cardValue + 1;
-				after2 = cardType*9 + cardValue + 2;
-				if (handCardList.contains(after1) && handCardList.contains(after2)) {
-					chiSb.append(after1).append(",").append(after2);
-				}
-			}else if(cardValue == 1){
-				pre1 = cardType*9 + cardValue - 1;
-				after1 = cardType*9 + cardValue + 1;
-				after2 = cardType*9 + cardValue + 2;
-				if (handCardList.contains(pre1) && handCardList.contains(after1) && handCardList.contains(after2)) {
-					chiSb.append(pre1).append(",").append(after1)
-					.append("_")
-					.append(after1).append(",").append(after2);
-				}else if(handCardList.contains(pre1) && handCardList.contains(after1)){
-					chiSb.append(pre1).append(",").append(after1);
-				}else if(handCardList.contains(after1) && handCardList.contains(after2)){
-					chiSb.append(after1).append(",").append(after2);
-				}
-				
-			}else if(cardValue == 7){
-				pre2 = cardType*9 + cardValue - 2;
-				pre1 = cardType*9 + cardValue - 1;
-				after1 = cardType*9 + cardValue + 1;
-				if (handCardList.contains(pre2) && handCardList.contains(pre1) && handCardList.contains(after1)) {
-					chiSb.append(pre2).append(",").append(pre1)
-					.append("_")
-					.append(pre1).append(",").append(after1);
-				}else if(handCardList.contains(pre2) && handCardList.contains(pre1)){
-					chiSb.append(pre2).append(",").append(pre1);
-				}else if(handCardList.contains(pre1) && handCardList.contains(after1)){
-					chiSb.append(pre1).append(",").append(after1);
-				}
-			}else if(cardValue == 8){
-				pre2 = cardType*9 + cardValue - 2;
-				pre1 = cardType*9 + cardValue - 1;
-				if (handCardList.contains(pre2) && handCardList.contains(pre1)) {
-					chiSb.append(pre2).append(",").append(pre1);
-				}
-			}else{
-				pre2 = cardType*9 + cardValue - 2;
-				pre1 = cardType*9 + cardValue - 1;
-				after1 = cardType*9 + cardValue + 1;
-				after2 = cardType*9 + cardValue + 2;
-				if (handCardList.contains(pre2) && handCardList.contains(pre1) && handCardList.contains(after1) && handCardList.contains(after2)) {
-					chiSb.append(pre2).append(",").append(pre1)
-					.append("_")
-					.append(pre1).append(",").append(after1)
-					.append("_")
-					.append(after1).append(",").append(after2);
-				}else if(handCardList.contains(pre2) && handCardList.contains(pre1) && handCardList.contains(after1)){
-					chiSb.append(pre2).append(",").append(pre1)
-					.append("_")
-					.append(pre1).append(",").append(after1);
-				}else if(handCardList.contains(pre1) && handCardList.contains(after1) && handCardList.contains(after2)){
-					chiSb.append(pre1).append(",").append(after1)
-					.append("_")
-					.append(after1).append(",").append(after2);
-				}else if(handCardList.contains(pre2) && handCardList.contains(pre1)){
-					chiSb.append(pre2).append(",").append(pre1);
-				}else if(handCardList.contains(pre1) && handCardList.contains(after1)){
-					chiSb.append(pre1).append(",").append(after1);
-				}else if(handCardList.contains(after1) && handCardList.contains(after2)){
-					chiSb.append(after1).append(",").append(after2);
-				}
+		if (roomInfo.getIsTingPai() > 0) {
+			if (player.getIsTingHu() > 0) {
+				return chiSb.toString();
+			}
+		}
+		List<Integer> handCardList = player.getHandCardList();
+		/**获取当前牌索引的前两张牌索引和后两张牌索引*/
+		int pre2 = 0;
+		int pre1 = 0;
+		int after1 = 0;
+		int after2 = 0;
+		int cardType = cardIndex/9;
+		int cardValue = cardIndex%9;
+		if (cardValue == 0) {
+			after1 = cardType*9 + cardValue + 1;
+			after2 = cardType*9 + cardValue + 2;
+			if (handCardList.contains(after1) && handCardList.contains(after2)) {
+				chiSb.append(after1).append(",").append(after2);
+			}
+		}else if(cardValue == 1){
+			pre1 = cardType*9 + cardValue - 1;
+			after1 = cardType*9 + cardValue + 1;
+			after2 = cardType*9 + cardValue + 2;
+			if (handCardList.contains(pre1) && handCardList.contains(after1) && handCardList.contains(after2)) {
+				chiSb.append(pre1).append(",").append(after1)
+				.append("_")
+				.append(after1).append(",").append(after2);
+			}else if(handCardList.contains(pre1) && handCardList.contains(after1)){
+				chiSb.append(pre1).append(",").append(after1);
+			}else if(handCardList.contains(after1) && handCardList.contains(after2)){
+				chiSb.append(after1).append(",").append(after2);
+			}
+			
+		}else if(cardValue == 7){
+			pre2 = cardType*9 + cardValue - 2;
+			pre1 = cardType*9 + cardValue - 1;
+			after1 = cardType*9 + cardValue + 1;
+			if (handCardList.contains(pre2) && handCardList.contains(pre1) && handCardList.contains(after1)) {
+				chiSb.append(pre2).append(",").append(pre1)
+				.append("_")
+				.append(pre1).append(",").append(after1);
+			}else if(handCardList.contains(pre2) && handCardList.contains(pre1)){
+				chiSb.append(pre2).append(",").append(pre1);
+			}else if(handCardList.contains(pre1) && handCardList.contains(after1)){
+				chiSb.append(pre1).append(",").append(after1);
+			}
+		}else if(cardValue == 8){
+			pre2 = cardType*9 + cardValue - 2;
+			pre1 = cardType*9 + cardValue - 1;
+			if (handCardList.contains(pre2) && handCardList.contains(pre1)) {
+				chiSb.append(pre2).append(",").append(pre1);
+			}
+		}else{
+			pre2 = cardType*9 + cardValue - 2;
+			pre1 = cardType*9 + cardValue - 1;
+			after1 = cardType*9 + cardValue + 1;
+			after2 = cardType*9 + cardValue + 2;
+			if (handCardList.contains(pre2) && handCardList.contains(pre1) && handCardList.contains(after1) && handCardList.contains(after2)) {
+				chiSb.append(pre2).append(",").append(pre1)
+				.append("_")
+				.append(pre1).append(",").append(after1)
+				.append("_")
+				.append(after1).append(",").append(after2);
+			}else if(handCardList.contains(pre2) && handCardList.contains(pre1) && handCardList.contains(after1)){
+				chiSb.append(pre2).append(",").append(pre1)
+				.append("_")
+				.append(pre1).append(",").append(after1);
+			}else if(handCardList.contains(pre1) && handCardList.contains(after1) && handCardList.contains(after2)){
+				chiSb.append(pre1).append(",").append(after1)
+				.append("_")
+				.append(after1).append(",").append(after2);
+			}else if(handCardList.contains(pre2) && handCardList.contains(pre1)){
+				chiSb.append(pre2).append(",").append(pre1);
+			}else if(handCardList.contains(pre1) && handCardList.contains(after1)){
+				chiSb.append(pre1).append(",").append(after1);
+			}else if(handCardList.contains(after1) && handCardList.contains(after2)){
+				chiSb.append(after1).append(",").append(after2);
 			}
 		}
 		return chiSb.toString();
@@ -1194,10 +1211,12 @@ public class MjCardRule {
 	 */
 	public static boolean checkHu(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
 		boolean isHu = false;
-		if (player.getIsTingHu() == 0) {
-			return isHu;
+		/**如果需要听牌*/
+		if (roomInfo.getIsTingPai() > 0) {
+			if (player.getIsTingHu() == 0) {
+				return isHu;
+			}
 		}
-		
 		List<Integer> handCardList = player.getHandCardList();
 		Integer gui_index = Hulib.invalidCardInex;
 		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
