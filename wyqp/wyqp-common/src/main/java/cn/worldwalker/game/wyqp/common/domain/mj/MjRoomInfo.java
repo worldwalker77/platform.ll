@@ -34,6 +34,8 @@ public class MjRoomInfo extends BaseRoomInfo{
 	
 	/**是否可以吃牌 0：不可以 1：可以*/
 	private Integer isChiPai = 1;
+	/**是否可以听牌 0：不可以 1：可以*/
+	private Integer isTingPai = 1;
 	/**胡牌底分*/
 	private Integer huButtomScore = 0;
 	/**每个花的分数*/
@@ -56,6 +58,12 @@ public class MjRoomInfo extends BaseRoomInfo{
 	
 	private Integer indexLine;
 	
+	public Integer getIsTingPai() {
+		return isTingPai;
+	}
+	public void setIsTingPai(Integer isTingPai) {
+		this.isTingPai = isTingPai;
+	}
 	public Integer getIndexLine() {
 		return indexLine;
 	}
