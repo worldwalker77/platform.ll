@@ -12,6 +12,7 @@ import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.QmCardTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.ShbdCardTypeEnum;
+import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 public class MjCardTypeCalculation {
 	
@@ -53,49 +54,63 @@ public class MjCardTypeCalculation {
 	 * @return
 	 */
 	public static Integer calButtomFlowerScoreAndCardTypeAndMultiple(MjPlayerInfo player, MjRoomInfo roomInfo){
+		Integer huType = player.getHuType();
+		Integer huCardIndex = null;
+		if (MjHuTypeEnum.zhuaChong.type.equals(huType) || MjHuTypeEnum.qiangGang.type.equals(huType)) {
+			huCardIndex =  roomInfo.getLastCardIndex();
+		}else if(MjHuTypeEnum.ziMo.type.equals(huType) || MjHuTypeEnum.gangKai.type.equals(huType)){
+			huCardIndex = player.getCurMoPaiCardIndex();
+		}
 		MjTypeEnum mjTypeEnum = MjTypeEnum.getMjTypeEnum(roomInfo.getDetailType());
-		calButtomAndFlowerScore(player, roomInfo);
-		calCardTypeAndMultiple(roomInfo, player, mjTypeEnum);
+		calButtomAndFlowerScore(player, roomInfo, huCardIndex);
+		calCardTypeAndMultiple(roomInfo, player, mjTypeEnum, huCardIndex);
 		return null;
 	}
 	
-	public static int[] getHandCards(MjPlayerInfo player, MjRoomInfo roomInfo){
+	public static int[] getHandCards(MjPlayerInfo player, MjRoomInfo roomInfo, Integer huCardIndex){
 		List<Integer> handCardList = player.getHandCardList();
 		int[] handCards = new int[roomInfo.getIndexLine()];
 		for(Integer cardIndex : handCardList){
 			handCards[cardIndex]++;
 		}
-		Integer huType = player.getHuType();
-		if (MjHuTypeEnum.zhuaChong.type.equals(huType) || MjHuTypeEnum.qiangGang.type.equals(huType)) {
-			handCards[roomInfo.getLastCardIndex()]++;
-		}else if(MjHuTypeEnum.ziMo.type.equals(huType) || MjHuTypeEnum.gangKai.type.equals(huType)){
-			handCards[player.getCurMoPaiCardIndex()]++;
+		if (huCardIndex != null) {
+			handCards[huCardIndex]++;
 		}
 		return handCards;
 	} 
 	
-	public static void calCardTypeAndMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void calCardTypeAndMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		
 		/****************牌型计算*****************************/
 		/**门清校验*/
-		checkMenQing(player, mjTypeEnum);
+		checkMenQing(player, mjTypeEnum, huCardIndex);
 		/**清一色校验*/
-		checkQingYiSe(roomInfo, player, mjTypeEnum);
+		checkQingYiSe(roomInfo, player, mjTypeEnum, huCardIndex);
 		/**混一色校验*/
-		checkHunYiSe(roomInfo, player, mjTypeEnum);
+		checkHunYiSe(roomInfo, player, mjTypeEnum, huCardIndex);
 		/**大吊车校验*/
-		checkDaDiaoChe(player, mjTypeEnum);
+		checkDaDiaoChe(player, mjTypeEnum, huCardIndex);
 		/**碰碰胡校验*/
-		checkPengPengHu(roomInfo, player, mjTypeEnum);
+		checkPengPengHu(roomInfo, player, mjTypeEnum, huCardIndex);
 		List<Integer> mjCardTypeList = player.getMjCardTypeList();
+		/**如果是百搭类型，则要计算跑百搭、无百搭、四百搭、乱风向、字一色*/
+		if (mjTypeEnum.equals(MjTypeEnum.shangHaiBaiDa)) {
+			/**跑百搭*/
+			checkPaoBaiDa(roomInfo, player, mjTypeEnum, huCardIndex);
+			/**无百搭*/
+			checkWuBaiDa(roomInfo, player, mjTypeEnum, huCardIndex);
+			/**四百搭*/
+			 checkSiBaiDa(roomInfo, player, mjTypeEnum, huCardIndex);
+			/**乱风向*/
+			checkLuanFengXaing(roomInfo, player, mjTypeEnum, huCardIndex);
+			/**字一色*/
+			checkZiYiSe(roomInfo, player, mjTypeEnum, huCardIndex);
+		}
 		/**特殊牌型都没有，则设置为平胡*/
 		if (mjCardTypeList.size() == 0) {
 			mjCardTypeList.add(QmCardTypeEnum.pingHu.type);
 		}
-		/**如果是百搭类型，则要计算跑百搭和无百搭*/
-		if (mjTypeEnum.equals(MjTypeEnum.shangHaiBaiDa)) {
-			
-		}
+		
 		
 		/********************倍数计算*********************/
 		/**胡牌类型倍数*/
@@ -126,14 +141,19 @@ public class MjCardTypeCalculation {
 		}
 		
 	}
-	public static void calButtomAndFlowerScore(MjPlayerInfo player, MjRoomInfo roomInfo){
+	public static void calButtomAndFlowerScore(MjPlayerInfo player, MjRoomInfo roomInfo, Integer huCardIndex){
 		/**补花数量*/
 		Integer flowerNum = player.getFlowerCardList().size();
 		/**风向碰、风暗刻*/
 		List<Integer> pengCardList = player.getPengCardList();
 		List<Integer> handCardList = player.getHandCardList();
+		List<Integer> newHandCardList = new ArrayList<Integer>();
+		newHandCardList.addAll(handCardList);
+		if (huCardIndex != null) {
+			newHandCardList.add(huCardIndex);
+		}
 		for(int cardIndex = 27; cardIndex <= 30; cardIndex++){
-			if (handCardList.contains(Arrays.asList(cardIndex, cardIndex, cardIndex))) {
+			if (newHandCardList.contains(Arrays.asList(cardIndex, cardIndex, cardIndex))) {
 				flowerNum++;
 			}
 			if (pengCardList.contains(cardIndex)) {
@@ -170,7 +190,7 @@ public class MjCardTypeCalculation {
 		}
 		/**如果是百搭类型则手牌中的百搭牌也算花*/
 		if (roomInfo.getDetailType().equals(MjTypeEnum.shangHaiBaiDa.type)) {
-			for(Integer temp : handCardList){
+			for(Integer temp : newHandCardList){
 				if (temp.equals(roomInfo.getBaiDaCardIndex())) {
 					flowerNum++;
 				}
@@ -196,7 +216,7 @@ public class MjCardTypeCalculation {
 		player.setButtomAndFlowerScore(flowerNum*roomInfo.getEachFlowerScore() + roomInfo.getHuButtomScore());
 	}
 	
-	public static void checkDaDiaoChe(MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void checkDaDiaoChe(MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		
 		if (player.getHandCardList().size() == 1) {
 			switch (mjTypeEnum) {
@@ -209,7 +229,7 @@ public class MjCardTypeCalculation {
 			}
 		}
 	}
-	public static void checkMenQing(MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void checkMenQing(MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		
 		if (player.getChiCardList().size() == 0 && player.getPengCardList().size() == 0 &&player.getMingGangCardList().size() == 0) {
 			switch (mjTypeEnum) {
@@ -225,10 +245,13 @@ public class MjCardTypeCalculation {
 		}
 	}
 	
-	public static void checkQingYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void checkQingYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		List<Integer> handCardList = player.getHandCardList();
 		List<Integer> newHandCardList = new ArrayList<Integer>();
 		newHandCardList.addAll(handCardList);
+		if (huCardIndex != null) {
+			newHandCardList.add(huCardIndex);
+		}
 		/**如果是百搭麻将，则去掉百搭后在看是否清一色*/
 		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
 			Iterator<Integer> sListIterator = newHandCardList.iterator(); 
@@ -319,10 +342,13 @@ public class MjCardTypeCalculation {
 	}
 	
 	
-	public static void checkHunYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void checkHunYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		List<Integer> handCardList = player.getHandCardList();
 		List<Integer> newHandCardList = new ArrayList<Integer>();
 		newHandCardList.addAll(handCardList);
+		if (huCardIndex != null) {
+			newHandCardList.add(huCardIndex);
+		}
 		/**如果是百搭麻将，则去掉百搭后在看是否混一色*/
 		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
 			Iterator<Integer> sListIterator = newHandCardList.iterator(); 
@@ -416,11 +442,11 @@ public class MjCardTypeCalculation {
 		
 	}
 	
-	public static void checkPengPengHu(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
+	public static void checkPengPengHu(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		if (player.getChiCardList().size() > 0) {
 			return;
 		}
-		int[] handCards = getHandCards(player, roomInfo);
+		int[] handCards = getHandCards(player, roomInfo, huCardIndex);
 		int baiDaNum = handCards[roomInfo.getBaiDaCardIndex()];
 		/**手牌中去掉百搭*/
 		handCards[roomInfo.getBaiDaCardIndex()] = 0;
@@ -501,6 +527,62 @@ public class MjCardTypeCalculation {
 			}
 		}
 		
+	}
+	
+	public static void checkPaoBaiDa(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
+		List<Integer> handCardList = player.getHandCardList();
+		/**如果手牌中没有百搭则不可能跑百搭*/
+		if (!handCardList.contains(roomInfo.getBaiDaCardIndex())) {
+			return;
+		}
+		if (MjCardRule.checkPaoBaiDa(roomInfo, handCardList)) {
+			player.getMjCardTypeList().add(ShbdCardTypeEnum.paoBaiDa.type);
+		}
+		
+	}
+	public static void checkWuBaiDa(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
+		List<Integer> handCardList = player.getHandCardList();
+		/**如果手牌中没有百搭并且胡的那张牌也不是百搭*/
+		if (!handCardList.contains(roomInfo.getBaiDaCardIndex()) && !roomInfo.getBaiDaCardIndex().equals(huCardIndex)) {
+			player.getMjCardTypeList().add(ShbdCardTypeEnum.wuBaiDa.type);
+		}
+	}
+	public static void checkSiBaiDa(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
+		List<Integer> handCardList = player.getHandCardList();
+		List<Integer> newHandCardList = new ArrayList<Integer>();
+		newHandCardList.addAll(handCardList);
+		if (huCardIndex != null) {
+			newHandCardList.add(huCardIndex);
+		}
+		int baiDaNum = 0;
+		for(Integer temp : newHandCardList){
+			if (temp.equals(roomInfo.getBaiDaCardIndex())) {
+				baiDaNum++;
+			}
+		}
+		if (baiDaNum == 4) {
+			player.getMjCardTypeList().add(ShbdCardTypeEnum.siBaiDa.type);
+		}
+	}
+	public static void checkLuanFengXaing(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
+		List<Integer> handCardList = player.getHandCardList();
+		/**如果走正常表校验是可以胡牌的，则说明肯定不是乱风向*/
+		if (Hulib.getInstance().get_hu_info(handCardList, huCardIndex, roomInfo.getBaiDaCardIndex(),roomInfo.getIndexLine())) {
+			return;
+		}
+		if (MjCardRule.isAllFeng(roomInfo, player, huCardIndex)) {
+			player.getMjCardTypeList().add(ShbdCardTypeEnum.luanFengXiang.type);
+		}
+	}
+	public static void checkZiYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
+		List<Integer> handCardList = player.getHandCardList();
+		/**如果走正常表校验是不可以胡牌的，则说明肯定不是字一色*/
+		if (!Hulib.getInstance().get_hu_info(handCardList, huCardIndex, roomInfo.getBaiDaCardIndex(),roomInfo.getIndexLine())) {
+			return;
+		}
+		if (MjCardRule.isAllFeng(roomInfo, player, huCardIndex)) {
+			player.getMjCardTypeList().add(ShbdCardTypeEnum.ziYiSe.type);
+		}
 	}
 	
 }

@@ -7,16 +7,18 @@ public class Hulib
 	static Hulib m_hulib = new Hulib();
 //	public static int indexLine = 33;//31-41表示中发白春夏秋冬梅兰竹菊（花牌），如果要胡牌，必须得牌索引都小于31
 	public static int invalidCardInex = 100;
-	public boolean get_hu_info(List<Integer> handCardsList, int curCard, int gui_index, int indexLine)
+	public boolean get_hu_info(List<Integer> handCardsList, Integer curCard, int gui_index, int indexLine)
 	{	
 		int size = handCardsList.size();
 		int[] hand_cards_tmp = new int[indexLine];
 		for(int i = 0; i < size; i++){
 			hand_cards_tmp[handCardsList.get(i)]++;
 		}
-		if (curCard < indexLine)
-		{
-			hand_cards_tmp[curCard]++;
+		if (curCard != null) {
+			if (curCard < indexLine)
+			{
+				hand_cards_tmp[curCard]++;
+			}
 		}
 		int gui_num = 0;
 		if (gui_index < indexLine)
