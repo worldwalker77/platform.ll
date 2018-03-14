@@ -1220,6 +1220,10 @@ public class MjCardRule {
 		List<Integer> handCardList = player.getHandCardList();
 		Integer gui_index = Hulib.invalidCardInex;
 		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
+			/**百搭乱风向**/
+			if (isAllFeng(roomInfo, player, cardIndex)) {
+				return true;
+			}
 			gui_index = roomInfo.getBaiDaCardIndex();
 		}
 		if (handCardList.size() == 14) {
@@ -1227,10 +1231,28 @@ public class MjCardRule {
 		}else{
 			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index,roomInfo.getIndexLine());
 		}
+		
 		return isHu;
 	}
 	
-	public static void moveCardsFromHandCards(){
-		
+	public static boolean isAllFeng(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
+		List<Integer> allCardList = new ArrayList<Integer>();
+		List<Integer> chiCardList = player.getChiCardList();
+		List<Integer> pengCardList = player.getPengCardList();
+		List<Integer> mingGangCardList = player.getMingGangCardList();
+		List<Integer> anGangCardList = player.getAnGangCardList();
+		allCardList.addAll(chiCardList);
+		allCardList.addAll(pengCardList);
+		allCardList.addAll(mingGangCardList);
+		allCardList.addAll(anGangCardList);
+		if (cardIndex != null) {
+			allCardList.add(cardIndex);
+		}
+		for(Integer temp : allCardList){
+			if (!(temp >= 27 && temp < roomInfo.getIndexLine())) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

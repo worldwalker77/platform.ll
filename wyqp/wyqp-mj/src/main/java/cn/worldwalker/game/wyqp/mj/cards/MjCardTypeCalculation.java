@@ -12,7 +12,6 @@ import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.QmCardTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.ShbdCardTypeEnum;
-import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 public class MjCardTypeCalculation {
 	
