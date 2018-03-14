@@ -435,7 +435,7 @@ public class MjCardRule {
 						map1.put(MjOperationEnum.peng.type, pengStr);
 					}
 				}else{
-					String pengStr = checkPeng(cards, cardIndex, 1);
+					String pengStr = checkPeng(cards, cardIndex, 0);
 					if (StringUtils.isNotBlank(pengStr)) {
 						map1.put(MjOperationEnum.peng.type, pengStr);
 					}
