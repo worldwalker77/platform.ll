@@ -162,7 +162,7 @@ public class MjGameService extends BaseGameService{
 					/**当前说话玩家的手牌缓存，由于没有补花之前的牌需要返回给客户端*/
 					handCardListBeforeAddFlower = new ArrayList<Integer>();
 					if (Constant.isTest == 1) {
-//						player.setHandCardList(MjCardRule.getHandCardListByIndex(i, true));//测试用
+						player.setHandCardList(MjCardRule.getHandCardList(1, player.getOrder()));//测试用
 					}else{
 						player.setHandCardList(MjCardResource.genHandCardList(tableRemainderCardList, 14));
 					}
@@ -189,7 +189,7 @@ public class MjGameService extends BaseGameService{
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}else{/**闲家发13张牌*/
 					if (Constant.isTest == 1) {
-//						player.setHandCardList(MjCardRule.getHandCardListByIndex(i, false));//测试用
+						player.setHandCardList(MjCardRule.getHandCardList(1, player.getOrder()));//测试用
 					}else{
 						player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
 					}

@@ -6,7 +6,8 @@ public enum MjHuTypeEnum {
 	ziMo(1, 1, "自摸"),
 	tianHu(2, 1, "天胡"),
 	qiangGang(3, 3, "抢杠"),
-	gangKai(4, 2, "杠开");
+	gangKai(4, 2, "杠开"),
+	diHu(5, 1, "地胡");
 	
 	public Integer type;
 	/**倍数*/
