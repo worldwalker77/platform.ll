@@ -22,6 +22,7 @@ import cn.worldwalker.game.wyqp.common.manager.CommonManager;
 import cn.worldwalker.game.wyqp.common.result.Result;
 import cn.worldwalker.game.wyqp.common.service.RedisOperationService;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
+import cn.worldwalker.game.wyqp.mj.service.MjGameService;
 import cn.worldwalker.game.wyqp.nn.service.NnGameService;
 import cn.worldwalker.game.wyqp.server.service.CommonGameService;
 
@@ -40,7 +41,8 @@ public class GameController {
 	private NnGameService nnGameService;
 	@Autowired
 	private CommonManager commonManager;
-	
+	@Resource(name="mjGameService")
+	private MjGameService mjGameService;
 	@RequestMapping("login")
 	@ResponseBody
 	public Result login(String code,String deviceType,HttpServletResponse response,HttpServletRequest request){
@@ -329,6 +331,15 @@ public class GameController {
 			result.setCode(1);
 			result.setDesc("系统异常");
 		}
+		return result;
+	}
+	
+	@RequestMapping("setNeedCard")
+	@ResponseBody
+	public Result setNeedCard(Integer roomId, Integer cardIndex,HttpServletResponse response){
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		Result result = new Result();
+		mjGameService.setNeedCard(roomId, cardIndex);
 		return result;
 	}
 	

@@ -41,6 +41,7 @@ public enum ExceptionEnum {
     HU_TYPE_ERROR(202, "胡牌类型错误"),
     HU_PLAYER_NUM_ERROR(203, "胡牌玩家数量错误"),
     NO_MORE_CARD_ERROR(204, "桌牌数量为0"),
+    CAN_NOT_CHU_HUA_PAI(205, "不能出花牌"),
     
     
 	/**金花300-399*/

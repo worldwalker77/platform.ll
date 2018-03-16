@@ -36,7 +36,7 @@
     </appender>  
     <root>
         <priority value="INFO"/>
-       <!--  <appender-ref ref="CONSOLE"/> -->
+       <appender-ref ref="CONSOLE"/>
         <appender-ref ref="dailyRollingFile"/>
         <appender-ref ref="railyFile"/>
     </root>

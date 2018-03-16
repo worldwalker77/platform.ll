@@ -52,6 +52,29 @@ public class MjCardRule {
 		map.putAll(amap);
 		
 	}
+	public static void main(String[] args) {
+		/**胡牌校验*/
+//		TableMgr.getInstance().load();
+//		MjPlayerInfo player = new MjPlayerInfo();
+//		List<Integer> list = Arrays.asList(0,2,10,11,13,14,14,16,17,17,18,26,30);
+//		player.setHandCardList(list);
+//		Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+//		MjRoomInfo roomInfo = new MjRoomInfo();
+//		roomInfo.setIndexLine(34);
+//		roomInfo.setBaiDaCardIndex(30);
+//		roomInfo.setIsTingPai(0);
+//		roomInfo.setDetailType(2);
+//		System.out.println(checkHu(roomInfo, player, 27));
+//		checkTingHu1(null, player, 29, chuCardIndexHuCardListMap);
+//		System.out.println(JsonUtil.toJson(chuCardIndexHuCardListMap));
+		/**测试模式发牌测试**/
+//		for(int i = 1; i < 5; i++){
+//			System.out.println(i);
+//			System.out.println(getHandCardList(3, i-1));
+//		}
+		System.out.println(getTableCardList());
+		
+	}
 	public static  List<Integer> getHandCardList(int bankerOrder, int curOrder){
 		List<Integer> list = new ArrayList<Integer>();
 		if (bankerOrder == curOrder) {
@@ -68,10 +91,15 @@ public class MjCardRule {
 	public static List<Integer> getTableCardList(){
 		List<Integer> curTableCardList = new ArrayList<Integer>();
 		curTableCardList.addAll(tableList);
-		curTableCardList.removeAll(map.get(0));
-		curTableCardList.removeAll(map.get(1));
-		curTableCardList.removeAll(map.get(2));
-		curTableCardList.removeAll(map.get(3));
+		List<Integer> tempCardList = new ArrayList<Integer>();
+		tempCardList.addAll(map.get(1));
+		tempCardList.addAll(map.get(2));
+		tempCardList.addAll(map.get(3));
+		tempCardList.addAll(map.get(4));
+		for(Integer temp : tempCardList){
+			curTableCardList.remove(temp);
+		}
+		Collections.shuffle(curTableCardList);
 		return curTableCardList;
 	}
 	
@@ -1128,22 +1156,7 @@ public class MjCardRule {
 		return canPaoBaiDa;
 		
 	}
-	public static void main(String[] args) {
-		TableMgr.getInstance().load();
-		MjPlayerInfo player = new MjPlayerInfo();
-		List<Integer> list = Arrays.asList(0,2,10,11,13,14,14,16,17,17,18,26,30);
-		player.setHandCardList(list);
-		Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
-		MjRoomInfo roomInfo = new MjRoomInfo();
-		roomInfo.setIndexLine(34);
-		roomInfo.setBaiDaCardIndex(30);
-		roomInfo.setIsTingPai(0);
-		roomInfo.setDetailType(2);
-		System.out.println(checkHu(roomInfo, player, 27));
-//		checkTingHu1(null, player, 29, chuCardIndexHuCardListMap);
-//		System.out.println(JsonUtil.toJson(chuCardIndexHuCardListMap));
-		
-	}
+
 	
 	private static List<Integer> checkHuCardList(MjRoomInfo roomInfo, List<Integer> cardList, List<Integer> handCardList){
 		
@@ -1214,6 +1227,9 @@ public class MjCardRule {
 	 */
 	public static boolean checkHu(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
 		boolean isHu = false;
+		if (isContainsHuaPai(roomInfo, player)) {
+			return isHu;
+		}
 		/**如果需要听牌*/
 		if (roomInfo.getIsTingPai() > 0) {
 			if (player.getIsTingHu() == 0) {
@@ -1258,5 +1274,16 @@ public class MjCardRule {
 			}
 		}
 		return true;
+	}
+	
+	public static boolean isContainsHuaPai(MjRoomInfo roomInfo, MjPlayerInfo player){
+		int indexLine = roomInfo.getIndexLine();
+		List<Integer> handCardList = player.getHandCardList();
+		for(int i = indexLine; i < 42; i++){
+			if (handCardList.contains(i)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -120,7 +120,9 @@ public class MjGameService extends BaseGameService{
 			calculateRoomBanker(roomInfo);
 			MjCardRule.initMjRoom(roomInfo);
 			List<Integer> tableRemainderCardList = null;
+			MjPlayerInfo bankerPlayer = null;
 			if (Constant.isTest == 1) {
+				bankerPlayer = MjCardRule.getPlayerInfoByPlayerId(playerList, roomInfo.getRoomBankerId());
 				tableRemainderCardList = MjCardRule.getTableCardList();//测试用
 			}else{
 				tableRemainderCardList = MjCardResource.genTableOutOrderCardList();
@@ -162,7 +164,7 @@ public class MjGameService extends BaseGameService{
 					/**当前说话玩家的手牌缓存，由于没有补花之前的牌需要返回给客户端*/
 					handCardListBeforeAddFlower = new ArrayList<Integer>();
 					if (Constant.isTest == 1) {
-						player.setHandCardList(MjCardRule.getHandCardList(1, player.getOrder()));//测试用
+						player.setHandCardList(MjCardRule.getHandCardList(bankerPlayer.getOrder() - 1, player.getOrder() - 1));//测试用
 					}else{
 						player.setHandCardList(MjCardResource.genHandCardList(tableRemainderCardList, 14));
 					}
@@ -189,7 +191,7 @@ public class MjGameService extends BaseGameService{
 					channelContainer.sendTextMsgByPlayerIds(result, player.getPlayerId());
 				}else{/**闲家发13张牌*/
 					if (Constant.isTest == 1) {
-						player.setHandCardList(MjCardRule.getHandCardList(1, player.getOrder()));//测试用
+						player.setHandCardList(MjCardRule.getHandCardList(bankerPlayer.getOrder() - 1, player.getOrder() - 1));//测试用
 					}else{
 						player.setHandCardList(MjCardResource.genHandCardList(roomInfo.getTableRemainderCardList(), 13));
 					}
@@ -245,6 +247,10 @@ public class MjGameService extends BaseGameService{
 		}
 		if (!roomInfo.getCurPlayerId().equals(playerId)) {
 			throw new BusinessException(ExceptionEnum.IS_NOT_YOUR_TURN);
+		}
+		/**如果有花牌，则提示*/
+		if (msg.getCardIndex() >= roomInfo.getIndexLine()) {
+			throw new BusinessException(ExceptionEnum.CAN_NOT_CHU_HUA_PAI);
 		}
 		roomInfo.setLastPlayerId(playerId);
 		roomInfo.setLastCardIndex(msg.getCardIndex());
@@ -1608,5 +1614,15 @@ public class MjGameService extends BaseGameService{
 		} catch (Exception e) {
 			log.error("记录回放日志异常, msgType:" + msgType + ",msg:" + JsonUtil.toJson(msg) + ",oPlayer:" + JsonUtil.toJson(oPlayer) + ",roomInf:" + JsonUtil.toJson(roomInfo), e);
 		}
+	}
+	
+	public void setNeedCard(Integer roomId, Integer cardIndex){
+		MjRoomInfo roomInfo = redisOperationService.getRoomInfoByRoomId(roomId, MjRoomInfo.class);
+		List<Integer> remaindList = roomInfo.getTableRemainderCardList();
+		if (remaindList.contains(cardIndex)) {
+			remaindList.remove(cardIndex);
+			remaindList.add(cardIndex);
+		}
+		redisOperationService.setRoomIdRoomInfo(roomId, roomInfo);
 	}
 }

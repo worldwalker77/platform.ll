@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.worldwalker.game.wyqp.common.constant.Constant;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
@@ -54,11 +55,15 @@ public class MjCardResource {
 		return handCardList;
 	}
 	public static Integer mopai(List<Integer> tableRemainderCardList){
-		return tableRemainderCardList.remove(0);
+		int size = tableRemainderCardList.size();
+		return tableRemainderCardList.remove(size - 1);
 	}
 	
 	public static Integer genPiZiCardInex(List<Integer> tableRemainderCardList, Integer indexLine){
 		int beginIndex = 53;
+		if (Constant.isTest == 1) {
+			beginIndex = 0;
+		}
 		Integer piZiCardIndex = 0;
 		while(true){
 			piZiCardIndex = tableRemainderCardList.get(beginIndex);
