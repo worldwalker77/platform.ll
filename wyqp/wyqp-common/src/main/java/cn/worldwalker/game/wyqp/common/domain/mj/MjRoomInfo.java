@@ -53,11 +53,26 @@ public class MjRoomInfo extends BaseRoomInfo{
 	private Integer noBaiDaCanZhuaChong;
 	/**无百搭可抢杠*/
 	private Integer noBaiDaCanQiangGang;
-	/**模式*/
+	/**模式
+	 * 如果是百搭则表示花牌数量，8花：只有春夏秋冬梅兰竹菊是花牌，20花表示中发白春夏秋冬梅兰竹菊都是花牌
+	 * 如果是清混碰，3表示包三家，5表示包五家
+	 * */
 	private Integer model;
-	
+	/**花牌和非花牌的分界线*/
 	private Integer indexLine;
+	/**上海清混碰里面有勒子，创建房间的时候可以选择勒子，表示10花还是20花，
+	 * 如果底分+花分超过1个勒子就按照1个勒子算，如果没超过就按照底分+花分算，
+	 * 如果是特殊牌型，就直接按照牌型对于的勒子数算
+	 * 组合牌型按照牌型对于的最大勒子数算
+	 * */
+	private Integer lezi;
 	
+	public Integer getLezi() {
+		return lezi;
+	}
+	public void setLezi(Integer lezi) {
+		this.lezi = lezi;
+	}
 	public Integer getIsTingPai() {
 		return isTingPai;
 	}

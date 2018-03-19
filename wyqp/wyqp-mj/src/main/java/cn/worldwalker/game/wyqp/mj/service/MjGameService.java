@@ -61,15 +61,28 @@ public class MjGameService extends BaseGameService{
 		roomInfo.setIsChiPai(msg.getIsChiPai());
 		if (MjTypeEnum.shangHaiBaiDa.type.equals(request.getDetailType())) {
 			roomInfo.setModel(msg.getModel());
-			if (msg.getModel()  == 8) {
+			if (msg.getModel()  == 8) {/**模式如果是8花*/
 				roomInfo.setIndexLine(31);
-			}else{
+			}else{/**模式如果是20花*/
 				roomInfo.setIndexLine(34);
 			}
+			/**无百搭可抢杠*/
 			roomInfo.setNoBaiDaCanQiangGang(msg.getNoBaiDaCanQiangGang());
+			/**无百搭可抓冲*/
 			roomInfo.setNoBaiDaCanZhuaChong(msg.getNoBaiDaCanZhuaChong());
 			/**百搭不需要听牌*/
 			roomInfo.setIsTingPai(0);
+			/**百搭可吃牌*/
+			roomInfo.setIsChiPai(1);
+		}else if(MjTypeEnum.shangHaiQingHunPeng.type.equals(request.getDetailType())){
+			/**模式：包三家或包五家*/
+			roomInfo.setModel(msg.getModel());
+			/**勒子，10花或者20花*/
+			roomInfo.setLezi(msg.getLezi());
+			/**清混碰不需要听牌*/
+			roomInfo.setIsTingPai(0);
+			/**由于花牌只有春夏秋冬梅兰竹菊8张，所以这里是34*/
+			roomInfo.setIndexLine(34);
 		}else{
 			roomInfo.setIndexLine(31);
 		}

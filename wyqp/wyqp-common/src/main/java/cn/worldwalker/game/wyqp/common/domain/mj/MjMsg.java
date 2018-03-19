@@ -10,30 +10,41 @@ public class MjMsg extends BaseMsg{
 	/**牌索引*/
 	private Integer cardIndex;
 	/**是否开宝 0:不开宝 1：开宝*/
-	private Integer isKaiBao = 1;
+	private Integer isKaiBao;
 	/**是否荒翻 0：不荒翻 1：荒翻*/
-	private Integer isHuangFan = 1;
+	private Integer isHuangFan;
 	/**是否飞苍蝇 0：不飞苍蝇 1：飞苍蝇*/
-	private Integer isFeiCangyin = 0;
+	private Integer isFeiCangyin;
 	/**是否可以吃牌 0：不可以 1：可以*/
-	private Integer isChiPai = 1;
+	private Integer isChiPai;
 	/**胡牌底分*/
-	private Integer huButtomScore = 2;
+	private Integer huButtomScore;
 	/**每个花的分数*/
-	private Integer eachFlowerScore = 1;
+	private Integer eachFlowerScore;
 	/**胡牌封顶分数*/
-	private Integer huScoreLimit = 20;
+	private Integer huScoreLimit;
 	/**无百搭可抓冲*/
 	private Integer noBaiDaCanZhuaChong;
 	/**无百搭可抢杠*/
 	private Integer noBaiDaCanQiangGang;
 	/**模式*/
 	private Integer model;
-	
+	/**上海清混碰里面有勒子，创建房间的时候可以选择勒子，表示10花还是20花，
+	 * 如果底分+花分超过1个勒子就按照1个勒子算，如果没超过就按照底分+花分算，
+	 * 如果是特殊牌型，就直接按照牌型对于的勒子数算
+	 * 组合牌型按照牌型对于的最大勒子数算
+	 * */
+	private Integer lezi;
 	private String chiCards;
 	private String pengCards;
 	private String gangCards;
 	
+	public Integer getLezi() {
+		return lezi;
+	}
+	public void setLezi(Integer lezi) {
+		this.lezi = lezi;
+	}
 	public Integer getModel() {
 		return model;
 	}

@@ -10,8 +10,8 @@ import cn.worldwalker.game.wyqp.common.domain.mj.MjRoomInfo;
 import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
-import cn.worldwalker.game.wyqp.mj.enums.QmCardTypeEnum;
-import cn.worldwalker.game.wyqp.mj.enums.ShbdCardTypeEnum;
+import cn.worldwalker.game.wyqp.mj.enums.ShQmCardTypeEnum;
+import cn.worldwalker.game.wyqp.mj.enums.ShBdCardTypeEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
 
 public class MjCardTypeCalculation {
@@ -108,7 +108,7 @@ public class MjCardTypeCalculation {
 		}
 		/**特殊牌型都没有，则设置为平胡*/
 		if (mjCardTypeList.size() == 0) {
-			mjCardTypeList.add(QmCardTypeEnum.pingHu.type);
+			mjCardTypeList.add(ShQmCardTypeEnum.pingHu.type);
 		}
 		
 		
@@ -128,12 +128,12 @@ public class MjCardTypeCalculation {
 		switch (mjTypeEnum) {
 		case shangHaiQiaoMa:
 			for(Integer cardType : mjCardTypeList){
-				player.setMultiple(player.getMultiple() * QmCardTypeEnum.getCardType(cardType).multiple);
+				player.setMultiple(player.getMultiple() * ShQmCardTypeEnum.getCardType(cardType).multiple);
 			}
 			break;
 		case shangHaiBaiDa:
 			for(Integer cardType : mjCardTypeList){
-				player.setMultiple(player.getMultiple() * ShbdCardTypeEnum.getCardType(cardType).multiple);
+				player.setMultiple(player.getMultiple() * ShBdCardTypeEnum.getCardType(cardType).multiple);
 			}
 			break;	
 		default:
@@ -221,7 +221,7 @@ public class MjCardTypeCalculation {
 		if (player.getHandCardList().size() == 1) {
 			switch (mjTypeEnum) {
 				case shangHaiQiaoMa:
-					player.getMjCardTypeList().add(QmCardTypeEnum.daDiaoChe.type);
+					player.getMjCardTypeList().add(ShQmCardTypeEnum.daDiaoChe.type);
 					break;
 		
 				default:
@@ -234,10 +234,10 @@ public class MjCardTypeCalculation {
 		if (player.getChiCardList().size() == 0 && player.getPengCardList().size() == 0 &&player.getMingGangCardList().size() == 0) {
 			switch (mjTypeEnum) {
 				case shangHaiQiaoMa:
-					player.getMjCardTypeList().add(QmCardTypeEnum.menQing.type);
+					player.getMjCardTypeList().add(ShQmCardTypeEnum.menQing.type);
 					break;
 				case shangHaiBaiDa:
-					player.getMjCardTypeList().add(ShbdCardTypeEnum.menQing.type);
+					player.getMjCardTypeList().add(ShBdCardTypeEnum.menQing.type);
 					break;
 				default:
 					break;
@@ -330,10 +330,10 @@ public class MjCardTypeCalculation {
 		}
 		switch (mjTypeEnum) {
 			case shangHaiQiaoMa:
-				player.getMjCardTypeList().add(QmCardTypeEnum.qingYiSe.type);
+				player.getMjCardTypeList().add(ShQmCardTypeEnum.qingYiSe.type);
 				break;
 			case shangHaiBaiDa:
-				player.getMjCardTypeList().add(ShbdCardTypeEnum.qingYiSe.type);
+				player.getMjCardTypeList().add(ShBdCardTypeEnum.qingYiSe.type);
 				break;
 	
 			default:
@@ -430,10 +430,10 @@ public class MjCardTypeCalculation {
 			||(wanNum == 0 && tongNum == 0 && tiaoNum > 0)) {
 			switch (mjTypeEnum) {
 			case shangHaiQiaoMa:
-				player.getMjCardTypeList().add(QmCardTypeEnum.hunYiSe.type);
+				player.getMjCardTypeList().add(ShQmCardTypeEnum.hunYiSe.type);
 				break;
 			case shangHaiBaiDa:
-				player.getMjCardTypeList().add(ShbdCardTypeEnum.hunYiSe.type);
+				player.getMjCardTypeList().add(ShBdCardTypeEnum.hunYiSe.type);
 				break;
 			default:
 				break;
@@ -517,10 +517,10 @@ public class MjCardTypeCalculation {
 		if (isPengPengHu) {
 			switch (mjTypeEnum) {
 			case shangHaiQiaoMa:
-				player.getMjCardTypeList().add(QmCardTypeEnum.pengPengHu.type);
+				player.getMjCardTypeList().add(ShQmCardTypeEnum.pengPengHu.type);
 				break;
 			case shangHaiBaiDa:
-				player.getMjCardTypeList().add(ShbdCardTypeEnum.pengPengHu.type);
+				player.getMjCardTypeList().add(ShBdCardTypeEnum.pengPengHu.type);
 				break;
 			default:
 				break;
@@ -536,7 +536,7 @@ public class MjCardTypeCalculation {
 			return;
 		}
 		if (MjCardRule.checkPaoBaiDa(roomInfo, handCardList)) {
-			player.getMjCardTypeList().add(ShbdCardTypeEnum.paoBaiDa.type);
+			player.getMjCardTypeList().add(ShBdCardTypeEnum.paoBaiDa.type);
 		}
 		
 	}
@@ -544,7 +544,7 @@ public class MjCardTypeCalculation {
 		List<Integer> handCardList = player.getHandCardList();
 		/**如果手牌中没有百搭并且胡的那张牌也不是百搭*/
 		if (!handCardList.contains(roomInfo.getBaiDaCardIndex()) && !roomInfo.getBaiDaCardIndex().equals(huCardIndex)) {
-			player.getMjCardTypeList().add(ShbdCardTypeEnum.wuBaiDa.type);
+			player.getMjCardTypeList().add(ShBdCardTypeEnum.wuBaiDa.type);
 		}
 	}
 	public static void checkSiBaiDa(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
@@ -561,7 +561,7 @@ public class MjCardTypeCalculation {
 			}
 		}
 		if (baiDaNum == 4) {
-			player.getMjCardTypeList().add(ShbdCardTypeEnum.siBaiDa.type);
+			player.getMjCardTypeList().add(ShBdCardTypeEnum.siBaiDa.type);
 		}
 	}
 	public static void checkLuanFengXaing(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
@@ -571,7 +571,7 @@ public class MjCardTypeCalculation {
 			return;
 		}
 		if (MjCardRule.isAllFeng(roomInfo, player, huCardIndex)) {
-			player.getMjCardTypeList().add(ShbdCardTypeEnum.luanFengXiang.type);
+			player.getMjCardTypeList().add(ShBdCardTypeEnum.luanFengXiang.type);
 		}
 	}
 	public static void checkZiYiSe(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
@@ -581,7 +581,7 @@ public class MjCardTypeCalculation {
 			return;
 		}
 		if (MjCardRule.isAllFeng(roomInfo, player, huCardIndex)) {
-			player.getMjCardTypeList().add(ShbdCardTypeEnum.ziYiSe.type);
+			player.getMjCardTypeList().add(ShBdCardTypeEnum.ziYiSe.type);
 		}
 	}
 	
