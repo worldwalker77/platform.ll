@@ -152,7 +152,7 @@ public class MjCardTypeCalculation {
 		if (huCardIndex != null) {
 			newHandCardList.add(huCardIndex);
 		}
-		for(int cardIndex = 27; cardIndex <= 30; cardIndex++){
+		for(int cardIndex = 27; cardIndex < roomInfo.getIndexLine(); cardIndex++){
 			if (newHandCardList.contains(Arrays.asList(cardIndex, cardIndex, cardIndex))) {
 				flowerNum++;
 			}

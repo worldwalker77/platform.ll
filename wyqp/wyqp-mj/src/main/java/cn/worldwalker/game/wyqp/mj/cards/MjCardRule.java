@@ -1227,24 +1227,81 @@ public class MjCardRule {
 	 */
 	public static boolean checkHu(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
 		boolean isHu = false;
+		Integer detailType = roomInfo.getDetailType();
+		MjTypeEnum mjTypeEnum = MjTypeEnum.getMjTypeEnum(detailType);
+		switch (mjTypeEnum) {
+			case shangHaiQiaoMa:
+				isHu = checkHuForShQm(roomInfo, player, cardIndex);
+				break;
+			case shangHaiBaiDa:
+				isHu = checkHuForShBd(roomInfo, player, cardIndex);
+				break;
+			case shangHaiQingHunPeng:
+				isHu = checkHuForShQm(roomInfo, player, cardIndex);
+				break;
+			case shangHaiLaXiHu:
+				
+				break;
+	
+			default:
+				break;
+		}
+		return isHu;
+	}
+	
+	public static boolean checkHuForShQm(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
+		boolean isHu = false;
+		/**手牌中有花牌不能胡牌*/
 		if (isContainsHuaPai(roomInfo, player)) {
 			return isHu;
 		}
-		/**如果需要听牌*/
-		if (roomInfo.getIsTingPai() > 0) {
-			if (player.getIsTingHu() == 0) {
-				return isHu;
-			}
+		/**没听胡不能胡牌*/
+		if (player.getIsTingHu() == 0) {
+			return isHu;
 		}
 		List<Integer> handCardList = player.getHandCardList();
-		Integer gui_index = Hulib.invalidCardInex;
-		if (MjTypeEnum.shangHaiBaiDa.type.equals(roomInfo.getDetailType())) {
-			/**百搭乱风向**/
-			if (isAllFeng(roomInfo, player, cardIndex)) {
-				return true;
-			}
-			gui_index = roomInfo.getBaiDaCardIndex();
+		/**天胡的情况*/
+		if (handCardList.size() == 14) {
+			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, Hulib.invalidCardInex,roomInfo.getIndexLine());
+		}else{
+			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, Hulib.invalidCardInex,roomInfo.getIndexLine());
 		}
+		
+		return isHu;
+	}
+	public static boolean checkHuForShBd(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
+		boolean isHu = false;
+		if (isContainsHuaPai(roomInfo, player)) {
+			return isHu;
+		}
+		List<Integer> handCardList = player.getHandCardList();
+		/**乱风向*/
+		if (isAllFeng(roomInfo, player, cardIndex)) {
+			return true;
+		}
+		Integer gui_index = roomInfo.getBaiDaCardIndex();
+		if (handCardList.size() == 14) {
+			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, gui_index,roomInfo.getIndexLine());
+		}else{
+			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index,roomInfo.getIndexLine());
+		}
+		
+		return isHu;
+	}
+	
+	public static boolean checkHuForShQhp(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
+		boolean isHu = false;
+		if (isContainsHuaPai(roomInfo, player)) {
+			return isHu;
+		}
+		List<Integer> handCardList = player.getHandCardList();
+		/**八花齐*/
+		
+		/**乱风向*/
+		if (isAllFeng(roomInfo, player, cardIndex)) {
+			return true;
+		}
+		Integer gui_index = roomInfo.getBaiDaCardIndex();
 		if (handCardList.size() == 14) {
 			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, gui_index,roomInfo.getIndexLine());
 		}else{
