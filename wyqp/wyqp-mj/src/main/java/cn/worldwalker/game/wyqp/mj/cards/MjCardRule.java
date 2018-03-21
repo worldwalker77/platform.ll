@@ -27,7 +27,6 @@ import cn.worldwalker.game.wyqp.mj.enums.MjOperationEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjPlayerStatusEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
-import cn.worldwalker.game.wyqp.mj.huvalidate.TableMgr;
 
 
 public class MjCardRule {
@@ -720,6 +719,15 @@ public class MjCardRule {
 				addFlowerSb.append(tempCard).append("_");
 			}
 		}
+		/**如果花牌没补花完，桌面牌没有了，*/
+		if (!flowerCardStack.isEmpty()) {
+			/**如果是清混碰*/
+			if (MjTypeEnum.shangHaiQingHunPeng.type.equals(roomInfo.getDetailType())) {
+				
+			}else{
+				throw new BusinessException(ExceptionEnum.NO_MORE_CARD_ERROR);
+			}
+		}
 		return addFlowerSb.substring(0, addFlowerSb.length() - 1);
 	}
 	
@@ -904,7 +912,6 @@ public class MjCardRule {
 				return checkTingHuWithOutBaiDa(roomInfo, player, cardIndex, chuCardIndexHuCardListMap);
 			}
 		}
-		
 	}
 	/**
 	 * 判断是否可以听胡
@@ -1237,7 +1244,7 @@ public class MjCardRule {
 				isHu = checkHuForShBd(roomInfo, player, cardIndex);
 				break;
 			case shangHaiQingHunPeng:
-				isHu = checkHuForShQm(roomInfo, player, cardIndex);
+				isHu = checkHuForShQhp(roomInfo, player, cardIndex);
 				break;
 			case shangHaiLaXiHu:
 				
@@ -1307,8 +1314,21 @@ public class MjCardRule {
 		}else{
 			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index,roomInfo.getIndexLine());
 		}
-		
-		return isHu;
+		/**如果通过table校验不能胡，则直接返回*/
+		if (!isHu) {
+			return false;
+		}
+		/**如果通过table校验可以胡，则还需要校验是否是清混碰，只有清混碰才能胡牌*/
+		if (MjCardTypeCalculation.checkHunYiSe(roomInfo, player, cardIndex)) {
+			return true;
+		}
+		if (MjCardTypeCalculation.checkQingYiSe(roomInfo, player, cardIndex)) {
+			return true;
+		}
+		if (MjCardTypeCalculation.checkPengPengHu(roomInfo, player, cardIndex)) {
+			return true;
+		}
+		return false;
 	}
 	
 	public static boolean isAllFeng(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
@@ -1326,6 +1346,10 @@ public class MjCardRule {
 			allCardList.add(cardIndex);
 		}
 		for(Integer temp : allCardList){
+			/**去掉百搭*/
+			if (temp.equals(roomInfo.getBaiDaCardIndex())) {
+				continue;
+			}
 			if (!(temp >= 27 && temp < roomInfo.getIndexLine())) {
 				return false;
 			}
