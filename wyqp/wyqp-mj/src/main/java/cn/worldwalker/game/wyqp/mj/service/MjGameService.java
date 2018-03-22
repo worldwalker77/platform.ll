@@ -78,11 +78,16 @@ public class MjGameService extends BaseGameService{
 			/**模式：包三家或包五家*/
 			roomInfo.setModel(msg.getModel());
 			/**勒子，10花或者20花*/
-			roomInfo.setLezi(msg.getLezi());
+			roomInfo.setFlowerPerLezi(msg.getFlowerPerLezi());
 			/**清混碰不需要听牌*/
 			roomInfo.setIsTingPai(0);
 			/**由于花牌只有春夏秋冬梅兰竹菊8张，所以这里是34*/
 			roomInfo.setIndexLine(34);
+		}else if(MjTypeEnum.shangHaiLaXiHu.type.equals(request.getDetailType())){
+			/**清混碰不需要听牌*/
+			roomInfo.setIsTingPai(0);
+			/**由于花牌白春夏秋冬梅兰竹菊12张，所以这里是33*/
+			roomInfo.setIndexLine(33);
 		}else{
 			roomInfo.setIndexLine(31);
 		}

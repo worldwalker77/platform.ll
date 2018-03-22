@@ -65,13 +65,13 @@ public class MjRoomInfo extends BaseRoomInfo{
 	 * 如果是特殊牌型，就直接按照牌型对于的勒子数算
 	 * 组合牌型按照牌型对于的最大勒子数算
 	 * */
-	private Integer lezi;
+	private Integer flowerPerLezi;
 	
-	public Integer getLezi() {
-		return lezi;
+	public Integer getFlowerPerLezi() {
+		return flowerPerLezi;
 	}
-	public void setLezi(Integer lezi) {
-		this.lezi = lezi;
+	public void setFlowerPerLezi(Integer flowerPerLezi) {
+		this.flowerPerLezi = flowerPerLezi;
 	}
 	public Integer getIsTingPai() {
 		return isTingPai;

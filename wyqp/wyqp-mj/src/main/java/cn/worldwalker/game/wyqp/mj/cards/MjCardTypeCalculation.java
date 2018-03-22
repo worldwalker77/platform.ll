@@ -2,6 +2,7 @@ package cn.worldwalker.game.wyqp.mj.cards;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -63,8 +64,12 @@ public class MjCardTypeCalculation {
 			huCardIndex = player.getCurMoPaiCardIndex();
 		}
 		MjTypeEnum mjTypeEnum = MjTypeEnum.getMjTypeEnum(roomInfo.getDetailType());
+		/**底花分计算*/
 		calButtomAndFlowerScore(player, roomInfo, huCardIndex);
-		calCardTypeAndMultiple(roomInfo, player, mjTypeEnum, huCardIndex);
+		/**牌型计算*/
+		calCardType(roomInfo, player, mjTypeEnum, huCardIndex);
+		/**倍数计算*/
+		calMultiple(roomInfo, player, mjTypeEnum);
 		return null;
 	}
 	
@@ -80,30 +85,30 @@ public class MjCardTypeCalculation {
 		return handCards;
 	} 
 	
-	public static void calCardTypeAndMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
+	public static void calCardType(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum, Integer huCardIndex){
 		MjTypeEnum mjType = MjTypeEnum.getMjTypeEnum(roomInfo.getDetailType());
 		List<Integer> mjCardTypeList = player.getMjCardTypeList();
 		switch (mjType) {
 		case shangHaiQiaoMa:
 			/**门清校验*/
 			if (checkMenQing(player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQmCardTypeEnum.menQing.type);
+				mjCardTypeList.add(ShQmCardTypeEnum.menQing.type);
 			}
 			/**清一色校验*/
 			if (checkQingYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQmCardTypeEnum.qingYiSe.type);
+				mjCardTypeList.add(ShQmCardTypeEnum.qingYiSe.type);
 			}
 			/**混一色校验*/
 			if (checkHunYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQmCardTypeEnum.hunYiSe.type);
+				mjCardTypeList.add(ShQmCardTypeEnum.hunYiSe.type);
 			}
 			/**大吊车校验*/
 			if (checkDaDiaoChe(player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQmCardTypeEnum.daDiaoChe.type);
+				mjCardTypeList.add(ShQmCardTypeEnum.daDiaoChe.type);
 			}
 			/**碰碰胡校验*/
 			if (checkPengPengHu(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQmCardTypeEnum.pengPengHu.type);
+				mjCardTypeList.add(ShQmCardTypeEnum.pengPengHu.type);
 			}
 			/**特殊牌型都没有，则设置为平胡*/
 			if (mjCardTypeList.size() == 0) {
@@ -113,31 +118,31 @@ public class MjCardTypeCalculation {
 		case shangHaiBaiDa:
 			/**门清校验*/
 			if (checkMenQing(player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.menQing.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.menQing.type);
 			}
 			/**清一色校验*/
 			if (checkQingYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.qingYiSe.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.qingYiSe.type);
 			}
 			/**混一色校验*/
 			if (checkHunYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.hunYiSe.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.hunYiSe.type);
 			}
 			/**大吊车校验*/
 			if (checkDaDiaoChe(player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.daDiaoChe.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.daDiaoChe.type);
 			}
 			/**碰碰胡校验*/
 			if (checkPengPengHu(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.pengPengHu.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.pengPengHu.type);
 			}
 			/**乱风向*/
 			if (checkLuanFengXaing(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.luanFengXiang.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.luanFengXiang.type);
 			}
 			/**字一色*/
 			if (checkZiYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShBdCardTypeEnum.ziYiSe.type);
+				mjCardTypeList.add(ShBdCardTypeEnum.ziYiSe.type);
 			}
 			/**特殊牌型都没有，则设置为平胡*/ 
 			if (mjCardTypeList.size() == 0) {
@@ -147,27 +152,27 @@ public class MjCardTypeCalculation {
 		case shangHaiQingHunPeng:
 			/**清一色校验*/
 			if (checkQingYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQhpCardTypeEnum.qingYiSe.type);
+				mjCardTypeList.add(ShQhpCardTypeEnum.qingYiSe.type);
 			}
 			/**混一色校验*/
 			if (checkHunYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQhpCardTypeEnum.hunYiSe.type);
+				mjCardTypeList.add(ShQhpCardTypeEnum.hunYiSe.type);
 			}
 			/**大吊车校验*/
 			if (checkDaDiaoChe(player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQhpCardTypeEnum.daDiaoChe.type);
+				mjCardTypeList.add(ShQhpCardTypeEnum.daDiaoChe.type);
 			}
 			/**碰碰胡校验*/
 			if (checkPengPengHu(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQhpCardTypeEnum.pengPengHu.type);
+				mjCardTypeList.add(ShQhpCardTypeEnum.pengPengHu.type);
 			}
 			/**乱风向*/
 			if (checkLuanFengXaing(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQhpCardTypeEnum.luanFengXiang.type);
+				mjCardTypeList.add(ShQhpCardTypeEnum.luanFengXiang.type);
 			}
 			/**字一色*/
 			if (checkZiYiSe(roomInfo, player, huCardIndex)) {
-				player.getMjCardTypeList().add(ShQhpCardTypeEnum.ziYiSe.type);
+				mjCardTypeList.add(ShQhpCardTypeEnum.ziYiSe.type);
 			}
 			break;
 		case shangHaiLaXiHu:
@@ -177,36 +182,6 @@ public class MjCardTypeCalculation {
 		default:
 			break;
 		}
-		
-		
-		/********************倍数计算*********************/
-		/**胡牌类型倍数*/
-		player.setMultiple(MjHuTypeEnum.getMjHuTypeEnum(player.getHuType()).multiple);
-		/**荒翻倍数*/
-		if (roomInfo.getHuangFanNum() > 0) {
-			player.setMultiple(player.getMultiple() * 2);
-			roomInfo.setHuangFanNum(roomInfo.getHuangFanNum() - 1);
-		}
-		/**开宝倍数*/
-		if (roomInfo.getIsCurGameKaiBao() > 0) {
-			player.setMultiple(player.getMultiple() * 2);
-		}
-		/**牌型组合倍数*/
-		switch (mjTypeEnum) {
-		case shangHaiQiaoMa:
-			for(Integer cardType : mjCardTypeList){
-				player.setMultiple(player.getMultiple() * ShQmCardTypeEnum.getCardType(cardType).multiple);
-			}
-			break;
-		case shangHaiBaiDa:
-			for(Integer cardType : mjCardTypeList){
-				player.setMultiple(player.getMultiple() * ShBdCardTypeEnum.getCardType(cardType).multiple);
-			}
-			break;	
-		default:
-			break;
-		}
-		
 	}
 	
 	public static void calMultiple(MjRoomInfo roomInfo, MjPlayerInfo player, MjTypeEnum mjTypeEnum){
@@ -238,7 +213,31 @@ public class MjCardTypeCalculation {
 			}
 			break;	
 		case shangHaiQingHunPeng:
-			
+			/**清一色+碰碰胡*/
+			if (mjCardTypeList.contains(ShQhpCardTypeEnum.qingYiSe.type)
+			   &&mjCardTypeList.contains(ShQhpCardTypeEnum.pengPengHu.type)) {
+				mjCardTypeList.add(ShQhpCardTypeEnum.qingPeng.type);
+				mjCardTypeList.remove(ShQhpCardTypeEnum.qingYiSe.type);
+				mjCardTypeList.remove(ShQhpCardTypeEnum.pengPengHu.type);
+			}
+			/**混一色+碰碰胡*/
+			if (mjCardTypeList.contains(ShQhpCardTypeEnum.hunYiSe.type)
+			   &&mjCardTypeList.contains(ShQhpCardTypeEnum.pengPengHu.type)) {
+				mjCardTypeList.add(ShQhpCardTypeEnum.hunPeng.type);
+				mjCardTypeList.remove(ShQhpCardTypeEnum.hunYiSe.type);
+				mjCardTypeList.remove(ShQhpCardTypeEnum.pengPengHu.type);
+			}
+			Collections.sort(mjCardTypeList);
+			Integer maxLezi = mjCardTypeList.get(mjCardTypeList.size() - 1);
+			/**如果最大牌型的勒子数大于0，则最终结果按照最大勒子数计算*/
+			if (maxLezi > 0) {
+				player.setButtomAndFlowerScore(maxLezi * roomInfo.getFlowerPerLezi() * roomInfo.getEachFlowerScore());
+			}else{/**最大牌型勒子数==0*/
+				/**底花分 > 1个勒子分数 则顶为一个勒子分数*/
+				if (player.getButtomAndFlowerScore() > roomInfo.getFlowerPerLezi() * roomInfo.getEachFlowerScore()) {
+					player.setButtomAndFlowerScore(roomInfo.getFlowerPerLezi() * roomInfo.getEachFlowerScore());
+				}
+			}
 			
 			break;
 		default:
