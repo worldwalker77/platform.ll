@@ -84,13 +84,16 @@ public class MjGameService extends BaseGameService{
 			/**由于花牌只有春夏秋冬梅兰竹菊8张，所以这里是34*/
 			roomInfo.setIndexLine(34);
 		}else if(MjTypeEnum.shangHaiLaXiHu.type.equals(request.getDetailType())){
-			/**清混碰不需要听牌*/
+			/**拉西湖不需要听牌*/
 			roomInfo.setIsTingPai(0);
 			/**由于花牌白春夏秋冬梅兰竹菊12张，所以这里是33*/
 			roomInfo.setIndexLine(33);
-		}else{
+		}else if(MjTypeEnum.shangHaiQiaoMa.type.equals(request.getDetailType())){
 			roomInfo.setIndexLine(31);
+		}else{
+			throw new BusinessException(ExceptionEnum.DETAIL_TYPE_ERROR);
 		}
+		
 		List<MjPlayerInfo> playerList = roomInfo.getPlayerList();
 		MjPlayerInfo player = new MjPlayerInfo();
 		playerList.add(player);
@@ -673,6 +676,10 @@ public class MjGameService extends BaseGameService{
 		/**将杠的牌从手牌列表中移动到杠牌列表中*/
 		MjPlayerInfo player = MjCardRule.getPlayerInfoByPlayerId(roomInfo.getPlayerList(), playerId);
 		List<Integer> anGangCardList = MjCardRule.moveOperationCards(roomInfo, player, MjOperationEnum.anGang, msg.getGangCards());
+		if (player.getCurMoPaiCardIndex() != null) {
+            player.getHandCardList().add(player.getCurMoPaiCardIndex());
+            player.setCurMoPaiCardIndex(null);
+        }
 		/**将玩家当前轮补花数设置为0*/
 		player.setCurAddFlowerNum(0);
 		String moPaiAddFlower = null;

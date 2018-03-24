@@ -34,6 +34,7 @@ public enum ExceptionEnum {
     HAS_BIND_EXTENSINO_CODE(28, "您已经绑定过激活码"),
     CLUB_ID_NOT_EXIST(29, "俱乐部不存在"),
     USER_NOT_IN_CLUB(30, "玩家不在俱乐部中"),
+    DETAIL_TYPE_ERROR(31, "detailType类型参数错误"),
     /**斗牛100-199*/
     
     /**麻将200-299*/

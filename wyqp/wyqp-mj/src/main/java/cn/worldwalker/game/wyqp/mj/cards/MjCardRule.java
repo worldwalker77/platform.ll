@@ -574,11 +574,13 @@ public class MjCardRule {
 				map.put(MjOperationEnum.hu.type, String.valueOf(MjHuTypeEnum.gangKai.type));
 			}
 			/**听牌校验*/
-			if (curPlayer.getIsTingHu() == 0) {
-				Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
-				if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
-					/**4_4-2,7-1;7_4-2,7-1*/
-					map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+			if (roomInfo.getIsTingPai() > 0) {
+				if (curPlayer.getIsTingHu() == 0) {
+					Map<Integer, List<String>> chuCardIndexHuCardListMap = new HashMap<Integer, List<String>>();
+					if (checkTingHu1(roomInfo, curPlayer, cardIndex, chuCardIndexHuCardListMap)) {
+						/**4_4-2,7-1;7_4-2,7-1*/
+						map.put(MjOperationEnum.tingHu.type, JsonUtil.toJson(chuCardIndexHuCardListMap));
+					}
 				}
 			}
 			/**将摸牌索引设置到玩家信息中*/
@@ -1247,7 +1249,7 @@ public class MjCardRule {
 				isHu = checkHuForShQhp(roomInfo, player, cardIndex);
 				break;
 			case shangHaiLaXiHu:
-				
+				checkHuForShLxh(roomInfo, player, cardIndex);
 				break;
 	
 			default:
@@ -1327,6 +1329,25 @@ public class MjCardRule {
 		}
 		if (MjCardTypeCalculation.checkPengPengHu(roomInfo, player, cardIndex)) {
 			return true;
+		}
+		return false;
+	}
+	
+	public static boolean checkHuForShLxh(MjRoomInfo roomInfo, MjPlayerInfo player, Integer cardIndex){
+		boolean isHu = false;
+		if (isContainsHuaPai(roomInfo, player)) {
+			return isHu;
+		}
+		List<Integer> handCardList = player.getHandCardList();
+		/**乱风向*/
+		if (isAllFeng(roomInfo, player, cardIndex)) {
+			return true;
+		}
+		Integer gui_index = roomInfo.getBaiDaCardIndex();
+		if (handCardList.size() == 14) {
+			isHu = Hulib.getInstance().get_hu_info(handCardList, Hulib.invalidCardInex, gui_index,roomInfo.getIndexLine());
+		}else{
+			isHu = Hulib.getInstance().get_hu_info(handCardList, cardIndex, gui_index,roomInfo.getIndexLine());
 		}
 		return false;
 	}

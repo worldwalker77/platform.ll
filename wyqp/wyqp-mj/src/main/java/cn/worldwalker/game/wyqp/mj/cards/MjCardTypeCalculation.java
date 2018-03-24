@@ -12,6 +12,7 @@ import cn.worldwalker.game.wyqp.common.utils.JsonUtil;
 import cn.worldwalker.game.wyqp.mj.enums.MjHuTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.MjTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.ShBdCardTypeEnum;
+import cn.worldwalker.game.wyqp.mj.enums.ShLxhCardTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.ShQhpCardTypeEnum;
 import cn.worldwalker.game.wyqp.mj.enums.ShQmCardTypeEnum;
 import cn.worldwalker.game.wyqp.mj.huvalidate.Hulib;
@@ -176,7 +177,38 @@ public class MjCardTypeCalculation {
 			}
 			break;
 		case shangHaiLaXiHu:
-	
+			/**门清校验*/
+			if (checkMenQing(player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.menQing.type);
+			}
+			/**清一色校验*/
+			if (checkQingYiSe(roomInfo, player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.qingYiSe.type);
+			}
+			/**混一色校验*/
+			if (checkHunYiSe(roomInfo, player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.hunYiSe.type);
+			}
+			/**大吊车校验*/
+			if (checkDaDiaoChe(player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.daDiaoChe.type);
+			}
+			/**碰碰胡校验*/
+			if (checkPengPengHu(roomInfo, player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.pengPengHu.type);
+			}
+			/**乱风向*/
+			if (checkLuanFengXaing(roomInfo, player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.luanFengXiang.type);
+			}
+			/**字一色*/
+			if (checkZiYiSe(roomInfo, player, huCardIndex)) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.ziYiSe.type);
+			}
+			/**特殊牌型都没有，则设置为平胡*/ 
+			if (mjCardTypeList.size() == 0) {
+				mjCardTypeList.add(ShLxhCardTypeEnum.pingHu.type);
+			}
 			break;
 
 		default:
@@ -238,7 +270,13 @@ public class MjCardTypeCalculation {
 					player.setButtomAndFlowerScore(roomInfo.getFlowerPerLezi() * roomInfo.getEachFlowerScore());
 				}
 			}
-			
+			break;
+		case shangHaiLaXiHu:
+			/**胡牌类型倍数*/
+			player.setMultiple(MjHuTypeEnum.getMjHuTypeEnum(player.getHuType()).multiple);
+			for(Integer cardType : mjCardTypeList){
+				player.setMultiple(player.getMultiple() * ShQmCardTypeEnum.getCardType(cardType).multiple);
+			}
 			break;
 		default:
 			break;
