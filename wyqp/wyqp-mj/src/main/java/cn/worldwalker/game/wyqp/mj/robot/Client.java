@@ -92,6 +92,10 @@ public class Client {
         mjRequest.getMsg().setNoBaiDaCanQiangGang(1);
         mjRequest.getMsg().setNoBaiDaCanZhuaChong(1);
         mjRequest.getMsg().setModel(8);
+        mjRequest.getMsg().setHuButtomScore(2);
+        mjRequest.getMsg().setEachFlowerScore(1);
+        mjRequest.getMsg().setHuScoreLimit(50);
+        mjRequest.getMsg().setIsFeiCangyin(1);
         socket.sendMsg(mjRequest);
     }
 

@@ -103,6 +103,8 @@ public class Socket extends WebSocketClient implements Runnable {
                     System.out.println(client.getPosition() + "(" + client.getPlayerId() +  ")--[<<<<" + type + "]: " + arg0);
                     client.close();
                     break;
+                case 213:
+                	refreshCardList(jsonData);
 
             }
             if (!client.getGameOver() && client.getPlayerId().equals(curPlayerId)

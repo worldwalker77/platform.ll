@@ -524,6 +524,7 @@ public class MjGameService extends BaseGameService{
 		if (MjCardRule.getPlayerHighestPriority(roomInfo, playerId) != null) {
 			data.put("operations", MjCardRule.getPlayerHighestPriority(roomInfo, playerId));
 		}
+		data.put("handCardList", player.getHandCardList());
 		channelContainer.sendTextMsgByPlayerIds(result, playerId);
 		
 		/**如果手牌存在补花，则给其他玩家返回补花数*/
@@ -950,6 +951,7 @@ public class MjGameService extends BaseGameService{
 			}else{
 				result.setMsgType(MsgTypeEnum.curSettlement.msgType);
 			}
+			data.put("baiDaCardIndex", roomInfo.getBaiDaCardIndex());
 			data.put("curPlayerId", curPlayerId);
 			data.put("huType", playerHuTypeInt);
 			if (MjHuTypeEnum.zhuaChong.type.equals(playerHuTypeInt) || MjHuTypeEnum.qiangGang.type.equals(playerHuTypeInt)) {
@@ -1016,6 +1018,7 @@ public class MjGameService extends BaseGameService{
 				}else{
 					result.setMsgType(MsgTypeEnum.curSettlement.msgType);
 				}
+				data.put("baiDaCardIndex", roomInfo.getBaiDaCardIndex());
 				data.put("curPlayerId", curPlayerId);
 				data.put("huType", playerHuTypeInt);
 				
